@@ -1,0 +1,27 @@
+[
+    {
+        "type": "Context",
+        "name": "Test ShapeFile",
+        "default_map_center": [
+            41.88183,
+            -87.6231774
+        ],
+        "default_map_zoom": 12,
+        "datasets": [
+            {
+                "name": "Chicago ShapeFile",
+                "description": "Testing Dataset Chicago",
+                "category": "test",
+                "metadata": {},
+                "files": [
+                    {
+                        "path": ["./data/chicago/chicago_vectors.shp", "./data/chicago/chicago_vectors.prj", "./data/chicago/chicago_vectors.dbf", "./data/chicago/chicago_vectors.shx"],
+                        "name": "Chicago Vectors",
+                        "type": "shp",
+                        "metadata": {}
+                    }
+                ]
+            }
+        ]
+    }
+]

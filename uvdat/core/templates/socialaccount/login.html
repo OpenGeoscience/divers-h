@@ -1,0 +1,17 @@
+{% load i18n %}
+{% load allauth %}
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>{% trans "Sign In" %}</title>
+  </head>
+  <body onload="document.forms['login'].submit()">
+    <p>If you are not auto-redirected in several seconds, click Continue to log in.</p>
+    <form method="post" name="login">
+            {% csrf_token %}
+            {% element button type="submit" %}
+                {% trans "Continue" %}
+            {% endelement %}
+    </form>
+  </body>
+</html>

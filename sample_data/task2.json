@@ -1,0 +1,274 @@
+[
+    {
+        "type": "Context",
+        "name": "Task 2-1 (OR-SAGE)",
+        "default_map_center": [
+            34.8019,
+            -86.1794
+        ],
+        "default_map_zoom": 8,
+        "datasets": [
+            {
+                "name": "Nuclear",
+                "description": "",
+                "category": "Nuclear",
+                "metadata": {},
+                "files": [
+                    {
+                        "path": "./Task2/Outputs - Task 2-1 (OR-SAGE)/Nuclear/18July/Light_Water_Reactor (LWR)/Raster/LWR_Raster.tif",
+                        "name": "Light Water Reactor Raster",
+                        "type": "tif",
+                        "metadata": {}
+                    },
+                    {
+                        "path": "./Task2/Outputs - Task 2-1 (OR-SAGE)/Nuclear/18July/Light_Water_Reactor (LWR)/Shapefile/LWR_Sites.shp",
+                        "name": "Light Water Reactor Vectors",
+                        "type": "shp",
+                        "metadata": {}
+                    },
+                    {
+                        "path": "./Task2/Outputs - Task 2-1 (OR-SAGE)/Nuclear/18July/Small_Modular_Reactor (SMR)/Raster/SMR_Raster.tif",
+                        "name": "Small Module Reactor Raster",
+                        "type": "tif",
+                        "metadata": {}
+                    },
+                    {
+                        "path": "./Task2/Outputs - Task 2-1 (OR-SAGE)/Nuclear/18July/Small_Modular_Reactor (SMR)/Shapefile/SMR_Sites.shp",
+                        "name": "Small Module Reactor Vectors",
+                        "type": "shp",
+                        "metadata": {}
+                    }
+                ]
+            },
+            {
+                "name": "Solar",
+                "description": "",
+                "category": "Solar",
+                "metadata": {},
+                "files": [
+                    {
+                        "path": "./Task2/Outputs - Task 2-1 (OR-SAGE)/Solar/17July/solar_combine_tva_filtered.tif",
+                        "name": "Solar Combine TVA Filtered",
+                        "type": "tif",
+                        "metadata": {}
+                    },
+                    {
+                        "path": "./Task2/Outputs - Task 2-1 (OR-SAGE)/Solar/slope_adjusted/solar_slope5_tva_filtered.tif",
+                        "name": "Solar Slope 5",
+                        "type": "tif",
+                        "metadata": {}
+                    },
+                    {
+                        "path": "./Task2/Outputs - Task 2-1 (OR-SAGE)/Solar/slope_adjusted/solar_slope8_tva_filtered.tif",
+                        "name": "Solar Slope 8",
+                        "type": "tif",
+                        "metadata": {}
+                    },
+                    {
+                        "path": "./Task2/Outputs - Task 2-1 (OR-SAGE)/Solar/slope_adjusted/solar_slope10_tva_filtered.tif",
+                        "name": "Solar Slope 10",
+                        "type": "tif",
+                        "metadata": {}
+                    }
+                ]
+            },
+            {
+                "name": "PV_Centralized",
+                "description": "",
+                "category": "PV",
+                "metadata": {},
+                "files": [
+                    {
+                        "path": "./Task2/Outputs - Task 2-1 (OR-SAGE)/Solar/PV_Centralized/pv_all_criteria_900_points.csv",
+                        "name": "PV All Criteria 900",
+                        "type": "csv",
+                        "metadata": {
+                            "columns": {
+                                "point_lon": "longitude",
+                                "point_lat": "latitude",
+                                "properties": "*"
+                            }
+                        }
+                    },
+                    {
+                        "path": "./Task2/Outputs - Task 2-1 (OR-SAGE)/Solar/PV_Centralized/pv_max_land_900_points.csv",
+                        "name": "PV Max Land 900",
+                        "type": "csv",
+                        "metadata": {
+                            "columns": {
+                                "point_lon": "longitude",
+                                "point_lat": "latitude",
+                                "properties": "*"
+                            }
+                        }
+                    },
+                    {
+                        "path": "./Task2/Outputs - Task 2-1 (OR-SAGE)/Solar/PV_Centralized/pv_no_population_900_points.csv",
+                        "name": "PV No Population 900",
+                        "type": "csv",
+                        "metadata": {
+                            "columns": {
+                                "point_lon": "longitude",
+                                "point_lat": "latitude",
+                                "properties": "*"
+                            }
+                        }
+                    },
+                    {
+                        "path": "./Task2/Outputs - Task 2-1 (OR-SAGE)/Solar/PV_Centralized/pv_no_slope_900_points.csv",
+                        "name": "PV No Slope 900",
+                        "type": "csv",
+                        "metadata": {
+                            "columns": {
+                                "point_lon": "longitude",
+                                "point_lat": "latitude",
+                                "properties": "*"
+                            }
+                        }
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "type": "Context",
+        "name": "Task 2-2 (EA)",
+        "default_map_center": [
+            34.8019,
+            -86.1794
+        ],
+        "default_map_zoom": 8,
+        "datasets": [
+            {
+                "name": "Prospective Sites",
+                "description": "",
+                "category": "Prospective",
+                "metadata": {},
+                "files": [
+                    {
+                        "path": "./Task2/Outputs - Task 2-2 (EA)/prospective_sites_20240814.gpkg",
+                        "name": "Prospective Sites 20240814",
+                        "type": "gpkg",
+                        "metadata": {}
+                    },
+                    {
+                        "path": "./Task2/Outputs - Task 2-2 (EA)/prospective_sites_20240817.gpkg",
+                        "name": "Prospective Sites 20240817",
+                        "type": "gpkg",
+                        "metadata": {}
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "type": "Context",
+        "name": "Task 2 Shared Data Layers",
+        "default_map_center": [
+            34.8019,
+            -86.1794
+        ],
+        "default_map_zoom": 8,
+        "datasets": [
+            {
+                "name": "Shared Data Layers",
+                "description": "",
+                "category": "Shared",
+                "metadata": {},
+                "files": [
+                    {
+                        "path": "./Task2/Shared Data Layers/nsrdb3_dni.tif",
+                        "name": "NSRDB3 DNI",
+                        "type": "tif",
+                        "metadata": {}
+                    },
+                    {
+                        "path": "./Task2/Shared Data Layers/nsrdb_aligned_tva.tif",
+                        "name": "NSRDB3 Aligned",
+                        "type": "tif",
+                        "metadata": {}
+                    },
+                    {
+                        "path": "./Task2/Shared Data Layers/slope_aligned_tva.tif",
+                        "name": "Slope Algined",
+                        "type": "tif",
+                        "metadata": {}
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "type": "Context",
+        "name": "Task 2 Solar Layers",
+        "default_map_center": [
+            34.8019,
+            -86.1794
+        ],
+        "default_map_zoom": 8,
+        "datasets": [
+            {
+                "name": "Solar Layers",
+                "description": "",
+                "category": "Solar",
+                "metadata": {},
+                "files": [
+                    {
+                        "path": "./Task2/solar_layers/floodplain_100yrs_aligned_tva.tif",
+                        "name": "FloodPlain",
+                        "type": "tif",
+                        "metadata": {}
+                    },
+                    {
+                        "path": "./Task2/solar_layers/landslide_aligned_tva.tif",
+                        "name": "Landslide Aligned",
+                        "type": "tif",
+                        "metadata": {}
+                    },
+                    {
+                        "path": "./Task2/solar_layers/population_2030_10_aligned_tva.tif",
+                        "name": "Population Aligned",
+                        "type": "tif",
+                        "metadata": {}
+                    },
+                    {
+                        "path": "./Task2/solar_layers/protected_lands_aligned_tva.tif",
+                        "name": "Protected Lands",
+                        "type": "tif",
+                        "metadata": {}
+                    },
+                    {
+                        "path": "./Task2/solar_layers/slope_18pct_aligned_tva.tif",
+                        "name": "Slope 18pct",
+                        "type": "tif",
+                        "metadata": {}
+                    },
+                    {
+                        "path": "./Task2/solar_layers/solar_dummy_combine_tva_filtered.tif",
+                        "name": "Solar dummy combine filtered",
+                        "type": "tif",
+                        "metadata": {}
+                    },
+                    {
+                        "path": "./Task2/solar_layers/solar_dummy_combine_tva.tif",
+                        "name": "Solar dummy combine",
+                        "type": "tif",
+                        "metadata": {}
+                    },
+                    {
+                        "path": "./Task2/solar_layers/solar_dummy_tva.tif",
+                        "name": "Solar Dummy",
+                        "type": "tif",
+                        "metadata": {}
+                    },
+                    {
+                        "path": "./Task2/solar_layers/wetlands_aligned_tva.tif",
+                        "name": "Wetlands Aligned",
+                        "type": "tif",
+                        "metadata": {}
+                    }
+                ]
+            }
+        ]
+    }
+]

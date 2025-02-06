@@ -1,0 +1,94 @@
+version: '3'
+services:
+  django:
+    build:
+      context: .
+      dockerfile: ./prod/Dockerfile
+      args:
+        DJANGO_CONFIGURATION: DockerComposeProdConfiguration
+        DJANGO_DATABASE_URL: postgres://postgres:postgres@postgres:5432/django
+        DJANGO_MINIO_STORAGE_ENDPOINT: minio:9000
+        DJANGO_MINIO_STORAGE_ACCESS_KEY: minioAccessKey
+        DJANGO_MINIO_STORAGE_SECRET_KEY: minioSecretKey
+        DJANGO_STORAGE_BUCKET_NAME: django-storage
+        DJANGO_MINIO_STORAGE_MEDIA_URL: http://localhost:9000/django-storage
+    command: [
+      "gunicorn",
+      "--bind",
+      "0.0.0.0:8000",
+      "--workers",
+      "8",
+      "uvdat.wsgi"
+    ]
+    tty: true
+    env_file: ./prod/.env.docker-compose
+    volumes:
+      - ${NZ_INGEST_ROOT:-./sample_data}:/ingest
+    depends_on:
+      - postgres
+      - rabbitmq
+      - minio
+    platform: linux/amd64
+
+  celery:
+    build:
+      context: .
+      dockerfile: ./prod/Dockerfile
+      args:
+        DJANGO_CONFIGURATION: DockerComposeProdConfiguration
+        DJANGO_DATABASE_URL: postgres://postgres:postgres@postgres:5432/django
+        DJANGO_MINIO_STORAGE_ENDPOINT: minio:9000
+        DJANGO_MINIO_STORAGE_ACCESS_KEY: minioAccessKey
+        DJANGO_MINIO_STORAGE_SECRET_KEY: minioSecretKey
+        DJANGO_STORAGE_BUCKET_NAME: django-storage
+        DJANGO_MINIO_STORAGE_MEDIA_URL: http://localhost:9000/django-storage
+    command:
+      [
+        "celery",
+        "--app",
+        "uvdat.celery",
+        "worker",
+        "--loglevel",
+        "INFO",
+        "--without-heartbeat"
+      ]
+    # Docker Compose does not set the TTY width, which causes Celery errors
+    tty: false
+    env_file: ./prod/.env.docker-compose
+    volumes:
+      - ${NZ_INGEST_ROOT:-./sample_data}:/ingest
+    depends_on:
+      - postgres
+      - rabbitmq
+      - minio
+    platform: linux/amd64
+
+  gen-vector-basemap:
+    build:
+      context: ./docker/tilemaker
+      dockerfile: Dockerfile
+    restart: no
+    volumes:
+      - vector-workdir:/work
+      - ./client/public/vectortiles:/data
+
+  web:
+    build:
+      context: .
+      dockerfile: ./prod/client.Dockerfile
+      args:
+        VUE_APP_OAUTH_CLIENT_ID: devClientId
+        VUE_APP_API_ROOT: /api/v1
+        VUE_APP_OAUTH_API_ROOT: /oauth/
+    volumes:
+      - ${LOCAL_SSL_CERT_DIR:-/etc/ssl/certs}:/etc/ssl/certs
+      - ./client/public/vectortiles:/client/public/vectortiles
+    ports:
+      - 80:80
+      - 443:443
+    depends_on:
+      - minio
+      - django
+
+volumes:
+  vector-workdir:

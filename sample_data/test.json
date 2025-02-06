@@ -1,0 +1,1121 @@
+[
+    {
+        "type": "Context",
+        "name": "Test Context 1",
+        "default_map_center": [
+            41.88183,
+            -87.6231774
+        ],
+        "default_map_zoom": 12,
+        "datasets": [
+            {
+                "name": "Test Dataset 1 Chicago",
+                "description": "Testing Dataset Chicago",
+                "category": "test",
+                "metadata": {},
+                "files": [
+                    {
+                        "path": "./data/losangeles/losangeles.tif",
+                        "url": "https://data.kitware.com/api/v1/item/66dcd522560e6127967911c6/download",
+                        "name": "Chicago",
+                        "type": "tif",
+                        "metadata": {}
+                    },
+                    {
+                        "path": "./data/losangeles/vectors.json",
+                        "url": "https://data.kitware.com/api/v1/item/66dce486560e6127967911ca/download",
+                        "name": "Vectors",
+                        "type": "json",
+                        "metadata": {}
+                    }
+                ]
+            }
+        ],
+        "indicators": [
+            {
+                "short_name": "LCOE",
+                "hierarchy": [
+                    "Economic",
+                    "Electricity"
+                ],
+                "long_name": "Levelized Cost of Electricity",
+                "value": 35.23,
+                "units": "$/MWh"
+            }
+        ]
+    },
+    {
+        "type": "Context",
+        "name": "Test Context 2",
+        "default_map_center": [
+            33.804272,
+            -117.474364
+        ],
+        "default_map_zoom": 12,
+        "datasets": [
+            {
+                "name": "Test Dataset 2",
+                "description": "Testing Dataset LA",
+                "category": "test",
+                "metadata": {},
+                "files": [
+                    {
+                        "path": "./data/chicago/chicago.tiff",
+                        "url": "https://data.kitware.com/api/v1/item/66dce4c5560e6127967911d1/download",
+                        "name": "Los Angeles",
+                        "type": "tif",
+                        "metadata": {}
+                    },
+                    {
+                        "path": "./data/chicago/vectors.geojson",
+                        "url": "https://data.kitware.com/api/v1/item/66dce4c6560e6127967911d7/download",
+                        "name": "Vector GeoJSON",
+                        "type": "geojson",
+                        "metadata": {}
+                    },
+                    {
+                        "path": "./data/chicago/points.json",
+                        "url": "https://data.kitware.com/api/v1/item/66dce4c6560e6127967911d4/download",
+                        "name": "Points GeoJSON",
+                        "type": "json",
+                        "metadata": {}
+                    }
+                ]
+            }
+        ],
+        "indicators": [
+            {
+                "short_name": "Dr",
+                "hierarchy": [
+                    "sports equipment"
+                ],
+                "long_name": "Cebus apella",
+                "value": 89.12,
+                "units": "Euro"
+            },
+            {
+                "short_name": "Honorable",
+                "hierarchy": [
+                    "toys"
+                ],
+                "long_name": "Sarkidornis melanotos",
+                "value": 19.83,
+                "units": "Krona"
+            },
+            {
+                "short_name": "Mr",
+                "hierarchy": [
+                    "home decor"
+                ],
+                "long_name": "Martes pennanti",
+                "value": 79.18,
+                "units": "Ruble"
+            },
+            {
+                "short_name": "Ms",
+                "hierarchy": [
+                    "toys",
+                    "kitchen appliances"
+                ],
+                "long_name": "Macaca nemestrina",
+                "value": 12.41,
+                "units": "Litas"
+            },
+            {
+                "short_name": "Ms",
+                "hierarchy": [
+                    "toys"
+                ],
+                "long_name": "Varanus sp.",
+                "value": 23.96,
+                "units": "Yen"
+            },
+            {
+                "short_name": "Mr",
+                "hierarchy": [
+                    "toys",
+                    "home decor"
+                ],
+                "long_name": "Antidorcas marsupialis",
+                "value": 52.01,
+                "units": "Euro"
+            },
+            {
+                "short_name": "Ms",
+                "hierarchy": [
+                    "clothing"
+                ],
+                "long_name": "Terathopius ecaudatus",
+                "value": 36.97,
+                "units": "Rupiah"
+            },
+            {
+                "short_name": "Rev",
+                "hierarchy": [
+                    "toys",
+                    "clothing"
+                ],
+                "long_name": "Aegypius tracheliotus",
+                "value": 63.35,
+                "units": "Dinar"
+            },
+            {
+                "short_name": "Mrs",
+                "hierarchy": [
+                    "clothing",
+                    "pet supplies"
+                ],
+                "long_name": "Otocyon megalotis",
+                "value": 20.48,
+                "units": "Ruble"
+            },
+            {
+                "short_name": "Honorable",
+                "hierarchy": [
+                    "outdoor gear"
+                ],
+                "long_name": "Gyps bengalensis",
+                "value": 83.48,
+                "units": "Yuan Renminbi"
+            },
+            {
+                "short_name": "Mrs",
+                "hierarchy": [
+                    "sports equipment"
+                ],
+                "long_name": "Ceratotherium simum",
+                "value": 59.43,
+                "units": "Yuan Renminbi"
+            },
+            {
+                "short_name": "Mr",
+                "hierarchy": [
+                    "sports equipment"
+                ],
+                "long_name": "Cynomys ludovicianus",
+                "value": 71.63,
+                "units": "Tugrik"
+            },
+            {
+                "short_name": "Honorable",
+                "hierarchy": [
+                    "kitchen appliances"
+                ],
+                "long_name": "Panthera pardus",
+                "value": 99.6,
+                "units": "Ruble"
+            },
+            {
+                "short_name": "Mr",
+                "hierarchy": [
+                    "kitchen appliances"
+                ],
+                "long_name": "Pelecans onocratalus",
+                "value": 60.11,
+                "units": "Real"
+            },
+            {
+                "short_name": "Mrs",
+                "hierarchy": [
+                    "outdoor gear",
+                    "beauty products"
+                ],
+                "long_name": "Balearica pavonina",
+                "value": 55.52,
+                "units": "Yuan Renminbi"
+            },
+            {
+                "short_name": "Honorable",
+                "hierarchy": [
+                    "electronics"
+                ],
+                "long_name": "Phalacrocorax brasilianus",
+                "value": 30.39,
+                "units": "Rupiah"
+            },
+            {
+                "short_name": "Ms",
+                "hierarchy": [
+                    "sports equipment",
+                    "kitchen appliances"
+                ],
+                "long_name": "Felis libyca",
+                "value": 28.96,
+                "units": "Rupiah"
+            },
+            {
+                "short_name": "Honorable",
+                "hierarchy": [
+                    "home decor"
+                ],
+                "long_name": "Phasianus colchicus",
+                "value": 7.38,
+                "units": "Dollar"
+            },
+            {
+                "short_name": "Ms",
+                "hierarchy": [
+                    "pet supplies",
+                    "toys"
+                ],
+                "long_name": "unavailable",
+                "value": 61.93,
+                "units": "Yuan Renminbi"
+            },
+            {
+                "short_name": "Honorable",
+                "hierarchy": [
+                    "kitchen appliances"
+                ],
+                "long_name": "Oreamnos americanus",
+                "value": 89.82,
+                "units": "Peso"
+            }
+        ]
+    },
+    {
+        "type": "Context",
+        "name": "Test Context 3 MultiBand",
+        "default_map_center": [
+            33.17317,
+            -117.18717
+        ],
+        "default_map_zoom": 12,
+        "datasets": [
+            {
+                "name": "Test Dataset 3 MultiBand",
+                "description": "Testing Dataset RGBA",
+                "category": "test",
+                "metadata": {},
+                "files": [
+                    {
+                        "path": "./data/rgba/rgba_geotff.tiff",
+                        "url": "https://data.kitware.com/api/v1/item/66e1ec61560e612796791292/download",
+                        "name": "RGBA",
+                        "type": "tif",
+                        "metadata": {}
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "type": "Context",
+        "name": "GeoPackage",
+        "default_map_center": [
+            41.88183,
+            -87.6231774
+        ],
+        "default_map_zoom": 12,
+        "datasets": [
+            {
+                "name": "Chicago GeoPackage",
+                "description": "GeoPackage Test File",
+                "category": "test",
+                "metadata": {},
+                "files": [
+                    {
+                        "path": "./data/chicago/chicago.gpkg",
+                        "name": "Chicago GeoPackage",
+                        "url": "https://data.kitware.com/api/v1/item/66e65d718fce7b59be0601a2/download",
+                        "type": "gpkg",
+                        "metadata": {}
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "type": "Context",
+        "name": "ShapeFile Zip",
+        "default_map_center": [
+            41.88183,
+            -87.6231774
+        ],
+        "default_map_zoom": 12,
+        "datasets": [
+            {
+                "name": "Chicago ShapeFile Zip",
+                "description": "Testing Dataset Chicago",
+                "category": "test",
+                "metadata": {},
+                "files": [
+                    {
+                        "path": "./data/chicago/Chicago Vectors.zip",
+                        "url": "https://data.kitware.com/api/v1/item/66e6f9968fce7b59be0601d7/download",
+                        "name": "Chicago Vectors",
+                        "type": "zips",
+                        "metadata": {}
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "type": "Context",
+        "name": "ShapeFile Array",
+        "default_map_center": [
+            41.88183,
+            -87.6231774
+        ],
+        "default_map_zoom": 12,
+        "datasets": [
+            {
+                "name": "Chicago ShapeFile Array",
+                "description": "Testing Dataset Chicago",
+                "category": "test",
+                "metadata": {},
+                "files": [
+                    {
+                        "path": [
+                            "./data/chicago/chicago_vectors.shp",
+                            "./data/chicago/chicago_vectors.prj",
+                            "./data/chicago/chicago_vectors.dbf",
+                            "./data/chicago/chicago_vectors.shx"
+                        ],
+                        "url": [
+                            "https://data.kitware.com/api/v1/item/66e6f9988fce7b59be0601e0/download",
+                            "https://data.kitware.com/api/v1/item/66e6f9978fce7b59be0601dd/download",
+                            "https://data.kitware.com/api/v1/item/66e6f9978fce7b59be0601da/download",
+                            "https://data.kitware.com/api/v1/item/66e6f9988fce7b59be0601e3/download"
+                        ],
+                        "name": "Chicago Vectors ShapeFile",
+                        "type": "zips",
+                        "metadata": {}
+                    },
+                    {
+                        "path": [
+                            "./data/chicago2/chicago_vectors.shp",
+                            "./data/chicago2/chicago_vectors.prj",
+                            "./data/chicago2/chicago_vectors.dbf",
+                            "./data/chicago2/chicago_vectors.shx"
+                        ],
+                        "url": [
+                            "https://data.kitware.com/api/v1/item/66e6f9988fce7b59be0601e0/download",
+                            "https://data.kitware.com/api/v1/item/66e6f9978fce7b59be0601dd/download",
+                            "https://data.kitware.com/api/v1/item/66e6f9978fce7b59be0601da/download",
+                            "https://data.kitware.com/api/v1/item/66e6f9988fce7b59be0601e3/download"
+                        ],
+                        "name": "Second Chicago Vectors Shapefile",
+                        "type": "zips",
+                        "metadata": {}
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "type": "Context",
+        "name": "NY Heatmap Testing",
+        "default_map_center": [
+            43.0,
+            -75.5
+        ],
+        "default_map_zoom": 6.5,
+        "datasets": [
+            {
+                "name": "CSV To Heatmap",
+                "description": "CSV to Heatmap testing file",
+                "category": "test",
+                "metadata": {},
+                "files": [
+                    {
+                        "path": "./data/heatmap_points.csv",
+                        "url": "https://data.kitware.com/api/v1/item/66fffe6efb903c47575a910d/download",
+                        "name": "Heatmap Testing",
+                        "type": "csv",
+                        "metadata": {
+                            "processing": "csvToHeatmap",
+                            "params": {
+                                "lon_field": "lon",
+                                "lat_field": "lat",
+                                "gradient_field": "gradient",
+                                "power": 2.0,
+                                "smoothing": 0.1,
+                                "output_size": [
+                                    2000,
+                                    2000
+                                ],
+                                "nodata_value": -9999
+                            },
+                            "default_style": {
+                                "opacity": 0.65,
+                                "largeImageStyle": {
+                                    "bands": [
+                                        {
+                                            "max": "max",
+                                            "min": "min",
+                                            "band": 1,
+                                            "clamp": false,
+                                            "enabled": true,
+                                            "palette": [
+                                                "#FF0000",
+                                                "#F3F300",
+                                                "#00FF52"
+                                            ],
+                                            "interpretation": "gray"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "path": "./data/heatmap_points.csv",
+                        "url": "https://data.kitware.com/api/v1/item/66fffe6efb903c47575a910d/download",
+                        "name": "Heatmap Vector",
+                        "type": "csv",
+                        "metadata": {
+                            "columns": {
+                                "geometry_wkt": "geometry",
+                                "properties": [
+                                    "intensity",
+                                    "gradient",
+                                    "final"
+                                ]
+                            },
+                            "default_style": {
+                                "layers": {
+                                    "fill": {
+                                        "color": "#888888",
+                                        "enabled": false
+                                    },
+                                    "line": {
+                                        "size": 1,
+                                        "color": "#000000",
+                                        "enabled": false
+                                    },
+                                    "text": {
+                                        "color": "#888888",
+                                        "enabled": false
+                                    },
+                                    "circle": {
+                                        "size": 2,
+                                        "color": {
+                                            "type": "ColorLinearNumber",
+                                            "attribute": "gradient",
+                                            "defaultColor": "#FFFFFF",
+                                            "numberColorPairs": [
+                                                {
+                                                    "color": "#FF0000",
+                                                    "value": 0
+                                                },
+                                                {
+                                                    "color": "#F5FF00",
+                                                    "value": 4
+                                                },
+                                                {
+                                                    "color": "#00FF00",
+                                                    "value": 9.98
+                                                }
+                                            ]
+                                        },
+                                        "enabled": true
+                                    },
+                                    "heatmap": {
+                                        "enabled": false,
+                                        "heatmap": {
+                                            "color": [
+                                                {
+                                                    "color": "#0000FF",
+                                                    "value": 0
+                                                },
+                                                {
+                                                    "color": "#4169e1",
+                                                    "value": 0.1
+                                                },
+                                                {
+                                                    "color": "#00ffff",
+                                                    "value": 0.3
+                                                },
+                                                {
+                                                    "color": "#00ff00",
+                                                    "value": 0.5
+                                                },
+                                                {
+                                                    "color": "#ffff00",
+                                                    "value": 0.7
+                                                },
+                                                {
+                                                    "color": "#ff0000",
+                                                    "value": 1
+                                                }
+                                            ],
+                                            "radius": 30,
+                                            "weight": 1,
+                                            "intensity": 1
+                                        }
+                                    },
+                                    "fill-extrusion": {
+                                        "color": "#888888",
+                                        "enabled": false
+                                    }
+                                },
+                                "properties": {
+                                    "availableProperties": {
+                                        "final": {
+                                            "key": "final",
+                                            "max": 54.90894457847384,
+                                            "min": 0.0136600636106654,
+                                            "type": "number",
+                                            "description": "",
+                                            "displayName": "final"
+                                        },
+                                        "gradient": {
+                                            "key": "gradient",
+                                            "max": 9.983444468813426,
+                                            "min": 0.0024836479292118,
+                                            "type": "number",
+                                            "description": "",
+                                            "displayName": "gradient"
+                                        },
+                                        "intensity": {
+                                            "key": "intensity",
+                                            "max": 99.83444468813424,
+                                            "min": 0.0248364792921189,
+                                            "type": "number",
+                                            "description": "",
+                                            "displayName": "intensity"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "type": "Context",
+        "name": "NY Heatmap Testing",
+        "default_map_center": [
+            43.0,
+            -75.5
+        ],
+        "default_map_zoom": 6.5,
+        "datasets": [
+            {
+                "name": "NY County Charting Example",
+                "description": "Creating example charts",
+                "category": "test",
+                "metadata": {},
+                "files": [
+                    {
+                        "path": "./data/county_population.geojson",
+                        "url": "https://data.kitware.com/api/v1/item/672cd701ca1110761bd32ff1/download",
+                        "name": "NY County Information",
+                        "type": "geojson",
+                        "metadata": {
+                            "default_style": {
+                                "charts": [
+                                    {
+                                        "title": "NY Zone Pie Chart",
+                                        "expanded": true,
+                                        "mapLayer": 266,
+                                        "chartData": {
+                                            "keys": [
+                                                "NYSP_ZONE"
+                                            ],
+                                            "type": "pie",
+                                            "staticLabels": true,
+                                            "highlightLabels": false
+                                        },
+                                        "chartType": "pie",
+                                        "enableBbox": true,
+                                        "sourceArea": "global",
+                                        "description": ""
+                                    },
+                                    {
+                                        "title": "Square Miles Custom Chart",
+                                        "expanded": true,
+                                        "mapLayer": 266,
+                                        "chartData": {
+                                            "bins": 10,
+                                            "keys": [
+                                                "CALC_SQ_MI"
+                                            ],
+                                            "type": "histogram",
+                                            "xAxisLabel": "",
+                                            "yAxisLabel": ""
+                                        },
+                                        "chartType": "histogram",
+                                        "enableBbox": true,
+                                        "sourceArea": "global",
+                                        "description": ""
+                                    }
+                                ],
+                                "layers": {
+                                    "fill": {
+                                        "color": {
+                                            "type": "ColorLinearNumber",
+                                            "attribute": "CALC_SQ_MI",
+                                            "defaultColor": "#FFFFFF",
+                                            "numberColorPairs": [
+                                                {
+                                                    "color": "#ffffcc",
+                                                    "value": 34
+                                                },
+                                                {
+                                                    "color": "#fff0a9",
+                                                    "value": 287
+                                                },
+                                                {
+                                                    "color": "#fee087",
+                                                    "value": 540.092
+                                                },
+                                                {
+                                                    "color": "#fec965",
+                                                    "value": 793
+                                                },
+                                                {
+                                                    "color": "#feab4b",
+                                                    "value": 1046
+                                                },
+                                                {
+                                                    "color": "#fd893c",
+                                                    "value": 1300
+                                                },
+                                                {
+                                                    "color": "#fa5c2e",
+                                                    "value": 1553
+                                                },
+                                                {
+                                                    "color": "#ec3023",
+                                                    "value": 1806.0092
+                                                },
+                                                {
+                                                    "color": "#d31121",
+                                                    "value": 2059
+                                                },
+                                                {
+                                                    "color": "#af0225",
+                                                    "value": 2312
+                                                },
+                                                {
+                                                    "color": "#800026",
+                                                    "value": 2566
+                                                }
+                                            ]
+                                        },
+                                        "enabled": true,
+                                        "selectable": "singleSelect",
+                                        "selectColor": "#00FFFF"
+                                    },
+                                    "line": {
+                                        "size": 1,
+                                        "color": "#000000",
+                                        "enabled": true
+                                    },
+                                    "text": {
+                                        "color": "#888888",
+                                        "enabled": false
+                                    },
+                                    "circle": {
+                                        "size": 3,
+                                        "color": "#888888",
+                                        "enabled": false
+                                    },
+                                    "fill-extrusion": {
+                                        "color": "#888888",
+                                        "enabled": false
+                                    }
+                                },
+                                "properties": {
+                                    "displayFeatureId": false,
+                                    "selectionDisplay": true,
+                                    "availableProperties": {
+                                        "NAME": {
+                                            "key": "NAME",
+                                            "type": "string",
+                                            "values": [
+                                                "Albany",
+                                                "Allegany",
+                                                "Bronx",
+                                                "Broome",
+                                                "Cattaraugus",
+                                                "Cayuga",
+                                                "Chautauqua",
+                                                "Chemung",
+                                                "Chenango",
+                                                "Clinton",
+                                                "Columbia",
+                                                "Cortland",
+                                                "Delaware",
+                                                "Dutchess",
+                                                "Erie",
+                                                "Essex",
+                                                "Franklin",
+                                                "Fulton",
+                                                "Genesee",
+                                                "Greene",
+                                                "Hamilton",
+                                                "Herkimer",
+                                                "Jefferson",
+                                                "Kings",
+                                                "Lewis",
+                                                "Livingston",
+                                                "Madison",
+                                                "Monroe",
+                                                "Montgomery",
+                                                "Nassau",
+                                                "New York",
+                                                "Niagara",
+                                                "Oneida",
+                                                "Onondaga",
+                                                "Ontario",
+                                                "Orange",
+                                                "Orleans",
+                                                "Oswego",
+                                                "Otsego",
+                                                "Putnam",
+                                                "Queens",
+                                                "Rensselaer",
+                                                "Richmond",
+                                                "Rockland",
+                                                "Saratoga",
+                                                "Schenectady",
+                                                "Schoharie",
+                                                "Schuyler",
+                                                "Seneca",
+                                                "St Lawrence",
+                                                "Steuben",
+                                                "Suffolk",
+                                                "Sullivan",
+                                                "Tioga",
+                                                "Tompkins",
+                                                "Ulster",
+                                                "Warren",
+                                                "Washington",
+                                                "Wayne",
+                                                "Westchester",
+                                                "Wyoming",
+                                                "Yates"
+                                            ],
+                                            "display": true,
+                                            "tooltip": false,
+                                            "description": "",
+                                            "displayName": "NAME"
+                                        },
+                                        "POP2000": {
+                                            "key": "POP2000",
+                                            "max": 2465326,
+                                            "min": 5379,
+                                            "type": "number",
+                                            "display": false,
+                                            "tooltip": false,
+                                            "description": "",
+                                            "displayName": "POP2000"
+                                        },
+                                        "POP2010": {
+                                            "key": "POP2010",
+                                            "max": 2504700,
+                                            "min": 4836,
+                                            "type": "number",
+                                            "display": false,
+                                            "tooltip": false,
+                                            "description": "",
+                                            "displayName": "POP2010"
+                                        },
+                                        "POP2020": {
+                                            "key": "POP2020",
+                                            "max": 2736074,
+                                            "min": 5107,
+                                            "type": "number",
+                                            "display": false,
+                                            "tooltip": false,
+                                            "description": "",
+                                            "displayName": "POP2020"
+                                        },
+                                        "pop1900": {
+                                            "key": "pop1900",
+                                            "max": 2050600,
+                                            "min": 4947,
+                                            "type": "number",
+                                            "display": false,
+                                            "tooltip": false,
+                                            "description": "",
+                                            "displayName": "pop1900"
+                                        },
+                                        "pop1910": {
+                                            "key": "pop1910",
+                                            "max": 2762522,
+                                            "min": 4373,
+                                            "type": "number",
+                                            "display": false,
+                                            "tooltip": false,
+                                            "description": "",
+                                            "displayName": "pop1910"
+                                        },
+                                        "pop1920": {
+                                            "key": "pop1920",
+                                            "max": 2284103,
+                                            "min": 3970,
+                                            "type": "number",
+                                            "display": false,
+                                            "tooltip": false,
+                                            "description": "",
+                                            "displayName": "pop1920"
+                                        },
+                                        "pop1930": {
+                                            "key": "pop1930",
+                                            "max": 2560401,
+                                            "min": 3929,
+                                            "type": "number",
+                                            "display": false,
+                                            "tooltip": false,
+                                            "description": "",
+                                            "displayName": "pop1930"
+                                        },
+                                        "pop1940": {
+                                            "key": "pop1940",
+                                            "max": 2698285,
+                                            "min": 4188,
+                                            "type": "number",
+                                            "display": false,
+                                            "tooltip": false,
+                                            "description": "",
+                                            "displayName": "pop1940"
+                                        },
+                                        "pop1950": {
+                                            "key": "pop1950",
+                                            "max": 2738175,
+                                            "min": 4105,
+                                            "type": "number",
+                                            "display": false,
+                                            "tooltip": false,
+                                            "description": "",
+                                            "displayName": "pop1950"
+                                        },
+                                        "pop1960": {
+                                            "key": "pop1960",
+                                            "max": 2627319,
+                                            "min": 4267,
+                                            "type": "number",
+                                            "display": false,
+                                            "tooltip": false,
+                                            "description": "",
+                                            "displayName": "pop1960"
+                                        },
+                                        "pop1970": {
+                                            "key": "pop1970",
+                                            "max": 2602012,
+                                            "min": 4714,
+                                            "type": "number",
+                                            "display": false,
+                                            "tooltip": false,
+                                            "description": "",
+                                            "displayName": "pop1970"
+                                        },
+                                        "pop1980": {
+                                            "key": "pop1980",
+                                            "max": 2230936,
+                                            "min": 5034,
+                                            "type": "number",
+                                            "display": false,
+                                            "tooltip": false,
+                                            "description": "",
+                                            "displayName": "pop1980"
+                                        },
+                                        "pop1990": {
+                                            "key": "pop1990",
+                                            "max": 2300664,
+                                            "min": 5279,
+                                            "type": "number",
+                                            "display": false,
+                                            "tooltip": false,
+                                            "description": "",
+                                            "displayName": "pop1990"
+                                        },
+                                        "NYSP_ZONE": {
+                                            "key": "NYSP_ZONE",
+                                            "type": "string",
+                                            "values": [
+                                                "Central",
+                                                "East",
+                                                "Long Island",
+                                                "West"
+                                            ],
+                                            "display": true,
+                                            "tooltip": false,
+                                            "description": "",
+                                            "displayName": "NYSP_ZONE"
+                                        },
+                                        "CALC_SQ_MI": {
+                                            "key": "CALC_SQ_MI",
+                                            "max": 2818.74261333,
+                                            "min": 33.725634166,
+                                            "type": "number",
+                                            "display": true,
+                                            "tooltip": false,
+                                            "description": "",
+                                            "displayName": "CALC_SQ_MI"
+                                        }
+                                    }
+                                },
+                                "selectedFeatureCharts": [
+                                    {
+                                        "keys": [
+                                            {
+                                                "key": "pop1900",
+                                                "color": "#ffe080"
+                                            },
+                                            {
+                                                "key": "pop1910",
+                                                "color": "#ff0050"
+                                            },
+                                            {
+                                                "key": "pop1920",
+                                                "color": "#86702d"
+                                            },
+                                            {
+                                                "key": "pop1930",
+                                                "color": "#90ff00"
+                                            },
+                                            {
+                                                "key": "pop1940",
+                                                "color": "#c7ff80"
+                                            },
+                                            {
+                                                "key": "pop1950",
+                                                "color": "#ff00e0"
+                                            },
+                                            {
+                                                "key": "pop1960",
+                                                "color": "#ffc200"
+                                            },
+                                            {
+                                                "key": "pop1970",
+                                                "color": "#5f862d"
+                                            },
+                                            {
+                                                "key": "pop1980",
+                                                "color": "#6f00ff"
+                                            },
+                                            {
+                                                "key": "pop1990",
+                                                "color": "#ff80ef"
+                                            },
+                                            {
+                                                "key": "POP2000",
+                                                "color": "#86442d"
+                                            },
+                                            {
+                                                "key": "POP2010",
+                                                "color": "#ff80a7"
+                                            },
+                                            {
+                                                "key": "POP2020",
+                                                "color": "#532d86"
+                                            }
+                                        ],
+                                        "name": "Population Change",
+                                        "sort": "static",
+                                        "type": "bar",
+                                        "display": {
+                                            "expanded": true,
+                                            "keyStaticLabels": true,
+                                            "keyHighlightLabels": true
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "type": "Dataset",
+        "name": "TimePoints",
+        "description": "TimePoints Test file",
+        "category": "test",
+        "metadata": {},
+        "files": [
+            {
+                "path": "./data/timePoints.geojson",
+                "name": "TimePoints Geojson",
+                "url": "https://data.kitware.com/api/v1/item/67532ab09ccf870f61ceac9f/download",
+                "type": "geojson",
+                "metadata": {}
+            }
+        ]
+    },
+    {
+        "type": "Dataset",
+        "name": "NetCDF",
+        "description": "NetCDF Test File",
+        "category": "test",
+        "metadata": {},
+        "files": [
+            {
+                "path": "./data/atmospheric.nc",
+                "name": "AtmoSpheric Data",
+                "url": "https://data.kitware.com/api/v1/item/675b13429ccf870f61ceb2da/download",
+                "type": "netcdf",
+                "metadata": {
+                    "generate": [{
+                        "name": "Temperature Layer",
+                        "variable": "t",
+                        "sliding_variable": "valid_time",
+                        "x_variable": "longitude",
+                        "y_variable": "latitude"
+                    }]
+                }
+            }
+        ]
+    },
+    {
+        "type": "Dataset",
+        "name": "Precipitation World",
+        "description": "Precipitcation World",
+        "category": "test",
+        "metadata": {},
+        "files": [
+            {
+                "path": "./data/precipitation.nc",
+                "name": "AtmoSpheric Data",
+                "type": "netcdf",
+                "url": "https://data.kitware.com/api/v1/item/677ec13a37ed172242a867bc/download",
+                "metadata": {
+                    "generate": [{
+                        "name": "World Precipitation",
+                        "variable": "prveg",
+                        "sliding_variable": "time",
+                        "x_variable": "lon",
+                        "y_variable": "lat",
+                        "yRange":[-45, 45]
+                    }]
+
+                }
+            }
+        ]
+    },
+    {
+        "type": "Dataset",
+        "name": "TVA USGS Gauges",
+        "description": "TVA USGS WaterFlow and temperature",
+        "category": "tabular",
+        "metadata": {},
+        "action": "replace",
+        "files": [
+            {
+                "path": "./data/tva_sites.geojson",
+                "name": "TVA Sites",
+                "type": "geojson",
+                "url": "https://data.kitware.com/api/v1/file/67a2248e7dbb9df48b660b0f/download",
+                "metadata": {
+                    "tabular": {
+                        "path": "./data/USGS_TVA_Gauge_Tabular_data.json",
+                        "name": "USGS TVA Tabular Montly Data",
+                        "url": "https://data.kitware.com/api/v1/file/67a224907dbb9df48b660b12/download",
+                        "featurePropertyMatcher": "site_number"
+                    }
+                }
+            }
+        ]
+    }
+
+
+]

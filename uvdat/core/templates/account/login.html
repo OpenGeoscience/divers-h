@@ -1,0 +1,20 @@
+{% extends 'account/base.html' %}
+
+{% load account socialaccount %}
+
+{% block head_title %}Sign In{% endblock %}
+
+{% block content %}
+<h3 class="mb-2">Sign In</h3>
+
+<div class="border border-gray-200 card bg-gray-100 my-3">
+  <div class="card-body p-6">
+    <ul class="grid grid-cols-2 gap-2">
+      {% include "socialaccount/snippets/provider_list.html" with process="login" %}
+    </ul>
+    {% include "socialaccount/snippets/login_extra.html" %}
+  </div>
+</div>
+
+
+{% endblock %}

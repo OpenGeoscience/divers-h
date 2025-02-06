@@ -1,0 +1,41 @@
+site_name: NZ Armada
+theme:
+  name: material
+  features:
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.expand
+nav:
+  - User's Guide:
+    - Introduction: README.md
+    - ./user-guide/layout.md
+    - ./user-guide/datasets.md
+  - Developer's Guide:
+    - ./dev-guide/dev.md
+    - ./dev-guide/service-overview.md
+    - ./dev-guide/file-structure-overview.md
+    - REST API:
+      - ./dev-guide/api/index.md
+      - ./dev-guide/api/contexts.md
+      - ./dev-guide/api/datasets.md
+    - ./dev-guide/testing.md
+  - Admin's Guide:
+    - ./admin-guide/index.md
+    - Production Deployment:
+      - ./admin-guide/deploy/tls-configuration.md
+      - ./admin-guide/deploy/env-prep.md
+      - ./admin-guide/deploy/docker-services.md
+      - ./admin-guide/deploy/create-admin-user.md
+      - ./admin-guide/deploy/post-auth-config.md
+      - ./admin-guide/deploy/site-name.md
+    - ./admin-guide/data-ingestion.md
+    - ./admin-guide/updating.md
+    - ./admin-guide/users.md
+    - ./admin-guide/vector-tiles.md
+markdown_extensions:
+  - attr_list
+  - md_in_html
+  - pymdownx.blocks.caption
+  - admonition
+extra_css:
+  - styles.css

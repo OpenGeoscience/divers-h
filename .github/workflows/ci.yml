@@ -1,0 +1,50 @@
+name: ci
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: hoverkraft-tech/compose-action@v2.0.1
+        with:
+          compose-file: |
+            docker-compose.yml
+            docker-compose.override.yml
+      - run: |
+          docker compose exec django tox -e lint
+
+  lint-client:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+      - run: cd client && npm i && npm run lint
+
+  pytest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: hoverkraft-tech/compose-action@v2.0.1
+        with:
+          compose-file: |
+            docker-compose.yml
+            docker-compose.override.yml
+      - run: |
+          docker compose exec django tox -e test
+
+  check-migrations:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: hoverkraft-tech/compose-action@v2.0.1
+        with:
+          compose-file: |
+            docker-compose.yml
+            docker-compose.override.yml
+      - run: |
+          docker compose exec django tox -e check-migrations
