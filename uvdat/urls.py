@@ -23,8 +23,8 @@ from uvdat.core.rest import (
     SimulationViewSet,
     SourceRegionViewSet,
     UserViewSet,
-    VectorMapLayerViewSet,
     VectorFeatureTableDataViewSet,
+    VectorMapLayerViewSet,
 )
 
 router = routers.SimpleRouter()
@@ -41,7 +41,9 @@ router.register(r'files', FileItemViewSet, basename='files')
 router.register(r'charts', ChartViewSet, basename='charts')
 router.register(r'rasters', RasterMapLayerViewSet, basename='rasters')
 router.register(r'vectors', VectorMapLayerViewSet, basename='vectors')
-router.register(r'vectorfeature/tabledata', VectorFeatureTableDataViewSet, basename='vectorfeature/tabledata')
+router.register(
+    r'vectorfeature/tabledata', VectorFeatureTableDataViewSet, basename='vectorfeature/tabledata'
+)
 router.register(r'networks', NetworkViewSet, basename='networks')
 router.register(r'nodes', NetworkNodeViewSet, basename='nodes')
 router.register(r'edges', NetworkEdgeViewSet, basename='edges')

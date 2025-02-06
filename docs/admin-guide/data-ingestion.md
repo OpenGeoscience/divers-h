@@ -12,9 +12,7 @@ docker compose run --rm django ./manage.py ingest_data ./sample_data/test.json
 
 Data is ingested into the system by bind-mounting data directories from the host and
 running the ingest script on the bind-mounted files. Specifically,
-the data to be ingested must be described by a JSON file in the correct ingest format. Several
-such JSON files are available in the [nz_armada_data](https://github.com/NZ-ARMADA/nz_armada_data)
-repository.
+the data to be ingested must be described by a JSON file in the correct ingest format.
 
 Note that the system should be running via the  `docker compose up` command above prior to running
 ingest.

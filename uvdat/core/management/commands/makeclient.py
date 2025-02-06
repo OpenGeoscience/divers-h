@@ -24,7 +24,7 @@ class Command(BaseCommand):
         parser.add_argument(
             '--name',
             type=str,
-            default='nz-armada-client',
+            default='divers-h-client',
             help='Name of the application',
         )
 

@@ -1,6 +1,6 @@
 # Development Setup
 
-To begin development, check out the repo via `git clone git@github.com:NZ-ARMADA/nz_armada_webgis.git`.
+To begin development, check out the repo via `git clone git@github.com:OpenGeoscience/divers-h.git`.
 
 ## Initial Dev Setup
 1. To prepare the web client, install its requirements with `cd client && npm install`.

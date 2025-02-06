@@ -1,13 +1,14 @@
+from collections import defaultdict
+
 from django.db import connection
 from django.http import HttpResponse
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action, permission_classes
+from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from collections import defaultdict
-from rest_framework.exceptions import ValidationError
 
-from uvdat.core.models import VectorFeatureRowData, VectorFeatureTableData, VectorFeature
+from uvdat.core.models import VectorFeature, VectorFeatureRowData, VectorFeatureTableData
 from uvdat.core.rest.serializers import VectorFeatureTableDataSerializer
 
 # TODO THIS IS INCOMPLETE
@@ -67,7 +68,9 @@ VECTOR_TILE_DYNAMIC_SQL = """
 """
 
 
-class VectorFeatureTableDataViewSet(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.CreateModelMixin):
+class VectorFeatureTableDataViewSet(
+    viewsets.GenericViewSet, mixins.ListModelMixin, mixins.CreateModelMixin
+):
     queryset = VectorFeatureTableData.objects.all()
     serializer_class = VectorFeatureTableDataSerializer
 
@@ -88,14 +91,19 @@ class VectorFeatureTableDataViewSet(viewsets.GenericViewSet, mixins.ListModelMix
             if len(type_columns_map[table.type]) == 0:
                 type_columns_map[table.type] = set(table.columns)
             elif type_columns_map[table.type] != set(table.columns):
-                raise ValidationError(f"Table Columns don't match for all tables: {type_columns_map[table.type]} vs { set(table.columns)}")
+                raise ValidationError(
+                    f"Table Columns don't match for all tables: {type_columns_map[table.type]} vs { set(table.columns)}"
+                )
             table_count_map[table.type] += 1
 
         # Convert the defaultdict to a normal dict (optional)
         type_columns_map = dict(type_columns_map)
-        output = { 'vectorFeatureCount': feature_count, 'tables': {}}
+        output = {'vectorFeatureCount': feature_count, 'tables': {}}
         for key in type_columns_map:
-            output['tables'][key] = {'tableCount': table_count_map[key], 'columns': type_columns_map[key]}
+            output['tables'][key] = {
+                'tableCount': table_count_map[key],
+                'columns': type_columns_map[key],
+            }
 
         return Response(output, status=status.HTTP_200_OK)
 
@@ -104,19 +112,20 @@ class VectorFeatureTableDataViewSet(viewsets.GenericViewSet, mixins.ListModelMix
         table_type = request.query_params.get('tableType')  # array of Ids
         vector_feature = request.query_params.get('vectorFeatureId')
         x_axis = request.query_params.get('xAxis', 'index')
-        y_axis = request.query_params.get('yAxis', 'mean_va') 
+        y_axis = request.query_params.get('yAxis', 'mean_va')
         filter_param = request.query_params.get('filter', 'parameter_cd')
-        filter_vals = request.query_params.getlist('filterVals', ['00060', '00065'])  # ['00060', '00065']
+        filter_vals = request.query_params.getlist(
+            'filterVals', ['00060', '00065']
+        )  # ['00060', '00065']
 
         if not table_type:
             return Response({'error': 'tableType is required'}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            table = VectorFeatureTableData.objects.get(type=table_type, vector_feature=vector_feature)
-            table_data = {
-                'table_name': table.name,
-                'tables': []
-            }
+            table = VectorFeatureTableData.objects.get(
+                type=table_type, vector_feature=vector_feature
+            )
+            table_data = {'table_name': table.name, 'tables': []}
             x_axis_index = table.columns.index(x_axis)
             y_axis_index = table.columns.index(y_axis)
             if filter_param and len(filter_vals):
@@ -124,9 +133,13 @@ class VectorFeatureTableDataViewSet(viewsets.GenericViewSet, mixins.ListModelMix
             if filter_param and len(filter_vals):
                 table_data['data'] = {}
                 for filter_val in filter_vals:
-                    table_data['data'][filter_val] = { 'x_data': [], 'y_data': [], 'filterVal': filter_val}
+                    table_data['data'][filter_val] = {
+                        'x_data': [],
+                        'y_data': [],
+                        'filterVal': filter_val,
+                    }
             else:
-                table_data['data'] = {'default': { 'x_data': [], 'y_data': [] } }
+                table_data['data'] = {'default': {'x_data': [], 'y_data': []}}
             rows = VectorFeatureRowData.objects.filter(vector_feature_table=table)
             for row in rows:
                 row_data = row.row_data

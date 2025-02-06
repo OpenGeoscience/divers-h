@@ -70,7 +70,7 @@ class Command(BaseCommand):
         context_name = context_data['name']
         action = context_data.get('action')
         if action in ['delete', 'replace']:
-            exists = Context.objects.get(name=context_name)
+            exists = Context.objects.filter(name=context_name).exists()
             if exists:
                 exists.delete()
             else:
@@ -107,7 +107,7 @@ class Command(BaseCommand):
         dataset_name = dataset_data['name']
         action = dataset_data.get('action')
         if action in ['delete', 'replace']:
-            exists = Dataset.objects.get(name=dataset_name)
+            exists = Dataset.objects.filter(name=dataset_name).exists()
             if exists:
                 exists.delete()
             else:
