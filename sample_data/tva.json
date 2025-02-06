@@ -1,0 +1,89 @@
+[
+    {
+        "type": "Context",
+        "name": "TVA Water Boundaries",
+        "default_map_center": [
+            34.8019,
+            -86.1794
+        ],
+        "default_map_zoom": 6,
+        "datasets": [
+            {
+                "name": "TVA Water Boundaries",
+                "description": "Water Boundaries for the TVA region",
+                "category": "vector water boundaries",
+                "metadata": {},
+                "files": [
+                    {
+                        "path": "./data/tva/waterboundaries.zip",
+                        "url": "https://data.kitware.com/api/v1/file/67a4f46d7dbb9df48b660b2c/download",
+                        "name": "TVA Water Boundaries",
+                        "type": "zip",
+                        "metadata": {}
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "type": "Context",
+        "name": "TVA Water Gauge Values",
+        "default_map_center": [
+            34.8019,
+            -86.1794
+        ],
+        "default_map_zoom": 6,
+        "datasets": [
+            {
+                "type": "Dataset",
+                "name": "TVA NWIS Gauges",
+                "description": "TVA USGS WaterFlow and temperature",
+                "category": "tabular",
+                "metadata": {},
+                "action": "replace",
+                "files": [
+                    {
+                        "path": "./data/tva_sites.geojson",
+                        "name": "TVA Sites",
+                        "type": "geojson",
+                        "url": "https://data.kitware.com/api/v1/file/67a4f4a07dbb9df48b660b33/download",
+                        "metadata": {
+                            "tabular": {
+                                "path": "./data/USGS_TVA_Gauge_Tabular_data.json",
+                                "name": "USGS TVA Tabular Montly Data",
+                                "url": "https://data.kitware.com/api/v1/file/67a4f4997dbb9df48b660b30/download",
+                                "featurePropertyMatcher": "site_number"
+                            }
+                        }
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "type": "Context",
+        "name": "Hydro Stations",
+        "default_map_center": [
+            34.8019,
+            -86.1794
+        ],
+        "default_map_zoom": 6,
+        "datasets": [
+            {
+                "name": "TVA HydroStations",
+                "description": "TVA HydroStations",
+                "category": "vector",
+                "metadata": {},
+                "files": [
+                    {
+                        "path": "./data/tva/hydrostations.geojson",
+                        "url": "https://data.kitware.com/api/v1/file/67a4f4e27dbb9df48b660b37/download",
+                        "name": "TVA Water Boundaries",
+                        "type": "geojson",
+                        "metadata": {}
+                    }
+                ]
+            }
+        ]
+    }
+]
