@@ -70,10 +70,11 @@ class Command(BaseCommand):
         context_name = context_data['name']
         action = context_data.get('action')
         if action in ['delete', 'replace']:
-            exists = Context.objects.filter(name=context_name).exists()
-            if exists:
+            try:
+                exists = Context.objects.get(name=context_name)
                 exists.delete()
-            else:
+            except Context.DoesNotExist:
+                exists = None 
                 self.style.WARNING(
                     f'\t WARNING!!! Attempting to delete Context: {context_name} and it does not exist'
                 )
@@ -107,10 +108,11 @@ class Command(BaseCommand):
         dataset_name = dataset_data['name']
         action = dataset_data.get('action')
         if action in ['delete', 'replace']:
-            exists = Dataset.objects.filter(name=dataset_name).exists()
-            if exists:
+            try:
+                exists = Dataset.objects.get(name=dataset_name)
                 exists.delete()
-            else:
+            except Dataset.DoesNotExist:
+                exists = None
                 self.style.WARNING(
                     f'\t WARNING!!! Attempting to delete Dataset: {dataset_name} and it does not exist'
                 )
