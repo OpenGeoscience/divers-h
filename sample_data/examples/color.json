@@ -1,0 +1,27 @@
+[
+    {
+        "type": "Context",
+        "name": "Color Tif",
+        "default_map_center": [
+            37.720682, 
+            128.739040
+        ],
+        "default_map_zoom": 9,
+        "datasets": [
+            {
+                "name": "Color Tif",
+                "description": "Testing Color Korea",
+                "category": "test",
+                "metadata": {},
+                "files": [
+                    {
+                        "path": "./color/TCI.tif",
+                        "name": "Korea Color TIF",
+                        "type": "tif",
+                        "metadata": {}
+                    }
+                ]
+            }
+        ]
+    } 
+]

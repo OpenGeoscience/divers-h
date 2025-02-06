@@ -1,0 +1,108 @@
+[
+    {
+        "type": "Context",
+        "name": "Solar Layers",
+        "default_map_center": [
+            34.8019,
+            -86.1794
+        ],
+        "default_map_zoom": 8,
+        "datasets": [
+            {
+                "name": "Solar Layers GPKG",
+                "description": "",
+                "category": "test",
+                "metadata": {},
+                "default_style": {
+                    "nodata": 255,
+                    "minmax": {
+                        "min": 0,
+                        "max": 1
+                    },
+                    "clamp": false
+                },
+                "files": [
+                    {
+                        "path": "./data/solar_layers.gpkg",
+                        "name": "Solar Layers",
+                        "type": "tif",
+                        "metadata": {}
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "type": "Context",
+        "name": "Solar Layers Tifs",
+        "default_map_center": [
+            34.8019,
+            -86.1794
+        ],
+        "default_map_zoom": 8,
+        "datasets": [
+            {
+                "name": "Solar Layers Tifs",
+                "description": "",
+                "category": "test",
+                "metadata": {},
+                "files": [
+                    {
+                        "path": "./data/floodplain_100yrs_aligned_tva.tif",
+                        "name": "FloodPlain",
+                        "type": "tif",
+                        "metadata": {}
+                    },
+                    {
+                        "path": "./data/landslide_aligned_tva.tif",
+                        "name": "Landslide Aligned",
+                        "type": "tif",
+                        "metadata": {}
+                    },
+                    {
+                        "path": "./data/population_2030_10_aligned_tva.tif",
+                        "name": "Population Aligned",
+                        "type": "tif",
+                        "metadata": {}
+                    },
+                    {
+                        "path": "./data/protected_lands_aligned_tva.tif",
+                        "name": "Protected Lands",
+                        "type": "tif",
+                        "metadata": {}
+                    },
+                    {
+                        "path": "./data/slope_18pct_aligned_tva.tif",
+                        "name": "Slope 18pct",
+                        "type": "tif",
+                        "metadata": {}
+                    },
+                    {
+                        "path": "./data/solar_dummy_combine_tva_filtered.tif",
+                        "name": "Solar dummy combine filtered",
+                        "type": "tif",
+                        "metadata": {}
+                    },
+                    {
+                        "path": "./data/solar_dummy_combine_tva.tif",
+                        "name": "Solar dummy combine",
+                        "type": "tif",
+                        "metadata": {}
+                    },
+                    {
+                        "path": "./data/solar_dummy_tva.tif",
+                        "name": "Solar Dummy",
+                        "type": "tif",
+                        "metadata": {}
+                    },
+                    {
+                        "path": "./data/wetlands_aligned_tva.tif",
+                        "name": "Wetlands Aligned",
+                        "type": "tif",
+                        "metadata": {}
+                    }
+                ]
+            }
+        ]
+    }
+]

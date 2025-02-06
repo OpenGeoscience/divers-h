@@ -1,0 +1,46 @@
+[{
+    "type": "Context",
+    "name": "Sample Context",
+    "default_map_center": [
+        34.8019,
+        -86.1794
+        ],
+    "default_map_zoom": 4,
+    "datasets":[
+        {
+            "name": "Sample Dataset",
+            "description": "A simple dataset",
+            "category": "sample",
+            "metadata": {},
+            "files": [
+                {
+                    "path": "./data/floodplain_100yrs_aligned_tva.tif",
+                    "name": "FloodPLain 100yrs",
+                    "type": "tif",
+                    "metadata":{}            
+                },
+                {
+                    "path": "./data/landslide_aligned_tva.tif",
+                    "name": "LandSlide",
+                    "type": "tif",
+                    "metadata":{}
+                },
+                {
+                    "path": "./data/population_2030_10_aligned_tva.tif",
+                    "name": "Population",
+                    "type": "tif",
+                    "metadata":{}
+                },
+                {
+                    "path": "./data/wbd_huc8_tva.geojson",
+                    "name": "WBD_HUC8_TVA",
+                    "type": "geojson",
+                    "metadata":{}
+            
+                }
+
+
+            ]
+        }
+    ]
+}]

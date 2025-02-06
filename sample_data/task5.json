@@ -1,0 +1,156 @@
+[
+    {
+        "type": "Context",
+        "name": "Task 5 ",
+        "default_map_center": [
+            34.8019,
+            -86.1794
+        ],
+        "default_map_zoom": 8,
+        "datasets": [
+            {
+                "name": "Fim",
+                "description": "",
+                "category": "Fim",
+                "metadata": {},
+                "files": [
+                    {
+                        "path": "./Task5/Datasets/fim/examples/ky_fim/kyflood202207_depth_grid_Q_2022_07_26T12am_EDT.tif",
+                        "type": "tif",
+                        "metadata": {}
+                    },
+                    {
+                        "path": "./Task5/Datasets/fim/examples/ky_fim/kyflood202207_depth_grid_Q_2022_07_26T12pm_EDT.tif",
+                        "type": "tif",
+                        "metadata": {}
+                    },
+                    {
+                        "path": "./Task5/Datasets/fim/examples/ky_fim/kyflood202207_depth_grid_Q_2022_07_27T12am_EDT.tif",
+                        "type": "tif",
+                        "metadata": {}
+                    },
+                    {
+                        "path": "./Task5/Datasets/fim/examples/ky_fim/kyflood202207_depth_grid_Q_2022_07_27T12pm_EDT.tif",
+                        "type": "tif",
+                        "metadata": {}
+                    },
+                    {
+                        "path": "./Task5/Datasets/fim/examples/ky_fim/kyflood202207_depth_grid_Q_2022_07_28T10am_EDT.tif",
+                        "type": "tif",
+                        "metadata": {}
+                    },
+                    {
+                        "path": "./Task5/Datasets/fim/examples/ky_fim/kyflood202207_depth_grid_Q_2022_07_29T12am_EDT.tif",
+                        "type": "tif",
+                        "metadata": {}
+                    },
+                    {
+                        "path": "./Task5/Datasets/fim/examples/ky_fim/kyflood202207_depth_grid_Q_2022_07_29T12pm_EDT.tif",
+                        "type": "tif",
+                        "metadata": {}
+                    },
+                    {
+                        "path": "./Task5/Datasets/fim/examples/ky_fim/kyflood202207_depth_grid_Q_2022_07_30T12pm_EDT.tif",
+                        "type": "tif",
+                        "metadata": {}
+                    },
+                    {
+                        "path": "./Task5/Datasets/fim/examples/ky_fim/kyflood202207_extent_grid_Q_2022_07_26T12am_EDT.tif",
+                        "type": "tif",
+                        "metadata": {}
+                    },
+                    {
+                        "path": "./Task5/Datasets/fim/examples/ky_fim/kyflood202207_extent_grid_Q_2022_07_26T12pm_EDT.tif",
+                        "type": "tif",
+                        "metadata": {}
+                    },
+                    {
+                        "path": "./Task5/Datasets/fim/examples/ky_fim/kyflood202207_extent_grid_Q_2022_07_27T12am_EDT.tif",
+                        "type": "tif",
+                        "metadata": {}
+                    },
+                    {
+                        "path": "./Task5/Datasets/fim/examples/ky_fim/kyflood202207_extent_grid_Q_2022_07_27T12pm_EDT.tif",
+                        "type": "tif",
+                        "metadata": {}
+                    },
+                    {
+                        "path": "./Task5/Datasets/fim/examples/ky_fim/kyflood202207_extent_grid_Q_2022_07_28T10am_EDT.tif",
+                        "type": "tif",
+                        "metadata": {}
+                    },
+                    {
+                        "path": "./Task5/Datasets/fim/examples/ky_fim/kyflood202207_extent_grid_Q_2022_07_29T12am_EDT.tif",
+                        "type": "tif",
+                        "metadata": {}
+                    },
+                    {
+                        "path": "./Task5/Datasets/fim/examples/ky_fim/kyflood202207_extent_grid_Q_2022_07_29T12pm_EDT.tif",
+                        "type": "tif",
+                        "metadata": {}
+                    },
+                    {
+                        "path": "./Task5/Datasets/fim/examples/ky_fim/kyflood202207_extent_grid_Q_2022_07_30T12pm_EDT.tif",
+                        "type": "tif",
+                        "metadata": {}
+                    },
+                    {
+                        "path": "./Task5/Datasets/fim/examples/ky_hand/hand_kyflood_overview.tif",
+                        "type": "tif",
+                        "metadata": {}
+                    },
+                    {
+                        "path": "./Task5/Datasets/fim/examples/noaa_nwm_flood_extent/20240909_NOAA_NWM_5day_max_flood_extent.gpkg",
+                        "name": "NOAA Flood Extent",
+                        "type": "gpkg",
+                        "metadata": {}
+                    }
+
+                ]
+            },
+            {
+                "name": "Watershed",
+                "description": "",
+                "category": "Watershed",
+                "metadata": {},
+                "files": [
+                    {
+                        "path": "./Task5/Datasets/watershed/flowline_data_example.gpkg",
+                        "name": "Flowline Data Example",
+                        "type": "gpkg",
+                        "metadata": {}
+                    },
+                    {
+                        "path": "./Task5/Datasets/watershed/watershed_poly_data_example.gpkg",
+                        "name": "Watershed Poly Example",
+                        "type": "gpkg",
+                        "metadata": {}
+                    }
+                ]
+            },
+            {
+                "name": "WBD",
+                "description": "",
+                "category": "WBD",
+                "metadata": {},
+                "files": [
+                    {
+                        "path": "./Task5/Datasets/wbd/wbd_huc10_tva.gpkg",
+                        "name": "WBD Huc10",
+                        "type": "gpkg",
+                        "metadata": {}
+                    },
+                    {
+                        "path": "./Task5/Datasets/watershed/wbd_huc8_tva.gpkg",
+                        "name": "WBD Huc8",
+                        "type": "gpkg",
+                        "metadata": {}
+                    }
+                ]
+            }
+        ]
+    }
+
+
+
+]

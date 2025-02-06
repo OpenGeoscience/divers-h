@@ -1,0 +1,58 @@
+[
+    {
+        "type": "Context",
+        "name": "CSV containing points",
+        "default_map_center": [
+            35.5566,
+            -87.1067
+        ],
+        "default_map_zoom": 12,
+        "datasets": [
+            {
+                "name": "Task 2-2",
+                "description": "Test CSV file with WKT string",
+                "category": "test",
+                "metadata": {},
+                "files": [
+                    {
+                        "path": "./data/task_2-2/prospective_sites_20240817.csv",
+                        "name": "Prospective Sites",
+                        "type": "csv",
+                        "metadata": {
+                            "columns": {
+                                "geometry_wkt": "geometry",
+                                "properties": [
+                                    "step",
+                                    "uuid",
+                                    "fitness",
+                                    "genome",
+                                    "solar",
+                                    "slope"
+                                ]
+                            }
+                        }
+                    }
+                ]
+            },
+            {
+                "name": "Task 3 Handoff",
+                "description": "Test CSV file with point lon/lat columns",
+                "category": "test",
+                "metadata": {},
+                "files": [
+                    {
+                        "path": "./data/task_2-1/solar_900_points.csv",
+                        "name": "Solar (900 points)",
+                        "type": "csv",
+                        "metadata": {
+                            "columns": {
+                                "point_lon": "Lon",
+                                "point_lat": "Lat"
+                            }
+                        }
+                    }
+                ]
+            }
+        ]
+    }
+]

@@ -1,0 +1,27 @@
+[
+    {
+        "type": "Context",
+        "name": "GeoPackage",
+        "default_map_center": [
+            41.88183,
+            -87.6231774
+        ],
+        "default_map_zoom": 12,
+        "datasets": [
+            {
+                "name": "Chicago GeoPacakge",
+                "description": "GeoPacakge Test File",
+                "category": "test",
+                "metadata": {},
+                "files": [
+                    {
+                        "path": "./data/chicago/chicago.gpkg",
+                        "name": "Chicago GeoPacakge",
+                        "type": "gpkg",
+                        "metadata": {}
+                    }
+                ]
+            }
+        ]
+    } 
+]

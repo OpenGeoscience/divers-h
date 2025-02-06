@@ -1,0 +1,27 @@
+[
+    {
+        "type": "Context",
+        "name": "Sloped Aligned",
+        "default_map_center": [
+            34.8019,
+            -86.1794
+        ],
+        "default_map_zoom": 8,
+        "datasets": [
+            {
+                "name": "Shared Data Layers",
+                "description": "",
+                "category": "Shared",
+                "metadata": {},
+                "files": [
+                    {
+                        "path": "./data/slope_aligned_tva.tif",
+                        "name": "Slope Aligned",
+                        "type": "tif",
+                        "metadata": {}
+                    }
+                ]
+            }
+        ]
+    }
+]

@@ -1,0 +1,91 @@
+{
+  "name": "client",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "format": "eslint --ext .js,.ts,.vue --ignore-path .gitignore --fix src",
+    "lint": "eslint --ext .js,.ts,.vue --ignore-path .gitignore --no-fix src",
+    "test:unit": "jest",
+    "type": "vue-tsc --noEmit"
+  },
+  "dependencies": {
+    "@girder/oauth-client": "^0.8.0",
+    "@mapbox/mapbox-gl-draw": "^1.5.0",
+    "@mdi/font": "^7.4.47",
+    "@turf/bearing": "^7.1.0",
+    "@turf/center": "^7.1.0",
+    "@turf/centroid": "^7.1.0",
+    "@turf/destination": "^7.1.0",
+    "@turf/distance": "^7.1.0",
+    "@turf/helpers": "^7.1.0",
+    "@turf/midpoint": "^7.1.0",
+    "@turf/transform-rotate": "^7.1.0",
+    "@turf/transform-scale": "^7.1.0",
+    "@turf/turf": "^7.1.0",
+    "axios": "^1.4.0",
+    "d3": "^7.9.0",
+    "django-s3-file-field": "^1.0.1",
+    "lodash": "^4.17.21",
+    "maplibre-gl": "^4.7.0",
+    "pmtiles": "^3.2.1",
+    "vue": "^3.4.29",
+    "vue-router": "^4.4.0",
+    "vuedraggable": "^4.1.0",
+    "vuetify": "^3.6.13"
+  },
+  "devDependencies": {
+    "@types/d3": "^7.4.3",
+    "@types/jest": "^29.5.12",
+    "@types/lodash": "^4.17.7",
+    "@types/mapbox__mapbox-gl-draw": "^1.4.6",
+    "@vitejs/plugin-vue": "^5.0.5",
+    "@vue/eslint-config-airbnb-with-typescript": "^8.0.0",
+    "@vue/eslint-config-typescript": "^13.0.0",
+    "eslint": "^8.57.0",
+    "eslint-plugin-vue": "^9.27.0",
+    "jest": "^29.7.0",
+    "typescript": "^5.2.2",
+    "vite": "^5.3.1",
+    "vite-plugin-vuetify": "^2.0.3",
+    "vue-tsc": "^2.0.21"
+  },
+  "eslintConfig": {
+    "root": true,
+    "env": {
+      "node": true
+    },
+    "parser": "vue-eslint-parser",
+    "parserOptions": {
+      "parser": "@typescript-eslint/parser"
+    },
+    "plugins": [
+      "@typescript-eslint"
+    ],
+    "extends": [
+      "@vue/eslint-config-airbnb-with-typescript",
+      "plugin:@typescript-eslint/recommended",
+      "plugin:vue/vue3-recommended"
+    ],
+    "rules": {
+      "vue/no-template-shadow": 0,
+      "vue/multi-word-component-names": "off",
+      "vue/max-len": [
+        "warn",
+        {
+          "code": 130
+        }
+      ],
+      "vue/no-setup-props-destructure": 0,
+      "sort-imports": [
+        "error",
+        {
+          "ignoreDeclarationSort": true
+        }
+      ]
+    }
+  }
+}
