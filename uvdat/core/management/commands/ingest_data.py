@@ -74,7 +74,7 @@ class Command(BaseCommand):
                 exists = Context.objects.get(name=context_name)
                 exists.delete()
             except Context.DoesNotExist:
-                exists = None 
+                exists = None
                 self.style.WARNING(
                     f'\t WARNING!!! Attempting to delete Context: {context_name} and it does not exist'
                 )

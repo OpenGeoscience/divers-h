@@ -16,9 +16,9 @@ from uvdat.core.models import (
     SimulationResult,
     SourceRegion,
     VectorFeature,
-    VectorMapLayer,
-    VectorFeatureTableData,
     VectorFeatureRowData,
+    VectorFeatureTableData,
+    VectorMapLayer,
 )
 
 
