@@ -23,6 +23,7 @@ def split_env_str(s: str | None, sep: str) -> list[str]:
 
 
 class UvdatMixin(ConfigMixin):
+    ASGI_APPLICATION = 'uvdat.asgi.application'
     WSGI_APPLICATION = 'uvdat.wsgi.application'
     ROOT_URLCONF = 'uvdat.urls'
 
@@ -31,10 +32,26 @@ class UvdatMixin(ConfigMixin):
     ACCOUNT_EMAIL_VERIFICATION = 'none'
     ACCOUNT_LOGOUT_REDIRECT_URL = '/accounts/login/'
 
+    CHANNEL_LAYERS = {
+        'default': {
+            # TODO: switch to channels_redis.pubsub.RedisPubSubChannelLayer when it's out of beta
+            'BACKEND': 'channels_redis.core.RedisChannelLayer',
+            'CONFIG': {
+                'hosts': [
+                    {
+                        'address': os.environ['REDIS_URL'],
+                        'db': 1,
+                    }
+                ],
+            },
+        },
+    }
+
     @staticmethod
     def mutate_configuration(configuration: ComposedConfiguration) -> None:
         # Install local apps first, to ensure any overridden resources are found first
         configuration.INSTALLED_APPS = [
+            'daphne',
             'django.contrib.gis',
             'django_large_image',
             'uvdat.core.apps.CoreConfig',
