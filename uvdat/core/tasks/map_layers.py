@@ -67,7 +67,9 @@ def calculate_styling(geojson_data, style_options):
     if has_render_height:
         updated_style_options['layers']['fill-extrusion'] = {'enabled': True, 'color': '#CCCCCC'}
     # make the largest geometry type single selectable with the selectColor being cyan
-    enabled = [layer for layer, options in updated_style_options['layers'].items() if options['enabled']]
+    enabled = [
+        layer for layer, options in updated_style_options['layers'].items() if options['enabled']
+    ]
 
     for layer in ['fill-extrusion', 'fill', 'line']:
         if layer in enabled:
