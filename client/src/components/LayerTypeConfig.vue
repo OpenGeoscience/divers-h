@@ -328,6 +328,53 @@ export default defineComponent({
     </v-col>
   </v-row>
   <v-row
+    v-if="actionItemVisible.has('selectColor')"
+    dense
+    align="center"
+    justify="center"
+  >
+    <v-col cols="2">
+      <v-tooltip text="Selected Color">
+        <template #activator="{ props }">
+          <v-icon
+            class="pl-3"
+            v-bind="props"
+          >
+            mdi-format-color-highlight
+          </v-icon>
+        </template>
+      </v-tooltip>
+    </v-col>
+    <v-col cols="8">
+      <v-icon @click="updateLayerTypeField('selectColor', !valueDisplayCheckbox('selectColor'))">
+        {{
+          valueDisplayCheckbox('selectColor') ? 'mdi-checkbox-marked' : 'mdi-checkbox-blank-outline' }}
+      </v-icon>
+      <span class="pl-2">Select Color</span>
+    </v-col>
+    <v-col>
+      <v-menu
+        :close-on-content-click="false"
+        offset-y
+      >
+        <template #activator="{ props }">
+          <div
+            v-if="currentLayerType && currentLayerType.selectColor"
+            class="color-square"
+            :style="{ backgroundColor: currentLayerType.selectColor }"
+            v-bind="props"
+          />
+        </template>
+        <v-color-picker
+          v-if="currentLayerType"
+          mode="hex"
+          :model-value="currentLayerType.selectColor"
+          @update:model-value="updateSelectColor('selectColor', $event)"
+        />
+      </v-menu>
+    </v-col>
+  </v-row>
+  <v-row
     v-if="actionItemVisible.has('hoverable')"
     dense
     align="center"
@@ -427,54 +474,6 @@ export default defineComponent({
         :model-value="[currentLayerType.zoom.min || 0, currentLayerType.zoom.max || 24]"
         @update:model-value="updateZoom($event)"
       />
-    </v-col>
-  </v-row>
-
-  <v-row
-    v-if="actionItemVisible.has('selectColor')"
-    dense
-    align="center"
-    justify="center"
-  >
-    <v-col cols="2">
-      <v-tooltip text="Selected Color">
-        <template #activator="{ props }">
-          <v-icon
-            class="pl-3"
-            v-bind="props"
-          >
-            mdi-format-color-highlight
-          </v-icon>
-        </template>
-      </v-tooltip>
-    </v-col>
-    <v-col cols="8">
-      <v-icon @click="updateLayerTypeField('selectColor', !valueDisplayCheckbox('selectColor'))">
-        {{
-          valueDisplayCheckbox('selectColor') ? 'mdi-checkbox-marked' : 'mdi-checkbox-blank-outline' }}
-      </v-icon>
-      <span class="pl-2">Select Color</span>
-    </v-col>
-    <v-col>
-      <v-menu
-        :close-on-content-click="false"
-        offset-y
-      >
-        <template #activator="{ props }">
-          <div
-            v-if="currentLayerType && currentLayerType.selectColor"
-            class="color-square"
-            :style="{ backgroundColor: currentLayerType.selectColor }"
-            v-bind="props"
-          />
-        </template>
-        <v-color-picker
-          v-if="currentLayerType"
-          mode="hex"
-          :model-value="currentLayerType.selectColor"
-          @update:model-value="updateSelectColor('selectColor', $event)"
-        />
-      </v-menu>
     </v-col>
   </v-row>
   <v-row

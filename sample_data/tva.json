@@ -62,7 +62,7 @@
     },
     {
         "type": "Context",
-        "name": "Hydro Stations",
+        "name": "TVA Hydro Stations",
         "default_map_center": [
             34.8019,
             -86.1794
@@ -78,8 +78,34 @@
                     {
                         "path": "./data/tva/hydrostations.geojson",
                         "url": "https://data.kitware.com/api/v1/file/67a4f4e27dbb9df48b660b37/download",
-                        "name": "TVA Water Boundaries",
+                        "name": "TVA Hydro Stations",
                         "type": "geojson",
+                        "metadata": {}
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "type": "Context",
+        "name": "Input/Outputs",
+        "default_map_center": [
+            34.8019,
+            -86.1794
+        ],
+        "default_map_zoom": 6,
+        "datasets": [
+            {
+                "name": "Input/Outputs",
+                "description": "DIVERS-H Input/Outputs",
+                "category": "raster",
+                "metadata": {},
+                "files": [
+                    {
+                        "path": "./data/tva/atmosperic_input_output.tiff",
+                        "url": "https://data.kitware.com/api/v1/file/67a620ba091a514e82eec87c/download",
+                        "name": "Atm Water Supply 2020-2040 diff",
+                        "type": "tif",
                         "metadata": {}
                     }
                 ]
