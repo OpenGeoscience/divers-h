@@ -1,10 +1,12 @@
 import base64
 from datetime import datetime
+import cftime
 from io import BytesIO
 import logging
 from pathlib import Path
 import re
 import tempfile
+import pandas as pd
 
 from PIL import Image
 from celery import current_task, shared_task
@@ -47,27 +49,52 @@ def create_netcdf_data_layer(file_item, metadata):
             }
 
             # Calculate min and max values if the variable has numeric data
-            try:
-                var_min = float(variable.min().values) if variable.size > 0 else None
-                var_max = float(variable.max().values) if variable.size > 0 else None
-                if 'datetime' in str(variable.dtype):
-                    var_info['startDate'] = str(variable.min().values)
-                    var_info['endDate'] = str(variable.max().values)
+            if isinstance(variable.values[0], (cftime.DatetimeNoLeap, cftime.DatetimeAllLeap, cftime.Datetime360Day, cftime.DatetimeJulian)):
+                vals = []
+                str_vals = []
+                for item in variable.values:
+                    print(item)
+                    dt = item
+                    dt_obj = datetime.datetime(dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second)
+                    unix_timestamp = pd.Timestamp(dt_obj).timestamp()
+                    str_vals.append(pd.Timestamp(dt_obj).isoformat())
+                    vals.append(unix_timestamp)
+                var_min = float(min(vals)) if variable.size > 0 else None
+                var_max = float(max(vals)) if variable.size > 0 else None
                 var_info['min'] = var_min
                 var_info['max'] = var_max
-                if var_name in description['dimensions'].keys():
-                    var_info['steps'] = description['dimensions'][var_name]
-                if re.search(r'\blat\b|\blatitude\b', var_name, re.IGNORECASE):
-                    if -90 <= var_min <= 90 and -90 <= var_max <= 90:
-                        var_info['geospatial'] = 'latitude'
-                elif re.search(r'\blon\b|\blongitude\b', var_name, re.IGNORECASE):
-                    if -180 <= var_min <= 180 and -180 <= var_max <= 180:
-                        var_info['geospatial'] = 'longitude'
-                    elif 0 <= var_min <= 360 and 0 <= var_max <= 360:
-                        var_info['geospatial'] = 'longitude360'
-            except Exception:
-                var_info['min'] = 0
-                var_info['max'] = variable.size
+                var_info['steps'] = variable.size
+                # var_info['timeMap'] = str_vals
+            else:
+                try:
+                    var_min = float(variable.min().values) if variable.size > 0 else None
+                    var_max = float(variable.max().values) if variable.size > 0 else None
+                    if 'datetime' in str(variable.dtype):
+                        var_info['startDate'] = str(variable.min().values)
+                        var_info['endDate'] = str(variable.max().values)
+                        # str_vals = []
+                        # for item in variable.values:
+                        #     str_vals.append(str(item))
+                        #     var_info['timeMap'] = str_vals
+
+                    var_info['min'] = var_min
+                    var_info['max'] = var_max
+                    var_info['steps'] = variable.size
+
+                    if var_name in description['dimensions'].keys():
+                        var_info['steps'] = description['dimensions'][var_name]
+                    if re.search(r'\blat\b|\blatitude\b', var_name, re.IGNORECASE):
+                        if -90 <= var_min <= 90 and -90 <= var_max <= 90:
+                            var_info['geospatial'] = 'latitude'
+                    elif re.search(r'\blon\b|\blongitude\b', var_name, re.IGNORECASE):
+                        if -180 <= var_min <= 180 and -180 <= var_max <= 180:
+                            var_info['geospatial'] = 'longitude'
+                        elif 0 <= var_min <= 360 and 0 <= var_max <= 360:
+                            var_info['geospatial'] = 'longitude360'
+                except Exception:
+                    var_info['min'] = 0
+                    var_info['max'] = variable.size
+                    var_info["steps"] = variable.size
 
             description['variables'][var_name] = var_info
 

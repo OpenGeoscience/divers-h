@@ -441,6 +441,7 @@ export interface NetCDFImages {
   netCDFLayer: number;
   parent_bounds: [[[number, number], [number, number], [number, number], [number, number], [number, number]]];
   images: string[];
+  sliding: { min: number, max: number; step: number, variable: string };
 }
 
 export interface NetCDFVariable {

@@ -27,6 +27,36 @@ export default defineComponent({
       const found = visibleNetCDFLayers.find((item) => item.netCDFLayer === props.layer.id);
       return found?.images.length || 0;
     });
+    const stepMapping = computed(() => {
+      const found = visibleNetCDFLayers.find((item) => item.netCDFLayer === props.layer.id);
+      const mapSlicer: Record<number, string | number> = {};
+      let unixTimeStamp = true;
+      if (found) {
+        if (found?.sliding) {
+          for (let i = 0; i < found.images.length; i += 1) {
+            mapSlicer[i] = found.sliding.min + i * found.sliding.step;
+            if (found.sliding.variable === 'time') {
+              // convert unix timestamp to human readable date YYYY-MM-DD
+              try {
+                const date = new Date((mapSlicer[i] as number) / 1e6);
+                // eslint-disable-next-line prefer-destructuring
+                mapSlicer[i] = date.toISOString().split('T')[0];
+              } catch (e) {
+                unixTimeStamp = false;
+                break;
+              }
+            }
+          }
+          if (unixTimeStamp) {
+            return mapSlicer;
+          }
+        }
+        for (let i = 0; i < found.images.length; i += 1) {
+          mapSlicer[i] = i;
+        }
+      }
+      return mapSlicer;
+    });
     const updateIndex = () => {
       updateNetCDFLayer(props.layer.id, currentIndex.value);
     };
@@ -43,6 +73,7 @@ export default defineComponent({
       layerOpacity,
       currentIndex,
       totalIndex,
+      stepMapping,
     };
   },
 });
@@ -72,9 +103,9 @@ export default defineComponent({
         <v-icon>
           mdi-checkbox-marked
         </v-icon>
-        <span class="pl-2">Step
+        <span class="pl-2">
           {{
-            currentIndex
+            stepMapping[currentIndex]
           }}</span>
       </v-col>
       <v-col>
