@@ -248,7 +248,7 @@ def preview_netcdf_slice(
             except Exception as e:
                 logger.warning(f'Slicer Range Exception: {e}')
                 slicer_range = None
-
+        ds = ds.sortby(ds[y_variable], ascending=False)
         data_var = ds.get(variable)
         variables = data_var.dims
         base_variables = (x_variable, y_variable, sliding_variable)
@@ -288,8 +288,6 @@ def preview_netcdf_slice(
         # Convert to an RGB image using PIL
         image = Image.fromarray(colored_data, mode='RGB')
         image_buffer = BytesIO()
-        if longitude360:
-            image = image.transpose(Image.FLIP_TOP_BOTTOM)
         image.save(image_buffer, format='PNG')
         image_buffer.seek(0)
         base64_image = base64.b64encode(image_buffer.getvalue()).decode('utf-8')
@@ -478,6 +476,7 @@ def create_netcdf_slices(
                 logger.warning(f'Slicer Range Exception: {e}')
                 slicer_range = None
         # Extract the data for the specified variable
+        ds = ds.sortby(ds[y_variable], ascending=False)
         data_var = ds.get(variable)
         variables_data = data_var.dims
         dim_size = ds.dims.get(sliding_variable)
@@ -640,8 +639,6 @@ def create_netcdf_slices(
             # Convert to an RGB image using PIL
             image = Image.fromarray(colored_data, mode='RGB')
             image_buffer = BytesIO()
-            if longitude360:
-                image = image.transpose(Image.FLIP_TOP_BOTTOM)
             image.save(image_buffer, format='PNG')
             image_buffer.seek(0)
             image_name = f'{variable}_{sliding_variable}_{i}.png'

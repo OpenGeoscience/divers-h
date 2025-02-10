@@ -12,6 +12,7 @@ from .regions import DerivedRegionViewSet, SourceRegionViewSet
 from .simulations import SimulationViewSet
 from .user import UserViewSet
 from .vector_feature_table_data import VectorFeatureTableDataViewSet
+from .tasks import TasksAPIView
 
 __all__ = [
     ContextViewSet,
@@ -34,4 +35,5 @@ __all__ = [
     ProcessingTaskView,
     UserViewSet,
     VectorFeatureTableDataViewSet,
+    TasksAPIView,
 ]

@@ -565,10 +565,10 @@ export default defineComponent({
                       <span> {{ modelValue.toFixed(2) }}</span>
                     </template>
                     <template #prepend>
-                      <span>{{ getVariableMinMax(newLayerX)[0] }}</span>
+                      <span>{{ getVariableMinMax(newLayerX)[0].toFixed(2) }}</span>
                     </template>
                     <template #append>
-                      <span>{{ getVariableMinMax(newLayerX)[1] }}</span>
+                      <span>{{ getVariableMinMax(newLayerX)[1].toFixed(2) }}</span>
                     </template>
                   </v-range-slider>
                 </div>
@@ -589,10 +589,10 @@ export default defineComponent({
                       <span> {{ modelValue.toFixed(2) }}</span>
                     </template>
                     <template #prepend>
-                      <span>{{ getVariableInformation(newLayerY)?.min }}</span>
+                      <span>{{ getVariableInformation(newLayerY)?.min.toFixed(2) }}</span>
                     </template>
                     <template #append>
-                      <span>{{ getVariableInformation(newLayerY)?.max }}</span>
+                      <span>{{ getVariableInformation(newLayerY)?.max.toFixed(2) }}</span>
                     </template>
                   </v-range-slider>
                   <v-tooltip v-if="getVariableInformation(newLayerY)?.geospatial === 'latitude'">
