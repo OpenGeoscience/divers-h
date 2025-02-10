@@ -14,6 +14,7 @@ from rest_framework.viewsets import GenericViewSet, ModelViewSet
 from uvdat.core.models import (
     LayerRepresentation,
     NetCDFLayer,
+    NetCDFData,
     RasterMapLayer,
     VectorFeature,
     VectorMapLayer,
@@ -580,6 +581,8 @@ class MapLayerViewSet(GenericViewSet):
                 VectorMapLayer.objects.filter(id=layer_id).update(name=new_name)
             elif layer_type == 'raster':
                 RasterMapLayer.objects.filter(id=layer_id).update(name=new_name)
+            elif layer_type == 'netcdf':
+                NetCDFData.objects.filter(id=layer_id).update(name=new_name)
             else:
                 return Response(
                     {'error': 'Invalid layer type. Must be "vector" or "raster".'},
