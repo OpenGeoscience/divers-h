@@ -10,9 +10,9 @@ from .network import NetworkEdgeViewSet, NetworkNodeViewSet, NetworkViewSet
 from .processing_task import ProcessingTaskView
 from .regions import DerivedRegionViewSet, SourceRegionViewSet
 from .simulations import SimulationViewSet
+from .tasks import TasksAPIView
 from .user import UserViewSet
 from .vector_feature_table_data import VectorFeatureTableDataViewSet
-from .tasks import TasksAPIView
 
 __all__ = [
     ContextViewSet,

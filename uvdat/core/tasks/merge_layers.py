@@ -1,26 +1,41 @@
+import json
 import logging
+from typing import List, Literal, Optional
+
+from celery import shared_task
+from django.core.files.base import ContentFile
 import geopandas as gpd
 import pandas as pd
-from celery import shared_task
-from uvdat.core.models import VectorMapLayer, Dataset, FileItem
-import json
-from typing import List, Optional, Literal
-from django.core.files.base import ContentFile
+
+from uvdat.core.models import Dataset, FileItem, VectorMapLayer
+
+from .dataset import process_file_item
 
 # Configure logging
 logger = logging.getLogger(__name__)
 
+
 def save_geojson_to_dataset(dataset_name: str, geojson_data: dict):
-    dataset, _ = Dataset.objects.get_or_create(name=dataset_name, defaults={'category': 'generated'})
+    dataset, _ = Dataset.objects.get_or_create(
+        name=dataset_name,
+        defaults={
+            'category': 'generated',
+            'description': 'Generated dataset from vector layer merge.',
+            'metadata': {},
+        },
+    )
     geojson_content = json.dumps(geojson_data, indent=2)
     file_item = FileItem.objects.create(
         name=f'{dataset_name}.geojson',
         dataset=dataset,
         file_type='geojson',
+        metadata={},
         file_size=len(geojson_content.encode('utf-8')),
     )
     file_item.file.save(f'{dataset_name}.geojson', ContentFile(geojson_content.encode()), save=True)
+    process_file_item.delay(file_item.id)
     return file_item
+
 
 @shared_task
 def merge_vector_layer_data(
@@ -31,20 +46,24 @@ def merge_vector_layer_data(
     exclude_non_overlapping: bool = True,
     properties_to_merge: Optional[List[str]] = None,
     flatten: bool = True,  # Default to flattening
-    use_first_value: bool = False  # first value from merged properties
+    use_first_value: bool = False,  # first value from merged properties
 ) -> dict:
     logger.info(f'Starting merge_vector_layer_data task for base_layer_id: {base_layer_id}')
 
     try:
         # Load the base layer GeoDataFrame
         base_layer = VectorMapLayer.objects.get(id=base_layer_id)
-        base_gdf = gpd.GeoDataFrame.from_features(base_layer.read_geojson_data().get('features', []))
+        base_gdf = gpd.GeoDataFrame.from_features(
+            base_layer.read_geojson_data().get('features', [])
+        )
 
         # Load the secondary layers and store their properties
         other_gdfs = []
         for layer_id in other_layer_ids:
             layer = VectorMapLayer.objects.get(id=layer_id)
-            layer_gdf = gpd.GeoDataFrame.from_features(layer.read_geojson_data().get('features', []))
+            layer_gdf = gpd.GeoDataFrame.from_features(
+                layer.read_geojson_data().get('features', [])
+            )
             other_gdfs.append(layer_gdf)
 
         if not other_gdfs:
@@ -63,22 +82,31 @@ def merge_vector_layer_data(
         output_features = []
 
         # Loop through each feature in the base layer
-        logger.info(f"Processing {len(base_gdf)} features from the base layer.")
+        logger.info(f'Processing {len(base_gdf)} features from the base layer.')
         for _, base_row in base_gdf.iterrows():
             # Find features in the other layers that intersect or completely overlap the current base layer feature
             intersecting_features = []
             for _, other_row in other_gdf.iterrows():
-                if operation == 'intersection' and base_row['geometry'].intersects(other_row['geometry']):
+                if operation == 'intersection' and base_row['geometry'].intersects(
+                    other_row['geometry']
+                ):
                     intersecting_features.append(other_row)
-                elif operation == 'contains' and base_row['geometry'].contains(other_row['geometry']):
+                elif operation == 'contains' and base_row['geometry'].contains(
+                    other_row['geometry']
+                ):
                     intersecting_features.append(other_row)
 
-            # If exclude_non_overlapping is True and no intersection or complete overlap is found, skip this base feature
             if exclude_non_overlapping and not intersecting_features:
                 continue
 
             # Prepare the properties for the current feature
             feature_properties = base_row.drop('geometry')
+
+            for row_dict in intersecting_features:
+                for item in row_dict.to_dict().keys():
+                    if feature_properties.get(item):
+                        feature_properties = feature_properties.drop(item)
+            feature_properties = feature_properties.to_dict()
 
             # Merge properties from the intersecting features
             merged_properties = []
@@ -87,7 +115,11 @@ def merge_vector_layer_data(
 
                 # If properties_to_merge is provided, only merge those
                 if properties_to_merge:
-                    filtered_props = {key: value for key, value in other_props.items() if key in properties_to_merge}
+                    filtered_props = {
+                        key: value
+                        for key, value in other_props.items()
+                        if key in properties_to_merge
+                    }
                     merged_properties.append(filtered_props)
                 else:
                     merged_properties.append(other_props)
@@ -114,16 +146,18 @@ def merge_vector_layer_data(
             # Convert the feature to a GeoJSON feature
             feature_geojson = {
                 'type': 'Feature',
-                'geometry': base_row['geometry'].__geo_interface__,  # Convert geometry to GeoJSON format
-                'properties': feature_properties  # Add properties to the GeoJSON feature
+                'geometry': base_row[
+                    'geometry'
+                ].__geo_interface__,  # Convert geometry to GeoJSON format
+                'properties': feature_properties,  # Add properties to the GeoJSON feature
             }
 
             # Append the feature to the output list
             output_features.append(feature_geojson)
 
         # Save the output features as a new GeoJSON file
-        logger.info(f"Saving the result to {dataset_name}.geojson")
-        geojson = {"type": "FeatureCollection", "features": output_features}
+        logger.info(f'Saving the result to {dataset_name}.geojson')
+        geojson = {'type': 'FeatureCollection', 'features': output_features}
         save_geojson_to_dataset(dataset_name, geojson)
 
         return {'status': 'success', 'message': 'Vector processing completed and dataset created.'}

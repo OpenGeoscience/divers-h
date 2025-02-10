@@ -22,10 +22,10 @@ from uvdat.core.rest import (
     RasterMapLayerViewSet,
     SimulationViewSet,
     SourceRegionViewSet,
+    TasksAPIView,
     UserViewSet,
     VectorFeatureTableDataViewSet,
     VectorMapLayerViewSet,
-    TasksAPIView,
 )
 
 router = routers.SimpleRouter()
