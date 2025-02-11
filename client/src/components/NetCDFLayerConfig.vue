@@ -38,7 +38,7 @@ export default defineComponent({
             if (found.sliding.variable === 'time') {
               // convert unix timestamp to human readable date YYYY-MM-DD
               try {
-                const date = new Date((mapSlicer[i] as number) / 1e6);
+                const date = new Date((mapSlicer[i] as number) * 1000);
                 // eslint-disable-next-line prefer-destructuring
                 mapSlicer[i] = date.toISOString().split('T')[0];
               } catch (e) {

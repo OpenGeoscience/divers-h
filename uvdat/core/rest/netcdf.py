@@ -88,7 +88,7 @@ class NetCDFDataView(GenericViewSet, mixins.ListModelMixin, mixins.CreateModelMi
                     "max": sliding_dim.get('max', step_count),
                     "variable": sliding_dim.get('variable', 'time'),
                 }
-                sliding_data['step'] = (sliding_data['max'] - sliding_data['min']) / step_count
+                sliding_data['step'] = (sliding_data['max'] - sliding_data['min']) / (step_count - 1)
             response_data = {
                 'netCDFLayer': int(netcdf_layer_id),
                 'parent_bounds': netcdf_layer.bounds.envelope.coords,  # 4-tuple for the parent layer bounds

@@ -22,6 +22,49 @@ from uvdat.core.models import NetCDFData, NetCDFImage, NetCDFLayer, ProcessingTa
 logger = logging.getLogger(__name__)
 
 
+def convert_time(obj, output='compact'):
+    if isinstance(obj, str):  # Handle ctime (string)
+        dt_obj = datetime.strptime(obj, '%a %b %d %H:%M:%S %Y')
+    elif isinstance(obj, np.datetime64):  # Handle datetime64
+        dt_obj = pd.Timestamp(obj).to_pydatetime()
+    elif isinstance(obj, datetime):  # Handle Python datetime objects
+        dt_obj = obj
+    elif isinstance(obj, (cftime.DatetimeNoLeap, cftime.DatetimeAllLeap, cftime.Datetime360Day, cftime.DatetimeJulian)):
+        dt_obj = datetime(obj.year, obj.month, obj.day, obj.hour, obj.minute, obj.second)
+    elif isinstance(obj, (int, float)):
+        if obj > 1e10:  # Assume milliseconds timestamp
+            dt_obj = datetime.fromtimestamp(obj / 1000)
+        else:  # Assume seconds timestamp
+            dt_obj = datetime.fromtimestamp(obj)
+    else:
+        return obj  # Return as-is if the type is unrecognized
+
+    if output == 'iso':
+        return dt_obj.isoformat()
+    elif output == 'datetime':
+        return dt_obj
+    elif output == 'compact':
+        return int(dt_obj.strftime('%Y%m%d%H%M%S'))
+    elif output == 'unix':
+        return dt_obj.timestamp()
+
+
+def convert_to_timestamp(obj):
+    if isinstance(obj, str):  # Handle ctime (string)
+        dt_obj = datetime.strptime(obj, '%a %b %d %H:%M:%S %Y')
+        return dt_obj.timestamp()
+    elif isinstance(obj, np.datetime64):  # Handle datetime64
+        return (obj - np.datetime64('1970-01-01T00:00:00')) / np.timedelta64(1, 's')
+    elif isinstance(obj, datetime):  # Handle Python datetime objects
+        return obj.timestamp()
+    elif isinstance(obj, (cftime.DatetimeNoLeap, cftime.DatetimeAllLeap, cftime.Datetime360Day, cftime.DatetimeJulian)):
+        dt = obj
+        dt_obj = datetime(dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second)
+        unix_timestamp = pd.Timestamp(dt_obj).timestamp()
+        return unix_timestamp
+    else:
+        return obj
+
 def create_netcdf_data_layer(file_item, metadata):
     with tempfile.TemporaryDirectory() as temp_dir:
         raw_data_path = Path(temp_dir, 'netcdf.nc')
@@ -51,20 +94,20 @@ def create_netcdf_data_layer(file_item, metadata):
             # Calculate min and max values if the variable has numeric data
             if isinstance(variable.values[0], (cftime.DatetimeNoLeap, cftime.DatetimeAllLeap, cftime.Datetime360Day, cftime.DatetimeJulian)):
                 vals = []
-                str_vals = []
                 for item in variable.values:
                     print(item)
                     dt = item
-                    dt_obj = datetime.datetime(dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second)
-                    unix_timestamp = pd.Timestamp(dt_obj).timestamp()
-                    str_vals.append(pd.Timestamp(dt_obj).isoformat())
-                    vals.append(unix_timestamp)
-                var_min = float(min(vals)) if variable.size > 0 else None
-                var_max = float(max(vals)) if variable.size > 0 else None
-                var_info['min'] = var_min
-                var_info['max'] = var_max
+                    dt_obj = datetime(dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second)
+                    timeobj = convert_time(pd.Timestamp(dt_obj), 'datetime')
+                    vals.append(timeobj)
+                var_min = (min(vals)) if variable.size > 0 else None
+                var_max = (max(vals)) if variable.size > 0 else None
+                var_info['min'] = convert_time(var_min, 'unix')
+                var_info['max'] = convert_time(var_max, 'unix')
+                var_info['startDate'] = convert_time(var_min, 'iso')
+                var_info['endDate'] = convert_time(var_max, 'iso')
+                var_info['timeType'] = 'unix'
                 var_info['steps'] = variable.size
-                # var_info['timeMap'] = str_vals
             else:
                 try:
                     var_min = float(variable.min().values) if variable.size > 0 else None
@@ -72,13 +115,17 @@ def create_netcdf_data_layer(file_item, metadata):
                     if 'datetime' in str(variable.dtype):
                         var_info['startDate'] = str(variable.min().values)
                         var_info['endDate'] = str(variable.max().values)
-                        # str_vals = []
-                        # for item in variable.values:
-                        #     str_vals.append(str(item))
-                        #     var_info['timeMap'] = str_vals
+              
+                    if 'time' in var_name:
+                        var_info['min'] = convert_time(var_min, 'unix')
+                        var_info['max'] = convert_time(var_max, 'unix')
+                        var_info['startDate'] = convert_time(var_min, 'iso')
+                        var_info['endDate'] = convert_time(var_max, 'iso')
 
-                    var_info['min'] = var_min
-                    var_info['max'] = var_max
+                        var_info['timeType'] = 'unix'
+                    else:
+                        var_info['min'] = var_min
+                        var_info['max'] = var_max
                     var_info['steps'] = variable.size
 
                     if var_name in description['dimensions'].keys():
@@ -321,18 +368,6 @@ def preview_netcdf_slice(
         return base64_image
 
 
-def convert_to_timestamp(obj):
-    if isinstance(obj, str):  # Handle ctime (string)
-        dt_obj = datetime.strptime(obj, '%a %b %d %H:%M:%S %Y')
-        return dt_obj.timestamp()
-    elif isinstance(obj, np.datetime64):  # Handle datetime64
-        return (obj - np.datetime64('1970-01-01T00:00:00')) / np.timedelta64(1, 's')
-    elif isinstance(obj, datetime):  # Handle Python datetime objects
-        return obj.timestamp()
-    else:
-        return obj
-
-
 @shared_task
 def create_netcdf_slices(
     netcdf_data_id: int,
@@ -546,8 +581,8 @@ def create_netcdf_slices(
         bounds = None
         if slicer_range:
             slicer_range = [
-                convert_to_timestamp(slicer_range[0]),
-                convert_to_timestamp(slicer_range[1]),
+                convert_time(slicer_range[0], 'unix'),
+                convert_time(slicer_range[1], 'unix'),
             ]
         if variables:
             try:
