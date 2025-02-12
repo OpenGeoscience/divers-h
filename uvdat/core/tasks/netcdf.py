@@ -1,20 +1,20 @@
 import base64
 from datetime import datetime
-import cftime
 from io import BytesIO
 import logging
 from pathlib import Path
 import re
 import tempfile
-import pandas as pd
 
 from PIL import Image
 from celery import current_task, shared_task
+import cftime
 from django.contrib.gis.geos import Polygon
 from django.contrib.gis.geos.error import GEOSException
 from django.core.files.base import ContentFile
 from matplotlib import cm
 import numpy as np
+import pandas as pd
 import xarray as xr
 
 from uvdat.core.models import NetCDFData, NetCDFImage, NetCDFLayer, ProcessingTask
@@ -29,7 +29,15 @@ def convert_time(obj, output='compact'):
         dt_obj = pd.Timestamp(obj).to_pydatetime()
     elif isinstance(obj, datetime):  # Handle Python datetime objects
         dt_obj = obj
-    elif isinstance(obj, (cftime.DatetimeNoLeap, cftime.DatetimeAllLeap, cftime.Datetime360Day, cftime.DatetimeJulian)):
+    elif isinstance(
+        obj,
+        (
+            cftime.DatetimeNoLeap,
+            cftime.DatetimeAllLeap,
+            cftime.Datetime360Day,
+            cftime.DatetimeJulian,
+        ),
+    ):
         dt_obj = datetime(obj.year, obj.month, obj.day, obj.hour, obj.minute, obj.second)
     elif isinstance(obj, (int, float)):
         if obj > 1e10:  # Assume milliseconds timestamp
@@ -57,13 +65,22 @@ def convert_to_timestamp(obj):
         return (obj - np.datetime64('1970-01-01T00:00:00')) / np.timedelta64(1, 's')
     elif isinstance(obj, datetime):  # Handle Python datetime objects
         return obj.timestamp()
-    elif isinstance(obj, (cftime.DatetimeNoLeap, cftime.DatetimeAllLeap, cftime.Datetime360Day, cftime.DatetimeJulian)):
+    elif isinstance(
+        obj,
+        (
+            cftime.DatetimeNoLeap,
+            cftime.DatetimeAllLeap,
+            cftime.Datetime360Day,
+            cftime.DatetimeJulian,
+        ),
+    ):
         dt = obj
         dt_obj = datetime(dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second)
         unix_timestamp = pd.Timestamp(dt_obj).timestamp()
         return unix_timestamp
     else:
         return obj
+
 
 def create_netcdf_data_layer(file_item, metadata):
     with tempfile.TemporaryDirectory() as temp_dir:
@@ -92,7 +109,13 @@ def create_netcdf_data_layer(file_item, metadata):
             }
 
             # Calculate min and max values if the variable has numeric data
-            if isinstance(variable.values[0], (cftime.DatetimeNoLeap, cftime.DatetimeAllLeap, cftime.Datetime360Day, cftime.DatetimeJulian)):
+            cftime_types = (
+                cftime.DatetimeNoLeap,
+                cftime.DatetimeAllLeap,
+                cftime.Datetime360Day,
+                cftime.DatetimeJulian,
+            )
+            if isinstance(variable.values[0], cftime_types):
                 vals = []
                 for item in variable.values:
                     print(item)
@@ -115,7 +138,6 @@ def create_netcdf_data_layer(file_item, metadata):
                     if 'datetime' in str(variable.dtype):
                         var_info['startDate'] = str(variable.min().values)
                         var_info['endDate'] = str(variable.max().values)
-              
                     if 'time' in var_name:
                         var_info['min'] = convert_time(var_min, 'unix')
                         var_info['max'] = convert_time(var_max, 'unix')
@@ -141,7 +163,7 @@ def create_netcdf_data_layer(file_item, metadata):
                 except Exception:
                     var_info['min'] = 0
                     var_info['max'] = variable.size
-                    var_info["steps"] = variable.size
+                    var_info['steps'] = variable.size
 
             description['variables'][var_name] = var_info
 

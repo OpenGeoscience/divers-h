@@ -394,6 +394,7 @@ export interface VectorMapLayer extends AbstractMapLayer {
     filters?: Filter[];
     charts?: CustomChart[];
     selectedFeatureCharts?: FeatureChart[];
+    vectorFeatureTableGraphs?: VectorFeatureTableGraph[];
 
   }
 }
@@ -734,3 +735,68 @@ export interface VectorTimeSeries {
 }
 
 export type FeatureChartWithData = FeatureChart & { data: { key: string, value: number; color: string }[] };
+
+export interface TableSummary {
+  vectorFeatureCount: number;
+  tables: Record<string, TableInfo>;
+}
+
+interface TableInfo {
+  tableCount: number;
+  columns: string[];
+  summary: Record<string, ColumnSummary>;
+}
+
+type ColumnSummary =
+  | NumberColumnSummary
+  | StringColumnSummary
+  | ParameterColumnSummary;
+
+interface NumberColumnSummary {
+  type: 'number';
+  min: number;
+  max: number;
+  value_count: number;
+}
+
+interface StringColumnSummary {
+  type: 'string';
+  values: string[];
+  value_count: number;
+}
+
+interface ParameterColumnSummary {
+  type: 'parameter_cd';
+  parameters: Record<string, ParameterStats>;
+}
+
+interface ParameterStats {
+  parameter_cd: string;
+  parameter_name: string;
+  min: number;
+  max: number;
+  mean: number;
+}
+
+export interface VectorFeatureTableGraph {
+  name: string;
+  type: string;
+  xAxis: string;
+  yAxis: string;
+  filterColumn?: string;
+  filterValue?: string;
+}
+
+export interface FeatureGraphData {
+  table_name: string;
+  graphs:
+  Record<string, {
+    data:[number, number][];
+    filterVal: string;
+  }>
+  | {
+    default: {
+      data: [number, number][];
+    };
+  };
+}

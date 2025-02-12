@@ -7,7 +7,7 @@ import { drawBarChart } from '../Metadata/drawChart';
 
 // FeatureChart TypeScript interface (as provided)
 export default defineComponent({
-  name: 'RenderFeatureChart',
+  name: 'PropertyFeatureChart',
   props: {
     featureChart: {
       type: Object as PropType<FeatureChartWithData>,

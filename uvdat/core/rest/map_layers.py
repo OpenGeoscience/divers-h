@@ -13,8 +13,8 @@ from rest_framework.viewsets import GenericViewSet, ModelViewSet
 
 from uvdat.core.models import (
     LayerRepresentation,
-    NetCDFLayer,
     NetCDFData,
+    NetCDFLayer,
     RasterMapLayer,
     VectorFeature,
     VectorMapLayer,

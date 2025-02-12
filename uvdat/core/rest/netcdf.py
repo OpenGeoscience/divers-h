@@ -84,15 +84,17 @@ class NetCDFDataView(GenericViewSet, mixins.ListModelMixin, mixins.CreateModelMi
             step_count = netcdf_layer.parameters.get('stepCount', None)
             if sliding_dim and step_count:
                 sliding_data = {
-                    "min": sliding_dim.get('min', 0),
-                    "max": sliding_dim.get('max', step_count),
-                    "variable": sliding_dim.get('variable', 'time'),
+                    'min': sliding_dim.get('min', 0),
+                    'max': sliding_dim.get('max', step_count),
+                    'variable': sliding_dim.get('variable', 'time'),
                 }
-                sliding_data['step'] = (sliding_data['max'] - sliding_data['min']) / (step_count - 1)
+                sliding_data['step'] = (sliding_data['max'] - sliding_data['min']) / (
+                    step_count - 1
+                )
             response_data = {
                 'netCDFLayer': int(netcdf_layer_id),
                 'parent_bounds': netcdf_layer.bounds.envelope.coords,  # 4-tuple for the parent layer bounds
-                "sliding": sliding_data,
+                'sliding': sliding_data,
                 'images': [image.image.url for image in netcdf_images],  # Only return the image URL
             }
 

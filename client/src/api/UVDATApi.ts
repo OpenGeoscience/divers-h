@@ -8,6 +8,7 @@ import {
   ContextWithIds,
   Dataset,
   DerivedRegion,
+  FeatureGraphData,
   FileItem,
   LayerCollection,
   LayerCollectionLayer,
@@ -21,6 +22,7 @@ import {
   RasterData,
   RasterMapLayer,
   SimulationType,
+  TableSummary,
   VectorMapLayer,
 } from '../types';
 
@@ -493,5 +495,30 @@ export default class UVdatApi {
 
   public static async deleteContext(contextId: number): Promise<{ detail: string }> {
     return (await UVdatApi.apiClient.delete(`/contexts/${contextId}/`)).data;
+  }
+
+  public static async getVectorTableSummary(layerId: number): Promise<TableSummary> {
+    return (await UVdatApi.apiClient.get('/vectorfeature/tabledata/table-summary/', { params: { layerId } })).data;
+  }
+
+  public static async getFeatureGraphData(
+    tableType: string,
+    vectorFeatureId: number,
+    xAxis: string = 'index',
+    yAxis: string = 'mean_va',
+    filter?: string,
+    filterVal?: string,
+  ): Promise<FeatureGraphData> {
+    const response = await UVdatApi.apiClient.get('/vectorfeature/tabledata/feature-graph/', {
+      params: {
+        tableType,
+        vectorFeatureId,
+        xAxis,
+        yAxis,
+        filter,
+        filterVal,
+      },
+    });
+    return response.data;
   }
 }
