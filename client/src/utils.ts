@@ -174,11 +174,11 @@ const formatNumPrecision = (num: number, range?: number) => {
   return num;
 };
 
-function convertTimestampNSToDatetimeString(timestamp: number): string {
+function convertTimestampNSToDatetimeString(timestamp: number, format = 'date'): string {
   // Convert the nanoseconds to milliseconds
-  const milliseconds = Math.round(timestamp);
+  const seconds = Math.round(timestamp);
   // Create a Date object
-  const date = new Date(milliseconds);
+  const date = new Date(seconds * 1000);
   // Extract the parts of the date in UTC
   const year = date.getUTCFullYear();
   const month = (date.getUTCMonth() + 1).toString().padStart(2, '0'); // Months are 0-indexed
@@ -188,7 +188,57 @@ function convertTimestampNSToDatetimeString(timestamp: number): string {
   const hours = date.getUTCHours().toString().padStart(2, '0');
   const minutes = date.getUTCMinutes().toString().padStart(2, '0');
   // Format the date as YYYYMMDD HH:MM
-  return `${year}${month}${day} ${hours}:${minutes}`;
+  if (format === 'date') {
+    return `${year}-${month}-${day}`;
+  } if (format === 'year') {
+    return `${year}`;
+  }
+  return `${year}-${month}-${day} ${hours}:${minutes}`;
+}
+
+function formatISOToYYMMDD(dateString: string): string | null {
+  const isoRegex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})?$/;
+
+  if (!isoRegex.test(dateString)) {
+    return null; // Not a valid ISO 8601 string
+  }
+
+  try {
+    const date = new Date(dateString);
+    if (Number.isNaN(date.getTime())) {
+      return null; // Invalid date
+    }
+
+    const yy = String(date.getFullYear()).slice(-2);
+    const mm = String(date.getMonth() + 1).padStart(2, '0');
+    const dd = String(date.getDate()).padStart(2, '0');
+
+    return `${yy}-${mm}-${dd}`;
+  } catch {
+    return null;
+  }
+}
+
+function formatCompactToISO(compactNumber: number, format: 'date' | 'datetime' = 'date'): string | null {
+  const compactStr = compactNumber.toString();
+
+  if (!/^(\d{12}|\d{8})$/.test(compactStr)) {
+    return null; // Invalid format
+  }
+
+  const year = compactStr.slice(0, 4);
+  const month = compactStr.slice(4, 6);
+  const day = compactStr.slice(6, 8);
+
+  if (format === 'date') {
+    return `${year}-${month}-${day}`;
+  } if (compactStr.length === 12) {
+    const hour = compactStr.slice(8, 10);
+    const minute = compactStr.slice(10, 12);
+    return `${year}-${month}-${day} ${hour}:${minute}`;
+  }
+
+  return `${year}-${month}-${day}`; // Default fallback
 }
 
 function convert360Longitude(longitude: number): number {
@@ -206,5 +256,7 @@ export {
   formatNumPrecision,
   createColorNumberPairs,
   convertTimestampNSToDatetimeString,
+  formatCompactToISO,
+  formatISOToYYMMDD,
   convert360Longitude,
 };

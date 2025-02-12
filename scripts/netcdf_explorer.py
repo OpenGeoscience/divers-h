@@ -1,5 +1,8 @@
 import click
+import cftime
+import pandas as pd
 import xarray as xr
+import datetime
 from PIL import Image
 import numpy as np
 import os
@@ -37,16 +40,30 @@ def describe(file_path, output_json):
                 "dtype": str(variable.dtype),
                 "attributes": {key: str(value) for key, value in variable.attrs.items()},
             }
-
             # Calculate min and max values if the variable has numeric data
-            try:
-                var_min = float(variable.min().values) if variable.size > 0 else None
-                var_max = float(variable.max().values) if variable.size > 0 else None
+            if isinstance(variable.values[0], cftime.DatetimeNoLeap):
+                vals = []
+                for item in variable.values:
+                    print(item)
+                    dt = item
+                    dt_obj = datetime.datetime(dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second)
+                    unix_timestamp = pd.Timestamp(dt_obj).timestamp()
+                    vals.append(unix_timestamp)
+                print(f'TimeStamp: {unix_timestamp}')
+                var_min = float(min(vals)) if variable.size > 0 else None
+                var_max = float(max(vals)) if variable.size > 0 else None
                 var_info["min"] = var_min
                 var_info["max"] = var_max
-            except Exception:
-                var_info["min"] = 0
-                var_info["max"] = variable.size
+            else:
+                try:
+                    var_min = float(variable.min().values) if variable.size > 0 else None
+                    var_max = float(variable.max().values) if variable.size > 0 else None
+                    var_info["min"] = var_min
+                    var_info["max"] = var_max
+                except Exception:
+                    var_info["min"] = 0
+                    var_info["max"] = variable.size
+                    var_info["steps"] = variable.size
 
             description["variables"][var_name] = var_info
 

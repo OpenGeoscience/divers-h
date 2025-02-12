@@ -10,7 +10,7 @@ To begin development, check out the repo via `git clone git@github.com:OpenGeosc
     2. Run `docker compose run --rm django ./manage.py createsuperuser`
        and follow the prompts to create your own user.
     3. Run `docker compose run --rm django ./manage.py makeclient --username {your.username@email.com}` to create the client application id for user logins.
-    4. Run `docker compose run --rm django ./manage.py ingest_data ./sample_data/test.json` to use sample data.
+    4. Run `docker compose run --rm django ./manage.py ingest_data tva.json` to use sample data.
     5. Copy the `./client/env.example` environment file to `./client/.env`.  The default environment variables should be sufficient for local development.
 
 ## Run Application

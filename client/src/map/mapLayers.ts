@@ -106,6 +106,7 @@ const toggleLayerSelection = (layer: VectorMapLayer | RasterMapLayer | NetCDFLay
   } else {
     MapStore.selectedMapLayers.value = [...MapStore.selectedMapLayers.value, layer];
     toggleLayerVisibility(layer, true);
+    setPopupEvents(internalMap.value as maplibregl.Map);
   }
 };
 

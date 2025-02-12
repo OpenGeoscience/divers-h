@@ -5,12 +5,14 @@ import {
 import AvailableProperties from './Metadata/AvailableProperties.vue';
 import MetadataSettings from './Metadata/MetadataSettings.vue';
 import SelectedFeatureChartCard from './Metadata/SelectedFeatureChartCard.vue';
+import TableSummary from './TabularData/TableSummary.vue';
 
 export default defineComponent({
   components: {
     AvailableProperties,
     MetadataSettings,
     SelectedFeatureChartCard,
+    TableSummary,
   },
   props: {
     layerId: {
@@ -19,7 +21,7 @@ export default defineComponent({
     },
   },
   setup() {
-    const tab: Ref<'availableProperties' | 'settings' | 'charts'> = ref('availableProperties');
+    const tab: Ref<'availableProperties' | 'settings' | 'charts' | 'tabularData'> = ref('availableProperties');
 
     return {
       tab,
@@ -72,12 +74,27 @@ export default defineComponent({
         </v-icon>
       </template>
     </v-tooltip>
+    <v-tooltip text="Tabular Data">
+      <template #activator="{ props }">
+        <v-icon
+          class="icon-center"
+          :class="{ 'selected-tab': tab === 'tabularData' }"
+          v-bind="props"
+          color="primary"
+          size="x-small"
+          @click="tab = 'tabularData'"
+        >
+          mdi-table
+        </v-icon>
+      </template>
+    </v-tooltip>
 
     <v-spacer />
   </v-row>
   <AvailableProperties v-if="tab === 'availableProperties'" :layer-id="layerId" />
   <MetadataSettings v-else-if="tab === 'settings'" :layer-id="layerId" />
   <SelectedFeatureChartCard v-else-if="tab === 'charts'" :layer-id="layerId" />
+  <TableSummary v-else-if="tab === 'tabularData'" :layer-id="layerId" />
 </template>
 
 <style scoped>

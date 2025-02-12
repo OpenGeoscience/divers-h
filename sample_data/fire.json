@@ -1,0 +1,64 @@
+[
+    {
+        "type": "Context",
+        "name": "WildFire Data",
+        "default_map_center": [
+            34.8019,
+            -86.1794
+        ],
+        "default_map_zoom": 6,
+        "datasets": [
+            {
+                "name": "WildFire Data",
+                "description": "MODIS 1km USA (Conterminous) + Hawaii 48h shapefile. From: https://firms.modaps.eosdis.nasa.gov/active_fire/",
+                "category": "region",
+                "metadata": {},
+                "files": [
+                    {
+                        "path": "./data/la-fire-2025/modis-1-48.zip",
+                        "url": "https://data.kitware.com/api/v1/item/67aa368b091a514e82eec908/download",
+                        "name": "MODIS 1km 48h USA + Hawaii",
+                        "type": "zip",
+                        "metadata": {}
+                    },
+                    {
+
+                        "path": "./data/la-fire-2025/current_fire_perimeters.geojson",
+                        "url": "https://data.kitware.com/api/v1/item/67aa368c091a514e82eec90b/download",
+                        "name": "USA Palisades + Eaton Wildfire Perimeters",
+                        "type": "geojson",
+                        "metadata": {}
+                    },
+                    {
+                        "path": "./data/la-fire-2025/current_fire_incidents.geojson",
+                        "url": "https://data.kitware.com/api/v1/item/67aa368c091a514e82eec90e/download",
+                        "name": "USA Palisades + Eaton Wildfire Incidents",
+                        "type": "geojson",
+                        "metadata": {}
+                    },
+                    {
+                        "path": "./data/la-fire-2025/ca_perimeters_nifc_firis.geojson",
+                        "url": "https://data.kitware.com/api/v1/item/67aa33ed091a514e82eec8ff/download",
+                        "name": "California Fire Perimeters",
+                        "type": "geojson",
+                        "metadata": {}
+                    },
+                    {
+                        "path": "./data/la-fire-2025/palidades-2025-01-14.tif",
+                        "url": "https://data.kitware.com/api/v1/item/67aa368a091a514e82eec905/download",
+                        "name": "Palisades Satellite Imagery",
+                        "type": "tif",
+                        "metadata": {}
+                    },
+                    {
+                        "path": "./data/la-fire-2025/eaton-2025-01-14_to_19.tif",
+                        "url": "https://data.kitware.com/api/v1/item/67aa353a091a514e82eec902/download",
+                        "name": "Eaton/Altadena Satellite Imagery",
+                        "type": "tif",
+                        "metadata": {}
+                    }
+                ]
+            }
+        ]
+    }
+]

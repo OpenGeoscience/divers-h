@@ -22,6 +22,7 @@ from uvdat.core.rest import (
     RasterMapLayerViewSet,
     SimulationViewSet,
     SourceRegionViewSet,
+    TasksAPIView,
     UserViewSet,
     VectorFeatureTableDataViewSet,
     VectorMapLayerViewSet,
@@ -58,6 +59,7 @@ router.register(r'map-layers', MapLayerViewSet, basename='map-layers')
 router.register(r'netcdf', NetCDFDataView, basename='netcdf')
 router.register(r'processing-tasks', ProcessingTaskView, basename='processing-tasks')
 router.register(r'users', UserViewSet, basename='users')
+router.register(r'tasks', TasksAPIView, basename='tasks')
 
 urlpatterns = [
     path('accounts/', include('allauth.urls')),

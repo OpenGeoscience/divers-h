@@ -7,13 +7,13 @@ import { FeatureChart } from '../../types';
 import MapStore from '../../MapStore';
 import { drawBarChart } from './drawChart'; // Separate drawChart function
 import { colorGenerator } from '../../map/mapColors';
-import RenderFeatureChart from '../FeatureSelection/RenderFeatureChart.vue';
+import PropertyFeatureChart from '../FeatureSelection/PropertyFeatureChart.vue';
 
 export default defineComponent({
   name: 'FeatureChartEditor',
   components: {
     draggable,
-    RenderFeatureChart,
+    PropertyFeatureChart,
   },
   props: {
     layerId: {
@@ -278,7 +278,7 @@ export default defineComponent({
           </v-icon> {{ chart.name }}
         </v-expansion-panel-title>
         <v-expansion-panel-text>
-          <render-feature-chart :feature-chart="{ ...chart, data: generatedData }" :max-width="500" />
+          <property-feature-chart :feature-chart="{ ...chart, data: generatedData }" :max-width="500" />
         </v-expansion-panel-text>
       </v-expansion-panel>
     </v-expansion-panels>
