@@ -29,25 +29,6 @@ export default defineComponent({
     const graphData = ref<FeatureGraphData | null>(null);
     const dialogVisible = ref(false);
 
-    // Fetch feature graph data when component is mounted or props change
-    const fetchFeatureGraphData = async () => {
-      try {
-        const data = await UVdatApi.getFeatureGraphData(
-          props.graphInfo.type, // Use graphInfo.type (tableType) instead of mapLayerId
-          props.vectorFeatureId,
-          props.graphInfo.xAxis,
-          props.graphInfo.yAxis,
-          props.graphInfo.filterColumn,
-          props.graphInfo.filterValue,
-        );
-        graphData.value = data;
-        renderGraph(data);
-      } catch (error) {
-        // eslint-disable-next-line no-console
-        console.error('Error fetching feature graph data:', error);
-      }
-    };
-
     // Render graph using D3
     const renderGraph = (data: FeatureGraphData, container = 'graphContainer') => {
       const localContainer = container === 'graphContainer' ? graphContainer : graphDialogContainer;
@@ -115,6 +96,25 @@ export default defineComponent({
       g.append('g')
         .attr('class', 'y axis')
         .call(d3.axisLeft(y));
+    };
+
+    // Fetch feature graph data when component is mounted or props change
+    const fetchFeatureGraphData = async () => {
+      try {
+        const data = await UVdatApi.getFeatureGraphData(
+          props.graphInfo.type, // Use graphInfo.type (tableType) instead of mapLayerId
+          props.vectorFeatureId,
+          props.graphInfo.xAxis,
+          props.graphInfo.yAxis,
+          props.graphInfo.filterColumn,
+          props.graphInfo.filterValue,
+        );
+        graphData.value = data;
+        renderGraph(data);
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.error('Error fetching feature graph data:', error);
+      }
     };
 
     // Watch for prop changes and refetch data
