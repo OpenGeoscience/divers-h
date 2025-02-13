@@ -132,36 +132,8 @@ class VectorFeatureTableDataViewSet(
                         table_type
                     ][column].get('value_count', 0) + stats.get('value_count', 0)
 
-                # Special USGS Parameter Type
-                elif stats.get('type') == 'parameter_cd':
-                    if 'parameters' not in column_summaries[table_type][column]:
-                        column_summaries[table_type][column]['parameters'] = {}
-
-                    for param_cd, param_stats in stats.items():
-                        if param_cd == 'type':
-                            continue
-                        if param_cd not in column_summaries[table_type][column]['parameters']:
-                            column_summaries[table_type][column]['parameters'][
-                                param_cd
-                            ] = param_stats
-                        else:
-                            column_summaries[table_type][column]['parameters'][param_cd]['min'] = (
-                                min(
-                                    column_summaries[table_type][column]['parameters'][param_cd][
-                                        'min'
-                                    ],
-                                    param_stats['min'],
-                                )
-                            )
-                            column_summaries[table_type][column]['parameters'][param_cd]['max'] = (
-                                max(
-                                    column_summaries[table_type][column]['parameters'][param_cd][
-                                        'max'
-                                    ],
-                                    param_stats['max'],
-                                )
-                            )
-
+                if stats.get('description', None):
+                    column_summaries[table_type][column]['desciption'] = stats.get('description', 'Unknown')
         # Construct the response
         output = {'vectorFeatureCount': feature_count, 'tables': {}}
         for table_type in type_columns_map:
@@ -174,49 +146,46 @@ class VectorFeatureTableDataViewSet(
 
         return Response(output, status=status.HTTP_200_OK)
 
+    def get_graphs(table_type, vector_ids, x_axis, y_axis, indexer='vectorFeatureId'):
+        tables = VectorFeatureTableData.objects.filter(
+            type=table_type, vector_feature__in=vector_ids
+        )
+        table_data = {'tableName': table.name, 'graphs': {}}
+        for table in tables:
+            x_axis_index = table.columns.index(x_axis)
+            y_axis_index = table.columns.index(y_axis)
+            vector_feature_id = table.vector_feature.pk
+            if indexer == 'vectorFeatureId':
+                index_val = vector_feature_id
+            else:
+                index_val = table.vector_feature.properties.get(indexer)
+            table_data['graphs'][vector_feature_id] = {
+                'indexer': index_val,
+                'vectorFeatureId': vector_feature_id,
+                'data' : []
+             }
+            rows = VectorFeatureRowData.objects.filter(vector_feature_table=table)
+            for row in rows:
+                row_data = row.row_data
+                x_val = row_data[x_axis_index]
+                y_val = row_data[y_axis_index]
+                table_data['graphs'][vector_feature_id]['data'].append([x_val, y_val])
+        return table_data
+
+
+
     @action(detail=False, methods=['get'], url_path='feature-graph')
     def feature_graph(self, request, *args, **kwargs):
         table_type = request.query_params.get('tableType')  # array of Ids
         vector_feature = request.query_params.get('vectorFeatureId')
         x_axis = request.query_params.get('xAxis', 'index')
-        y_axis = request.query_params.get('yAxis', 'mean_va')
-        filter_param = request.query_params.get('filter', 'parameter_cd')
-        filter_val = request.query_params.get('filterVal', '00065')
-        logger.info(f'filter_vals: {filter_val}')
+        y_axis = request.query_params.get('yAxis', '00060')
+        indexer = request.query_params.get('indexer', 'vectorFeatureId')
         if not table_type:
             return Response({'error': 'tableType is required'}, status=status.HTTP_400_BAD_REQUEST)
 
-        try:
-            table = VectorFeatureTableData.objects.get(
-                type=table_type, vector_feature=vector_feature
-            )
-            table_data = {'table_name': table.name}
-            x_axis_index = table.columns.index(x_axis)
-            y_axis_index = table.columns.index(y_axis)
-            if filter_param and filter_val:
-                filter_param_index = table.columns.index(filter_param)
-            if filter_param and filter_val:
-                table_data['graphs'] = {}
-                table_data['graphs'][filter_val] = {
-                    'data': [],
-                    'filterVal': filter_val,
-                }
-            else:
-                table_data['graphs'] = {'default': {'data': []}}
-            rows = VectorFeatureRowData.objects.filter(vector_feature_table=table)
-            for row in rows:
-                row_data = row.row_data
-                filter_row = row_data[filter_param_index]
-                x_val = row_data[x_axis_index]
-                y_val = row_data[y_axis_index]
-                if filter_param and filter_val:
-                    if filter_row == filter_val:
-                        table_data['graphs'][filter_val]['data'].append([x_val, y_val])
-                else:
-                    table_data['graphs']['default']['data'].append([x_val, y_val])
-            return Response(table_data, status=status.HTTP_200_OK)
-        except VectorFeatureTableData.DoesNotExist:
-            return Response({'error': 'Table not found'}, status=status.HTTP_404_NOT_FOUND)
+        graphs = self.get_graphs([vector_feature], x_axis, y_axis, indexer)
+        return Response(graphs, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=['get'], url_path='map-layer-feature-graph')
     def map_layer_feature_graph(self, request, *args, **kwargs):
@@ -224,87 +193,27 @@ class VectorFeatureTableDataViewSet(
         map_layer_id = request.query_params.get('mapLayerId')  # Required
         x_axis = request.query_params.get('xAxis', 'index')
         y_axis = request.query_params.get('yAxis', 'mean_va')
-        filter_param = request.query_params.get('filter', 'parameter_cd')
-        filter_vals = request.query_params.getlist('filterVals', ['00060', '00065'])
-        bounds = request.query_params.getlist(
-            'bounds', None
+        indexer = request.query_params.get('indexer', 'vectorFeatureId')
+        bbox = request.query_params.getlist(
+            'bbox', None
         )  # Optional: [min_x, min_y, max_x, max_y]
-
-        if not table_type or not map_layer_id:
-            return Response(
-                {'error': 'tableType and mapLayerId are required'},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
+        
+        if not bbox:
+            return Response({'error': 'bbox parameter is required'}, status=400)
+        
         try:
-            # Filter tables by map layer and table type
-            tables = VectorFeatureTableData.objects.filter(
-                type=table_type, map_layer_id=map_layer_id
-            )
+            xmin, ymin, xmax, ymax = map(float, bbox.split(","))
+            bbox_polygon = Polygon.from_bbox((xmin, ymin, xmax, ymax))
+        except ValueError:
+            return Response({"error": "Invalid bbox format. Expected format: xmin,ymin,xmax,ymax"}, status=400)
+        
+        vector_features = VectorFeature.objects.filter(geometry__intersects=bbox_polygon, map_layer=map_layer_id).values_list("id", flat=True)
 
-            if not tables.exists():
-                return Response(
-                    {'error': 'No tables found for the given parameters'},
-                    status=status.HTTP_404_NOT_FOUND,
-                )
+        if not table_type:
+            return Response({'error': 'tableType is required'}, status=status.HTTP_400_BAD_REQUEST)
 
-            table_data = {'map_layer_id': map_layer_id, 'graphs': {}}
-            all_x_values = set()
-
-            for table in tables:
-                table_entry = {'table_name': table.name}
-
-                x_axis_index = table.columns.index(x_axis)
-                y_axis_index = table.columns.index(y_axis)
-
-                # Prepare graph data for each filter value
-                if filter_param and len(filter_vals):
-                    filter_param_index = table.columns.index(filter_param)
-                    for filter_val in filter_vals:
-                        table_data['graphs'][filter_val] = {
-                            'data': [],
-                            'filterVal': filter_val,
-                        }
-                else:
-                    table_data['graphs']['default'] = {
-                        'data': [],
-                    }
-
-                rows = VectorFeatureRowData.objects.filter(vector_feature_table=table)
-
-                # If bounds are provided, filter VectorFeatures inside bounds
-                if bounds and len(bounds) == 4:
-                    min_x, min_y, max_x, max_y = map(float, bounds)
-                    bounds_polygon = Polygon.from_bbox((min_x, min_y, max_x, max_y))
-                    rows = rows.filter(
-                        vector_feature_table__vector_feature__geometry__intersects=bounds_polygon
-                    )
-
-                for row in rows:
-                    row_data = row.row_data
-                    x_val = row_data[x_axis_index]
-                    y_val = row_data[y_axis_index]
-                    all_x_values.add(x_val)
-
-                    # Handle filter logic for specific filter values
-                    if filter_param and len(filter_vals):
-                        filter_row = row_data[filter_param_index]
-                        for filter_val in filter_vals:
-                            if filter_row == filter_val:
-                                table_data['graphs'][filter_val]['data'].append([x_val, y_val])
-                    else:
-                        table_data['graphs']['default']['data'].append([x_val, y_val])
-
-                # Add the table data to the main response structure
-                table_data['tables'] = table_entry
-
-            # Sort and condense x-axis values into a single list
-            table_data['all_x_values'] = sorted(all_x_values)
-
-            return Response(table_data, status=status.HTTP_200_OK)
-
-        except Exception as e:
-            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        graphs = self.get_graphs(vector_features, x_axis, y_axis, indexer)
+        return Response(graphs, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=['post'], url_path='generate-layer')
     def generate_layer(self, request, *args, **kwargs):

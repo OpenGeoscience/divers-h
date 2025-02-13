@@ -750,53 +750,38 @@ interface TableInfo {
 type ColumnSummary =
   | NumberColumnSummary
   | StringColumnSummary
-  | ParameterColumnSummary;
 
 interface NumberColumnSummary {
   type: 'number';
   min: number;
   max: number;
   value_count: number;
+  description?: string;
 }
 
 interface StringColumnSummary {
   type: 'string';
   values: string[];
   value_count: number;
+  description?: string;
 }
 
-interface ParameterColumnSummary {
-  type: 'parameter_cd';
-  parameters: Record<string, ParameterStats>;
-}
 
-interface ParameterStats {
-  parameter_cd: string;
-  parameter_name: string;
-  min: number;
-  max: number;
-  mean: number;
-}
 
 export interface VectorFeatureTableGraph {
   name: string;
   type: string;
   xAxis: string;
   yAxis: string;
-  filterColumn?: string;
-  filterValue?: string;
+  indexer: string;
 }
 
 export interface FeatureGraphData {
   table_name: string;
   graphs:
-  Record<string, {
+  Record<number, {
     data:[number, number][];
-    filterVal: string;
+    vectorFeatureId: number;
+    indexer: string | number;
   }>
-  | {
-    default: {
-      data: [number, number][];
-    };
-  };
 }

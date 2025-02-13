@@ -1,6 +1,6 @@
 <script lang="ts">
 import {
-  Ref, defineComponent, onMounted, ref,
+  Ref, defineComponent, onMounted, ref, computed,
 } from 'vue';
 import { TableSummary, VectorFeatureTableGraph } from '../../types';
 import UVdatApi from '../../api/UVDATApi';
@@ -24,8 +24,7 @@ export default defineComponent({
     const selectedTableType = ref<string | null>(null);
     const selectedXColumn = ref<string | null>(null);
     const selectedYColumn = ref<string | null>(null);
-    const selectedFilterColumn = ref<string>('');
-    const filterValue = ref<string>('');
+    const selectedIndexerColumn = ref<string>('');
     const graphs = ref<VectorFeatureTableGraph[]>([]);
 
     const getStyleVectorFeatureGraphs = () => {
@@ -59,8 +58,7 @@ export default defineComponent({
     const resetGraphForm = () => {
       selectedXColumn.value = null;
       selectedYColumn.value = null;
-      selectedFilterColumn.value = '';
-      filterValue.value = '';
+      selectedIndexerColumn.value = '';
     };
 
     const addSaveGraph = () => {
@@ -70,8 +68,7 @@ export default defineComponent({
           type: selectedTableType.value,
           xAxis: selectedXColumn.value,
           yAxis: selectedYColumn.value,
-          filterColumn: selectedFilterColumn.value ? selectedFilterColumn.value : undefined,
-          filterValue: filterValue.value ? filterValue.value : undefined,
+          indexer: selectedIndexerColumn.value ? selectedIndexerColumn.value : undefined,
         };
 
         if (editingGraphIndex.value !== null) {
@@ -89,6 +86,15 @@ export default defineComponent({
       }
     };
 
+    const availableColumns = computed(() => {
+      const baseColumns = selectedTableType ? summaryData?.tables[selectedTableType]?.columns : [];
+      if (baseColumns.length) {
+        const takenVals = [selectedXColumn.value, selectedYColumn.value, selectedIndexerColumn].filter((item) => item !== null);
+        return baseColumns.filter((item) => !takenVals.includes(item))
+      }
+      return baseColumns;
+    })
+
     const editGraph = (index: number) => {
       const graph = graphs.value[index];
       // eslint-disable-next-line prefer-destructuring
@@ -96,8 +102,7 @@ export default defineComponent({
       selectedTableName.value = graph.name;
       selectedXColumn.value = graph.xAxis;
       selectedYColumn.value = graph.yAxis;
-      selectedFilterColumn.value = graph.filterColumn || '';
-      filterValue.value = graph.filterValue || ' ';
+      selectedIndexerColumn.value = graph.indexer || '';
       editingGraphIndex.value = index;
     };
 
@@ -116,13 +121,13 @@ export default defineComponent({
       error,
       tableChartDialog,
       activeTab,
+      availableColumns,
       selectedTableName,
       selectedTableType,
       selectedXColumn,
       selectedYColumn,
-      selectedFilterColumn,
+      selectedIndexerColumn,
       editingGraphIndex,
-      filterValue,
       graphs,
       addSaveGraph,
       editGraph,
@@ -203,23 +208,18 @@ export default defineComponent({
             />
             <v-select
               v-model="selectedXColumn"
-              :items="selectedTableType ? summaryData?.tables[selectedTableType]?.columns : []"
+              :items="availableColumns"
               label="Select X Axis"
             />
             <v-select
               v-model="selectedYColumn"
-              :items="selectedTableType ? summaryData?.tables[selectedTableType]?.columns : []"
+              :items="availableColumns"
               label="Select Y Axis"
             />
             <v-select
-              v-model="selectedFilterColumn"
-              :items="selectedTableType ? summaryData?.tables[selectedTableType]?.columns : []"
-              label="Select Filter Column"
-            />
-            <v-text-field
-              v-model="filterValue"
-              label="Filter Value"
-              :disabled="!selectedFilterColumn"
+              v-model="selectedIndexerColumn"
+              :items="availableColumns"
+              label="Select Indexer Column"
             />
             <v-btn :disabled="!selectedTableType || !selectedXColumn || !selectedYColumn" color="primary" @click="addSaveGraph">
               {{ editingGraphIndex !== null ? 'Update' : 'Add' }} Graph
@@ -231,10 +231,10 @@ export default defineComponent({
               <v-list-item-title>{{ graph.name }}</v-list-item-title>
               <v-list-item-subtitle>
                 <div>{{ graph.type }}</div>
-                <div>{{ graph.xAxis }} vs {{ graph.yAxis }} {{ graph.filterValue ? `(Filter - ${graph.filterValue}` : '' }})</div>
+                <div>{{ graph.xAxis }} vs {{ graph.yAxis }} {{ graph.indexer ? `(Indexer - ${graph.indexer}` : '' }})</div>
               </v-list-item-subtitle>
-              <v-list-item-subtitle v-if="graph.filterColumn">
-                Filter: {{ graph.filterColumn }} = {{ graph.filterValue }}
+              <v-list-item-subtitle v-if="graph.inexer">
+                Indexer: {{ graph.indexer }}
               </v-list-item-subtitle>
               <v-list-item-action>
                 <v-icon color="warning" @click="editGraph(index)">

@@ -68,7 +68,7 @@ def fetch_tva_sites(param_codes, usgs_parameters, site_types):
         print(f"ParamCodes: {param_codes}")
         site_response = nwis.what_sites(
             bBox=bbox,
-            parameterCd=list(param_codes),
+            parameterCd=",".join(param_codes),
             siteType=query_site_types,
             siteStatus='active',
             startDt=start_dt,

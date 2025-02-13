@@ -55,11 +55,8 @@ export default defineComponent({
       let dataForGraph: { data: [number, number][], filterVal?: string } | undefined;
 
       // Check for default data or apply filter if necessary
-      if (data.graphs.default) {
-        dataForGraph = data.graphs.default; // Use default data if no filter
-      } else if (props.graphInfo.filterValue && props.graphInfo.filterColumn) {
-        const filteredData = data.graphs as ParameterGraph;
-        dataForGraph = filteredData[props.graphInfo.filterValue]; // Apply filter by value
+      if (data.graphs[props.vectorFeatureId]) {
+        dataForGraph = data.graphs[props.vectorFeatureId]
       }
 
       if (!dataForGraph) {
