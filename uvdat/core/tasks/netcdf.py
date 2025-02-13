@@ -115,10 +115,9 @@ def create_netcdf_data_layer(file_item, metadata):
                 cftime.Datetime360Day,
                 cftime.DatetimeJulian,
             )
-            if isinstance(variable.values[0], cftime_types):
+            if variable.size > 0 and variable.values.ndim > 0 and isinstance(variable.values[0], cftime_types):
                 vals = []
                 for item in variable.values:
-                    print(item)
                     dt = item
                     dt_obj = datetime(dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second)
                     timeobj = convert_time(pd.Timestamp(dt_obj), 'datetime')
