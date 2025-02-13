@@ -98,8 +98,7 @@ export default defineComponent({
           props.vectorFeatureId,
           props.graphInfo.xAxis,
           props.graphInfo.yAxis,
-          props.graphInfo.filterColumn,
-          props.graphInfo.filterValue,
+          props.graphInfo.indexer,
         );
         graphData.value = data;
         renderGraph(data);

@@ -771,7 +771,7 @@ export interface VectorFeatureTableGraph {
   type: string;
   xAxis: string;
   yAxis: string;
-  indexer: string;
+  indexer?: string;
 }
 
 export interface FeatureGraphData {
