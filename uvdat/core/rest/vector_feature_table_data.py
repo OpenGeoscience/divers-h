@@ -97,10 +97,8 @@ class VectorFeatureTableDataViewSet(
             # Ensure all tables of the same type have consistent columns
             if len(type_columns_map[table_type]) == 0:
                 type_columns_map[table_type] = set(table.columns)
-            elif type_columns_map[table_type] != set(table.columns):
-                raise ValidationError(
-                    f'Table Columns do not match for all tables: {type_columns_map[table_type]} vs {set(table.columns)}'
-                )
+            for column in table.columns:
+                type_columns_map[table_type].add(column)
 
             table_count_map[table_type] += 1
 
@@ -133,7 +131,7 @@ class VectorFeatureTableDataViewSet(
                     ][column].get('value_count', 0) + stats.get('value_count', 0)
 
                 if stats.get('description', None):
-                    column_summaries[table_type][column]['desciption'] = stats.get('description', 'Unknown')
+                    column_summaries[table_type][column]['description'] = stats.get('description', 'Unknown')
         # Construct the response
         output = {'vectorFeatureCount': feature_count, 'tables': {}}
         for table_type in type_columns_map:
@@ -146,12 +144,19 @@ class VectorFeatureTableDataViewSet(
 
         return Response(output, status=status.HTTP_200_OK)
 
-    def get_graphs(table_type, vector_ids, x_axis, y_axis, indexer='vectorFeatureId'):
+    def get_graphs(self, table_type, vector_ids, x_axis, y_axis, indexer='vectorFeatureId'):
         tables = VectorFeatureTableData.objects.filter(
             type=table_type, vector_feature__in=vector_ids
         )
-        table_data = {'tableName': table.name, 'graphs': {}}
+        if tables.count() == 0:
+            return {'error': f'No tables found for the given vector features {table_type} - {vector_ids}'}
+        table_data = {'tableName': tables.first().name, 'graphs': {}}
         for table in tables:
+            if y_axis not in table.columns or x_axis not in table.columns:
+                logger.warning(
+                    f'Columns {x_axis} and {y_axis} not found in table {table.name} with id: {table.pk}'
+                )
+                continue
             x_axis_index = table.columns.index(x_axis)
             y_axis_index = table.columns.index(y_axis)
             vector_feature_id = table.vector_feature.pk
@@ -163,13 +168,14 @@ class VectorFeatureTableDataViewSet(
                 'indexer': index_val,
                 'vectorFeatureId': vector_feature_id,
                 'data' : []
-             }
+            }
             rows = VectorFeatureRowData.objects.filter(vector_feature_table=table)
             for row in rows:
                 row_data = row.row_data
                 x_val = row_data[x_axis_index]
                 y_val = row_data[y_axis_index]
-                table_data['graphs'][vector_feature_id]['data'].append([x_val, y_val])
+                if y_val is not None:
+                    table_data['graphs'][vector_feature_id]['data'].append([x_val, y_val])
         return table_data
 
 
@@ -184,7 +190,7 @@ class VectorFeatureTableDataViewSet(
         if not table_type:
             return Response({'error': 'tableType is required'}, status=status.HTTP_400_BAD_REQUEST)
 
-        graphs = self.get_graphs([vector_feature], x_axis, y_axis, indexer)
+        graphs = self.get_graphs(table_type, [vector_feature], x_axis, y_axis, indexer)
         return Response(graphs, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=['get'], url_path='map-layer-feature-graph')
@@ -212,7 +218,7 @@ class VectorFeatureTableDataViewSet(
         if not table_type:
             return Response({'error': 'tableType is required'}, status=status.HTTP_400_BAD_REQUEST)
 
-        graphs = self.get_graphs(vector_features, x_axis, y_axis, indexer)
+        graphs = self.get_graphs(table_type, vector_features, x_axis, y_axis, indexer)
         return Response(graphs, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=['post'], url_path='generate-layer')

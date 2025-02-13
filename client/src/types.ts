@@ -749,7 +749,7 @@ interface TableInfo {
 
 type ColumnSummary =
   | NumberColumnSummary
-  | StringColumnSummary
+  | StringColumnSummary;
 
 interface NumberColumnSummary {
   type: 'number';

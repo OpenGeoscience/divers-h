@@ -1,6 +1,6 @@
 <script lang="ts">
 import {
-  Ref, defineComponent, onMounted, ref, computed,
+  Ref, computed, defineComponent, onMounted, ref,
 } from 'vue';
 import { TableSummary, VectorFeatureTableGraph } from '../../types';
 import UVdatApi from '../../api/UVDATApi';
@@ -87,13 +87,29 @@ export default defineComponent({
     };
 
     const availableColumns = computed(() => {
-      const baseColumns = selectedTableType ? summaryData?.tables[selectedTableType]?.columns : [];
-      if (baseColumns.length) {
+      const baseColumns = selectedTableType.value && summaryData.value?.tables[selectedTableType.value]?.columns
+        ? summaryData.value?.tables[selectedTableType.value]?.columns : [];
+      const mappedColumns = baseColumns.map((item) => {
+        const summary = selectedTableType.value && summaryData.value?.tables[selectedTableType.value].summary[item];
+        let subtitle = '';
+        if (summary && summary.description) {
+          subtitle = summary.description;
+        } else if (summary && summary.type === 'number') {
+          subtitle = `${summary.min} to ${summary.max}`;
+        } else if (summary && summary.type === 'string') {
+          subtitle = `${summary.value_count} unique values`;
+        }
+        return {
+          title: item,
+          subtitle,
+        };
+      });
+      if (mappedColumns.length) {
         const takenVals = [selectedXColumn.value, selectedYColumn.value, selectedIndexerColumn].filter((item) => item !== null);
-        return baseColumns.filter((item) => !takenVals.includes(item))
+        return mappedColumns.filter((item) => !takenVals.includes(item.title));
       }
-      return baseColumns;
-    })
+      return mappedColumns;
+    });
 
     const editGraph = (index: number) => {
       const graph = graphs.value[index];
@@ -209,16 +225,19 @@ export default defineComponent({
             <v-select
               v-model="selectedXColumn"
               :items="availableColumns"
+              :item-props="true"
               label="Select X Axis"
             />
             <v-select
               v-model="selectedYColumn"
               :items="availableColumns"
+              :item-props="true"
               label="Select Y Axis"
             />
             <v-select
               v-model="selectedIndexerColumn"
               :items="availableColumns"
+              :item-props="true"
               label="Select Indexer Column"
             />
             <v-btn :disabled="!selectedTableType || !selectedXColumn || !selectedYColumn" color="primary" @click="addSaveGraph">

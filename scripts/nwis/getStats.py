@@ -226,7 +226,7 @@ def generate_summary(df, param_desc, rows):
                 summary[header] = {'type': None, 'values': set(), 'value_count': 0}
                 parameter_cd = param_desc.get(header, None)
                 if parameter_cd:
-                    summary[header]["description"] = parameter_cd,
+                    summary[header]["description"] = parameter_cd[0] if isinstance(parameter_cd, tuple) else parameter_cd
             for value in df[header].unique():
                 if isinstance(value, bool):
                     summary[header]['type'] = 'bool'
