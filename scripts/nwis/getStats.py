@@ -4,7 +4,28 @@ import pathlib
 import pandas as pd
 from dataretrieval import nwis
 import numpy as np
+import time
+import calendar
 
+def get_unix_time(row, year_index, month_index, day_index):
+    if year_index is not None:
+        year = int(row[year_index])
+    else:
+        year = 1970
+    if month_index is not None:
+        month = int(row[month_index])
+    else:
+        month = 1
+    if day_index is not None:
+        day = int(row[day_index])
+    else:
+        day = 1
+    if month < 1 or month > 12:
+        month = 1
+    if day < 1 or day > 31:
+        day = 1
+
+    return calendar.timegm(time.strptime(f"{year}-{month}-{day}", "%Y-%m-%d"))
 # Define the function for fetching and formatting data
 @click.command()
 @click.option('-p', '--param-codes', multiple=True, required=True, help="List of parameter codes to query.")
@@ -42,13 +63,18 @@ def fetch_data(param_codes, geojson, start_date, end_date, output, usgs_paramete
     
     for report_type in report_types:
         for i, site_list in enumerate(site_lists):
-            response = nwis.get_stats(
-                sites=site_list,
-                startDt=start_date,
-                endDt=end_date,
-                statReportType=report_type,
-                parameterCd=param_codes,
-            )
+            try:
+                response = nwis.get_stats(
+                    sites=site_list,
+                    startDt=start_date,
+                    endDt=end_date,
+                    statReportType=report_type,
+                    parameterCd=",".join(param_codes),
+                )
+                df, meta = response
+            except Exception as e:
+                print(f"Error fetching {report_type} data for sites {site_list}: {e}")
+                continue
             df, meta = response
 
             # Replace NaN values with empty strings
@@ -59,19 +85,19 @@ def fetch_data(param_codes, geojson, start_date, end_date, output, usgs_paramete
                 site_data = df[df['site_no'] == site_number]
                 if not site_data.empty:
                     # Remove the 'ts_id' column if it exists
-                    site_data = site_data.drop(columns=['ts_id', 'site_no', 'loc_web_ds'], errors='ignore')
+                    site_data = site_data.drop(columns=['site_no', 'loc_web_ds'], errors='ignore')
 
                     unique_param_codes = site_data['parameter_cd'].unique()
-
                     # Create a description of the parameters
                     param_names = [param_desc.get(code, 'Unknown parameter') for code in unique_param_codes]
                     description = f"This is a table of the mean {report_type} values for the following parameters: {', '.join([f'{code} - {name}' for code, name in zip(unique_param_codes, param_names)])}"
-
                     header = site_data.columns.tolist()
+                    parameter_cd_index = header.index('parameter_cd')
+                    mean_va_index = header.index('mean_va')
 
                     # Prepare table object
                     rows = site_data.values.tolist()
-                    index = 0
+
                     base_set = set()
                     year_index = None
                     month_index = None
@@ -82,32 +108,82 @@ def fetch_data(param_codes, geojson, start_date, end_date, output, usgs_paramete
                         month_index = header.index('month_nu')
                     if 'day_nu' in header:
                         day_index = header.index('day_nu')
+                    base_string_param_map = {}
+                    ts_id_index = header.index('ts_id')
+                    # update to take only the latest ts_id
+                    ts_id_map = {}
                     for row in rows:
+                        ts_id = row[ts_id_index]
                         year = row[year_index] if year_index is not None else 0000
                         month = row[month_index] if month_index is not None else 00
                         day = row[day_index] if day_index is not None else 00
                         base_string = str(f'{str(year).zfill(4)}{str(month).zfill(2)}{str(day).zfill(2)}')
                         base_set.add(base_string)
+                        if base_string_param_map.get(base_string, None) is None:
+                            base_string_param_map[base_string] = {}
+                            for param in unique_param_codes:
+                                base_string_param_map[base_string][param] = None
+                        val = row[mean_va_index]
+                        for code in unique_param_codes:
+                            if row[parameter_cd_index] == code:
+                                if ts_id_map.get(f'{base_string}_{code}', None) is None:
+                                    ts_id_map[f'{base_string}_{code}'] = ts_id
+                                    if base_string_param_map[base_string][code] is None or val is not None:
+                                        base_string_param_map[base_string][code] = val
+                                if ts_id > ts_id_map[f'{base_string}_{code}']:
+                                    ts_id_map[f'{base_string}_{code}'] = ts_id
+                                    base_string_param_map[base_string][code] = val
                     base_order = list(base_set)
                     base_order.sort()
-                    print(base_order)
+                    time_base_index = {}
+                    header.append('index')
+                    header.append('unix_time')
+                    for code in unique_param_codes:
+                        header.append(code) 
+                    parameter_cd_index = header.index('parameter_cd')
+                    header.pop(parameter_cd_index)
+                    mean_va_index = header.index('mean_va')
+                    header.pop(mean_va_index)
+                    unix_mapping = {}
                     for row in rows:
                         year = row[year_index] if year_index is not None else 0000
                         month = row[month_index] if month_index is not None else 00
                         day = row[day_index] if day_index is not None else 00
                         base_string = str(f'{str(year).zfill(4)}{str(month).zfill(2)}{str(day).zfill(2)}')
                         row.append(base_order.index(base_string))
+                        unix_timestamp = get_unix_time(row, year_index, month_index, day_index)
+                        row.append(unix_timestamp)
+                        row.pop(parameter_cd_index)
+                        row.pop(mean_va_index)
+                        if time_base_index.get(base_string, None) is None:
+                            for param in unique_param_codes:
+                                param_val = base_string_param_map.get(base_string, {}).get(param, None)
+                                row.append(param_val)
+                        if unix_mapping.get(unix_timestamp, None) is None:
+                            unix_mapping[unix_timestamp] = row
+                        else:  # Combine the so we get rid of any missing data
+                            old_row = unix_mapping[unix_timestamp]
+                            for index in range(len(row)):
+                                if row[index] is not None and old_row[index] is None:
+                                    old_row[index] = row[index]
 
-                    header.append('index')
+                    # row_length = len(rows[0])
+                    # for row in rows:
+                    #     if len(row) != row_length:
+                    #         print(f'{site_number}  - {row} != {row_length}')
+                    #     else:
+                    #         print(f'{site_number}  - {row} == {row_length}')
+                    sorted_values = [value for _, value in sorted(unix_mapping.items())]
+
+                    updated_df = pd.DataFrame(sorted_values, columns=header)
                     table_object = {
                         "name": f"{site_number}_{report_type}",
                         "description": description,
                         "type": f'USGS_gauge_{report_type}_{"_".join(param_codes)}',
                         "header": header,
-                        "summary": generate_summary(site_data, param_desc, site_data.columns.tolist()),
-                        "rows": rows,
+                        "summary": generate_summary(updated_df, param_desc, updated_df.columns.tolist()),
+                        "rows": sorted_values,
                     }
-
                     if site_number not in result:
                         result[site_number] = []
                     
@@ -145,8 +221,12 @@ def generate_summary(df, param_desc, rows):
                     "mean": float(value_col.mean())
                 }
         else:  # Calculate type/min/max and other fields
+
             if header not in summary.keys():
                 summary[header] = {'type': None, 'values': set(), 'value_count': 0}
+                parameter_cd = param_desc.get(header, None)
+                if parameter_cd:
+                    summary[header]["description"] = parameter_cd[0] if isinstance(parameter_cd, tuple) else parameter_cd
             for value in df[header].unique():
                 if isinstance(value, bool):
                     summary[header]['type'] = 'bool'
@@ -155,9 +235,15 @@ def generate_summary(df, param_desc, rows):
                     summary[header]['type'] = 'number'
                     summary[header]['value_count'] += 1
                     if 'min' not in summary[header] or value < summary[header]['min']:
-                        summary[header]['min'] = float(value)
+                        if np.isnan(float(value)) or value is None and summary[header].get('min', None) is None:
+                            summary[header]['min'] = float('inf')
+                        else:
+                            summary[header]['min'] = float(value)
                     if 'max' not in summary[header] or value > summary[header]['max']:
-                        summary[header]['max'] = float(value)
+                        if np.isnan(float(value)) or value is None and summary[header].get('max', None) is None:
+                            summary[header]['max'] = float('-inf')
+                        else:
+                            summary[header]['max'] = float(value)
                 elif isinstance(value, str):
                     if 'values' not in summary[header]:
                         summary[header]['values'] = set()
@@ -182,6 +268,10 @@ def generate_summary(df, param_desc, rows):
                 summary[header]['static'] = True
                 summary[header]['value'] = val
             else:
+                if np.isnan(summary[header]['min']):
+                    summary[header]['min'] = None
+                if np.isnan(summary[header]['max']):
+                    summary[header]['max'] = None
                 del summary[header]['values']
         elif (
             summary[header]['type'] == 'string'

@@ -62,7 +62,7 @@
     },
     {
         "type": "Context",
-        "name": "TVA Hydro Stations",
+        "name": "TVA Power Plants",
         "default_map_center": [
             34.8019,
             -86.1794
@@ -70,8 +70,8 @@
         "default_map_zoom": 6,
         "datasets": [
             {
-                "name": "TVA HydroStations",
-                "description": "TVA HydroStations",
+                "name": "TVA Power Plants",
+                "description": "TVA Power Plants",
                 "category": "vector",
                 "metadata": {},
                 "files": [
@@ -81,7 +81,15 @@
                         "name": "TVA Hydro Stations",
                         "type": "geojson",
                         "metadata": {}
+                    },
+                    {
+                        "path": "./data/tva/powerplants.zip",
+                        "url": "https://data.kitware.com/api/v1/file/67a645d7091a514e82eec881/download",
+                        "name": "TVA Power Plants",
+                        "type": "zip",
+                        "metadata": {}
                     }
+
                 ]
             }
         ]

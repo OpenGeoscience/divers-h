@@ -394,6 +394,7 @@ export interface VectorMapLayer extends AbstractMapLayer {
     filters?: Filter[];
     charts?: CustomChart[];
     selectedFeatureCharts?: FeatureChart[];
+    vectorFeatureTableGraphs?: VectorFeatureTableGraph[];
 
   }
 }
@@ -441,6 +442,7 @@ export interface NetCDFImages {
   netCDFLayer: number;
   parent_bounds: [[[number, number], [number, number], [number, number], [number, number], [number, number]]];
   images: string[];
+  sliding: { min: number, max: number; step: number, variable: string };
 }
 
 export interface NetCDFVariable {
@@ -733,3 +735,51 @@ export interface VectorTimeSeries {
 }
 
 export type FeatureChartWithData = FeatureChart & { data: { key: string, value: number; color: string }[] };
+
+export interface TableSummary {
+  vectorFeatureCount: number;
+  tables: Record<string, TableInfo>;
+}
+
+interface TableInfo {
+  tableCount: number;
+  columns: string[];
+  summary: Record<string, ColumnSummary>;
+}
+
+type ColumnSummary =
+  | NumberColumnSummary
+  | StringColumnSummary;
+
+interface NumberColumnSummary {
+  type: 'number';
+  min: number;
+  max: number;
+  value_count: number;
+  description?: string;
+}
+
+interface StringColumnSummary {
+  type: 'string';
+  values: string[];
+  value_count: number;
+  description?: string;
+}
+
+export interface VectorFeatureTableGraph {
+  name: string;
+  type: string;
+  xAxis: string;
+  yAxis: string;
+  indexer?: string;
+}
+
+export interface FeatureGraphData {
+  table_name: string;
+  graphs:
+  Record<number, {
+    data:[number, number][];
+    vectorFeatureId: number;
+    indexer: string | number;
+  }>
+}

@@ -8,16 +8,78 @@ import tempfile
 
 from PIL import Image
 from celery import current_task, shared_task
+import cftime
 from django.contrib.gis.geos import Polygon
 from django.contrib.gis.geos.error import GEOSException
 from django.core.files.base import ContentFile
 from matplotlib import cm
 import numpy as np
+import pandas as pd
 import xarray as xr
 
 from uvdat.core.models import NetCDFData, NetCDFImage, NetCDFLayer, ProcessingTask
 
 logger = logging.getLogger(__name__)
+
+
+def convert_time(obj, output='compact'):
+    if isinstance(obj, str):  # Handle ctime (string)
+        dt_obj = datetime.strptime(obj, '%a %b %d %H:%M:%S %Y')
+    elif isinstance(obj, np.datetime64):  # Handle datetime64
+        dt_obj = pd.Timestamp(obj).to_pydatetime()
+    elif isinstance(obj, datetime):  # Handle Python datetime objects
+        dt_obj = obj
+    elif isinstance(
+        obj,
+        (
+            cftime.DatetimeNoLeap,
+            cftime.DatetimeAllLeap,
+            cftime.Datetime360Day,
+            cftime.DatetimeJulian,
+        ),
+    ):
+        dt_obj = datetime(obj.year, obj.month, obj.day, obj.hour, obj.minute, obj.second)
+    elif isinstance(obj, (int, float)):
+        if obj > 1e10:  # Assume milliseconds timestamp
+            dt_obj = datetime.fromtimestamp(obj / 1000)
+        else:  # Assume seconds timestamp
+            dt_obj = datetime.fromtimestamp(obj)
+    else:
+        return obj  # Return as-is if the type is unrecognized
+
+    if output == 'iso':
+        return dt_obj.isoformat()
+    elif output == 'datetime':
+        return dt_obj
+    elif output == 'compact':
+        return int(dt_obj.strftime('%Y%m%d%H%M%S'))
+    elif output == 'unix':
+        return dt_obj.timestamp()
+
+
+def convert_to_timestamp(obj):
+    if isinstance(obj, str):  # Handle ctime (string)
+        dt_obj = datetime.strptime(obj, '%a %b %d %H:%M:%S %Y')
+        return dt_obj.timestamp()
+    elif isinstance(obj, np.datetime64):  # Handle datetime64
+        return (obj - np.datetime64('1970-01-01T00:00:00')) / np.timedelta64(1, 's')
+    elif isinstance(obj, datetime):  # Handle Python datetime objects
+        return obj.timestamp()
+    elif isinstance(
+        obj,
+        (
+            cftime.DatetimeNoLeap,
+            cftime.DatetimeAllLeap,
+            cftime.Datetime360Day,
+            cftime.DatetimeJulian,
+        ),
+    ):
+        dt = obj
+        dt_obj = datetime(dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second)
+        unix_timestamp = pd.Timestamp(dt_obj).timestamp()
+        return unix_timestamp
+    else:
+        return obj
 
 
 def create_netcdf_data_layer(file_item, metadata):
@@ -47,27 +109,64 @@ def create_netcdf_data_layer(file_item, metadata):
             }
 
             # Calculate min and max values if the variable has numeric data
-            try:
-                var_min = float(variable.min().values) if variable.size > 0 else None
-                var_max = float(variable.max().values) if variable.size > 0 else None
-                if 'datetime' in str(variable.dtype):
-                    var_info['startDate'] = str(variable.min().values)
-                    var_info['endDate'] = str(variable.max().values)
-                var_info['min'] = var_min
-                var_info['max'] = var_max
-                if var_name in description['dimensions'].keys():
-                    var_info['steps'] = description['dimensions'][var_name]
-                if re.search(r'\blat\b|\blatitude\b', var_name, re.IGNORECASE):
-                    if -90 <= var_min <= 90 and -90 <= var_max <= 90:
-                        var_info['geospatial'] = 'latitude'
-                elif re.search(r'\blon\b|\blongitude\b', var_name, re.IGNORECASE):
-                    if -180 <= var_min <= 180 and -180 <= var_max <= 180:
-                        var_info['geospatial'] = 'longitude'
-                    elif 0 <= var_min <= 360 and 0 <= var_max <= 360:
-                        var_info['geospatial'] = 'longitude360'
-            except Exception:
-                var_info['min'] = 0
-                var_info['max'] = variable.size
+            cftime_types = (
+                cftime.DatetimeNoLeap,
+                cftime.DatetimeAllLeap,
+                cftime.Datetime360Day,
+                cftime.DatetimeJulian,
+            )
+            if (
+                variable.size > 0
+                and variable.values.ndim > 0
+                and isinstance(variable.values[0], cftime_types)
+            ):
+                vals = []
+                for item in variable.values:
+                    dt = item
+                    dt_obj = datetime(dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second)
+                    timeobj = convert_time(pd.Timestamp(dt_obj), 'datetime')
+                    vals.append(timeobj)
+                var_min = (min(vals)) if variable.size > 0 else None
+                var_max = (max(vals)) if variable.size > 0 else None
+                var_info['min'] = convert_time(var_min, 'unix')
+                var_info['max'] = convert_time(var_max, 'unix')
+                var_info['startDate'] = convert_time(var_min, 'iso')
+                var_info['endDate'] = convert_time(var_max, 'iso')
+                var_info['timeType'] = 'unix'
+                var_info['steps'] = variable.size
+            else:
+                try:
+                    var_min = float(variable.min().values) if variable.size > 0 else None
+                    var_max = float(variable.max().values) if variable.size > 0 else None
+                    if 'datetime' in str(variable.dtype):
+                        var_info['startDate'] = str(variable.min().values)
+                        var_info['endDate'] = str(variable.max().values)
+                    if 'time' in var_name:
+                        var_info['min'] = convert_time(var_min, 'unix')
+                        var_info['max'] = convert_time(var_max, 'unix')
+                        var_info['startDate'] = convert_time(var_min, 'iso')
+                        var_info['endDate'] = convert_time(var_max, 'iso')
+
+                        var_info['timeType'] = 'unix'
+                    else:
+                        var_info['min'] = var_min
+                        var_info['max'] = var_max
+                    var_info['steps'] = variable.size
+
+                    if var_name in description['dimensions'].keys():
+                        var_info['steps'] = description['dimensions'][var_name]
+                    if re.search(r'\blat\b|\blatitude\b', var_name, re.IGNORECASE):
+                        if -90 <= var_min <= 90 and -90 <= var_max <= 90:
+                            var_info['geospatial'] = 'latitude'
+                    elif re.search(r'\blon\b|\blongitude\b', var_name, re.IGNORECASE):
+                        if -180 <= var_min <= 180 and -180 <= var_max <= 180:
+                            var_info['geospatial'] = 'longitude'
+                        elif 0 <= var_min <= 360 and 0 <= var_max <= 360:
+                            var_info['geospatial'] = 'longitude360'
+                except Exception:
+                    var_info['min'] = 0
+                    var_info['max'] = variable.size
+                    var_info['steps'] = variable.size
 
             description['variables'][var_name] = var_info
 
@@ -248,7 +347,7 @@ def preview_netcdf_slice(
             except Exception as e:
                 logger.warning(f'Slicer Range Exception: {e}')
                 slicer_range = None
-
+        ds = ds.sortby(ds[y_variable], ascending=False)
         data_var = ds.get(variable)
         variables = data_var.dims
         base_variables = (x_variable, y_variable, sliding_variable)
@@ -288,24 +387,10 @@ def preview_netcdf_slice(
         # Convert to an RGB image using PIL
         image = Image.fromarray(colored_data, mode='RGB')
         image_buffer = BytesIO()
-        if longitude360:
-            image = image.transpose(Image.FLIP_TOP_BOTTOM)
         image.save(image_buffer, format='PNG')
         image_buffer.seek(0)
         base64_image = base64.b64encode(image_buffer.getvalue()).decode('utf-8')
         return base64_image
-
-
-def convert_to_timestamp(obj):
-    if isinstance(obj, str):  # Handle ctime (string)
-        dt_obj = datetime.strptime(obj, '%a %b %d %H:%M:%S %Y')
-        return dt_obj.timestamp()
-    elif isinstance(obj, np.datetime64):  # Handle datetime64
-        return (obj - np.datetime64('1970-01-01T00:00:00')) / np.timedelta64(1, 's')
-    elif isinstance(obj, datetime):  # Handle Python datetime objects
-        return obj.timestamp()
-    else:
-        return obj
 
 
 @shared_task
@@ -478,6 +563,7 @@ def create_netcdf_slices(
                 logger.warning(f'Slicer Range Exception: {e}')
                 slicer_range = None
         # Extract the data for the specified variable
+        ds = ds.sortby(ds[y_variable], ascending=False)
         data_var = ds.get(variable)
         variables_data = data_var.dims
         dim_size = ds.dims.get(sliding_variable)
@@ -520,8 +606,8 @@ def create_netcdf_slices(
         bounds = None
         if slicer_range:
             slicer_range = [
-                convert_to_timestamp(slicer_range[0]),
-                convert_to_timestamp(slicer_range[1]),
+                convert_time(slicer_range[0], 'unix'),
+                convert_time(slicer_range[1], 'unix'),
             ]
         if variables:
             try:
@@ -640,8 +726,6 @@ def create_netcdf_slices(
             # Convert to an RGB image using PIL
             image = Image.fromarray(colored_data, mode='RGB')
             image_buffer = BytesIO()
-            if longitude360:
-                image = image.transpose(Image.FLIP_TOP_BOTTOM)
             image.save(image_buffer, format='PNG')
             image_buffer.seek(0)
             image_name = f'{variable}_{sliding_variable}_{i}.png'

@@ -3,13 +3,15 @@ import {
   PropType, Ref, computed, defineComponent, onMounted, ref,
 } from 'vue';
 import MapStore from '../../MapStore';
-import { ClickedProps, FeatureChartWithData } from '../../types';
+import { ClickedProps, FeatureChartWithData, VectorFeatureTableGraph } from '../../types';
 import { colorGenerator } from '../../map/mapColors';
-import RenderFeatureChart from './RenderFeatureChart.vue';
+import PropertyFeatureChart from './PropertyFeatureChart.vue';
+import VectorFeatureChart from './VectorFeatureChart.vue';
 
 export default defineComponent({
   components: {
-    RenderFeatureChart,
+    PropertyFeatureChart,
+    VectorFeatureChart,
   },
   props: {
     data: {
@@ -28,6 +30,8 @@ export default defineComponent({
     const mapLayerId = ref(props.data.layerId);
     const featureId = ref(props.data.id as number);
     const enabledChartPanels: Ref<number[]> = ref([]);
+    const enabledVectorChartPanel: Ref<number[]> = ref([]);
+    const vectorGraphs: Ref<VectorFeatureTableGraph[]> = ref([]);
     const processLayerProps = () => {
       const found = MapStore.selectedVectorMapLayers.value.find((item) => item.id === props.data.layerId);
       if (found?.default_style.properties) {
@@ -65,6 +69,9 @@ export default defineComponent({
           });
         }
       }
+      if (found?.default_style.vectorFeatureTableGraphs) {
+        vectorGraphs.value = found.default_style.vectorFeatureTableGraphs;
+      }
     };
     onMounted(() => processLayerProps());
 
@@ -81,8 +88,10 @@ export default defineComponent({
       featureId,
       featureCharts,
       enabledChartPanels,
+      enabledVectorChartPanel,
       selectedFeatureExpanded,
       toggleFeatureExpaned,
+      vectorGraphs,
     };
   },
 });
@@ -137,7 +146,24 @@ export default defineComponent({
             </v-icon> {{ featureChart.name }}
           </v-expansion-panel-title>
           <v-expansion-panel-text>
-            <render-feature-chart :feature-chart="featureChart" />
+            <property-feature-chart :feature-chart="featureChart" />
+          </v-expansion-panel-text>
+        </v-expansion-panel>
+      </v-expansion-panels>
+      <v-expansion-panels v-if="vectorGraphs.length" v-model="enabledVectorChartPanel" multiple>
+        <v-expansion-panel
+          v-for="vectorGraph, index in vectorGraphs"
+          :key="`${vectorGraph.name}_${index}`"
+          :value="index"
+          class="ma-0 pa-0"
+        >
+          <v-expansion-panel-title>
+            <v-icon class="pr-2">
+              mdi-chart-line
+            </v-icon> {{ vectorGraph.name }}
+          </v-expansion-panel-title>
+          <v-expansion-panel-text class="ma-0">
+            <vector-feature-chart :graph-info="vectorGraph" :vector-feature-id="featureId" />
           </v-expansion-panel-text>
         </v-expansion-panel>
       </v-expansion-panels>
@@ -146,4 +172,7 @@ export default defineComponent({
 </template>
 
 <style scoped>
+.v-expansion-panel-text>>> .v-expansion-panel-text__wrapper {
+  padding: 8px !important;
+}
 </style>

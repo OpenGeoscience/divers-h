@@ -194,12 +194,12 @@ export default defineComponent({
       }
       const data = getVariableInformation(newLayerSlice.value);
       if (data.startDate) {
-        sliceLayerRangeStep.value = (data.max / 1e6 - data.min / 1e6) / (data.steps || 1);
-        const startDate = new Date(data.min / 1e6);
-        const endDate = new Date(data.max / 1e6);
+        sliceLayerRangeStep.value = (data.max - data.min) / (data.steps || 1);
+        const startDate = new Date(data.min);
+        const endDate = new Date(data.max);
         const diffMilli = endDate.getTime() - startDate.getTime();
         const differenceInHours = diffMilli / (1000 * 60 * 60);
-        sliceLayerRange.value = [data.min / 1e6, data.max / 1e6];
+        sliceLayerRange.value = [data.min, data.max];
         sliceLayerRangeStep.value = Math.round(differenceInHours / (data.steps || 1)) * (1000 * 60 * 60);
       } else {
         sliceLayerRange.value = [data.min, data.max];
@@ -565,10 +565,10 @@ export default defineComponent({
                       <span> {{ modelValue.toFixed(2) }}</span>
                     </template>
                     <template #prepend>
-                      <span>{{ getVariableMinMax(newLayerX)[0] }}</span>
+                      <span>{{ getVariableMinMax(newLayerX)[0].toFixed(2) }}</span>
                     </template>
                     <template #append>
-                      <span>{{ getVariableMinMax(newLayerX)[1] }}</span>
+                      <span>{{ getVariableMinMax(newLayerX)[1].toFixed(2) }}</span>
                     </template>
                   </v-range-slider>
                 </div>
@@ -589,10 +589,10 @@ export default defineComponent({
                       <span> {{ modelValue.toFixed(2) }}</span>
                     </template>
                     <template #prepend>
-                      <span>{{ getVariableInformation(newLayerY)?.min }}</span>
+                      <span>{{ getVariableInformation(newLayerY)?.min.toFixed(2) }}</span>
                     </template>
                     <template #append>
-                      <span>{{ getVariableInformation(newLayerY)?.max }}</span>
+                      <span>{{ getVariableInformation(newLayerY)?.max.toFixed(2) }}</span>
                     </template>
                   </v-range-slider>
                   <v-tooltip v-if="getVariableInformation(newLayerY)?.geospatial === 'latitude'">
@@ -654,8 +654,8 @@ export default defineComponent({
                   <v-range-slider
                     v-model="sliceLayerRange"
                     :step="sliceLayerRangeStep"
-                    :min="getVariableInformation(newLayerSlice).min / 1e6"
-                    :max="getVariableInformation(newLayerSlice).max / 1e6"
+                    :min="getVariableInformation(newLayerSlice).min"
+                    :max="getVariableInformation(newLayerSlice).max"
                     class="pt-2"
                     hide-details
                   >
@@ -664,10 +664,10 @@ export default defineComponent({
                     </template>
 
                     <template #prepend>
-                      <span>{{ convertTimestampNSToDatetimeString(getVariableInformation(newLayerSlice)?.min / 1e6) }}</span>
+                      <span>{{ convertTimestampNSToDatetimeString(getVariableInformation(newLayerSlice)?.min) }}</span>
                     </template>
                     <template #append>
-                      <span>{{ convertTimestampNSToDatetimeString(getVariableInformation(newLayerSlice)?.max / 1e6) }}</span>
+                      <span>{{ convertTimestampNSToDatetimeString(getVariableInformation(newLayerSlice)?.max) }}</span>
                     </template>
                   </v-range-slider>
                   <v-row align="center" justify="center" class="py-2">
