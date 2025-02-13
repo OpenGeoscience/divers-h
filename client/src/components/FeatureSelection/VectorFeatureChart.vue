@@ -6,11 +6,6 @@ import * as d3 from 'd3';
 import UVdatApi from '../../api/UVDATApi';
 import { FeatureGraphData, VectorFeatureTableGraph } from '../../types';
 
-type ParameterGraph = Record<string, {
-  data: [number, number][];
-  filterVal: string;
-}>;
-
 export default defineComponent({
   name: 'FeatureGraph',
   props: {
@@ -56,7 +51,7 @@ export default defineComponent({
 
       // Check for default data or apply filter if necessary
       if (data.graphs[props.vectorFeatureId]) {
-        dataForGraph = data.graphs[props.vectorFeatureId]
+        dataForGraph = data.graphs[props.vectorFeatureId];
       }
 
       if (!dataForGraph) {

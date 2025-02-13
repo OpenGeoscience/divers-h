@@ -6,7 +6,6 @@ from django.db import connection
 from django.http import HttpResponse
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
-from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 
 from uvdat.core.models import VectorFeature, VectorFeatureRowData, VectorFeatureTableData
@@ -131,7 +130,9 @@ class VectorFeatureTableDataViewSet(
                     ][column].get('value_count', 0) + stats.get('value_count', 0)
 
                 if stats.get('description', None):
-                    column_summaries[table_type][column]['description'] = stats.get('description', 'Unknown')
+                    column_summaries[table_type][column]['description'] = stats.get(
+                        'description', 'Unknown'
+                    )
         # Construct the response
         output = {'vectorFeatureCount': feature_count, 'tables': {}}
         for table_type in type_columns_map:
@@ -149,7 +150,9 @@ class VectorFeatureTableDataViewSet(
             type=table_type, vector_feature__in=vector_ids
         )
         if tables.count() == 0:
-            return {'error': f'No tables found for the given vector features {table_type} - {vector_ids}'}
+            return {
+                'error': f'No tables found for the given vector features {table_type} - {vector_ids}'
+            }
         table_data = {'tableName': tables.first().name, 'graphs': {}}
         for table in tables:
             if y_axis not in table.columns or x_axis not in table.columns:
@@ -167,7 +170,7 @@ class VectorFeatureTableDataViewSet(
             table_data['graphs'][vector_feature_id] = {
                 'indexer': index_val,
                 'vectorFeatureId': vector_feature_id,
-                'data' : []
+                'data': [],
             }
             rows = VectorFeatureRowData.objects.filter(vector_feature_table=table)
             for row in rows:
@@ -177,8 +180,6 @@ class VectorFeatureTableDataViewSet(
                 if y_val is not None:
                     table_data['graphs'][vector_feature_id]['data'].append([x_val, y_val])
         return table_data
-
-
 
     @action(detail=False, methods=['get'], url_path='feature-graph')
     def feature_graph(self, request, *args, **kwargs):
@@ -200,20 +201,22 @@ class VectorFeatureTableDataViewSet(
         x_axis = request.query_params.get('xAxis', 'index')
         y_axis = request.query_params.get('yAxis', 'mean_va')
         indexer = request.query_params.get('indexer', 'vectorFeatureId')
-        bbox = request.query_params.getlist(
-            'bbox', None
-        )  # Optional: [min_x, min_y, max_x, max_y]
-        
+        bbox = request.query_params.getlist('bbox', None)  # Optional: [min_x, min_y, max_x, max_y]
+
         if not bbox:
             return Response({'error': 'bbox parameter is required'}, status=400)
-        
+
         try:
-            xmin, ymin, xmax, ymax = map(float, bbox.split(","))
+            xmin, ymin, xmax, ymax = map(float, bbox.split(','))
             bbox_polygon = Polygon.from_bbox((xmin, ymin, xmax, ymax))
         except ValueError:
-            return Response({"error": "Invalid bbox format. Expected format: xmin,ymin,xmax,ymax"}, status=400)
-        
-        vector_features = VectorFeature.objects.filter(geometry__intersects=bbox_polygon, map_layer=map_layer_id).values_list("id", flat=True)
+            return Response(
+                {'error': 'Invalid bbox format. Expected format: xmin,ymin,xmax,ymax'}, status=400
+            )
+
+        vector_features = VectorFeature.objects.filter(
+            geometry__intersects=bbox_polygon, map_layer=map_layer_id
+        ).values_list('id', flat=True)
 
         if not table_type:
             return Response({'error': 'tableType is required'}, status=status.HTTP_400_BAD_REQUEST)

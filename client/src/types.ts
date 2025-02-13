@@ -766,8 +766,6 @@ interface StringColumnSummary {
   description?: string;
 }
 
-
-
 export interface VectorFeatureTableGraph {
   name: string;
   type: string;
