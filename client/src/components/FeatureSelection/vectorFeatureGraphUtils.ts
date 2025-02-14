@@ -109,18 +109,19 @@ const renderVectorFeatureGraph = (
     }
     return d;
   };
-
+  const outputColorMapping: Record<number, string> = {};
   graphKeys.forEach((key, index) => {
     const graph = graphsToRender[key];
     const color = options?.colors?.[key] || colorScale(index.toString());
-
+    outputColorMapping[key] = color;
     const path = g.append('path')
       .datum(graph.data.sort((a, b) => a[0] - b[0]))
       .attr('fill', 'none')
       .attr('stroke', color)
       .attr('stroke-width', 2)
       .attr('d', line)
-      .attr('cursor', 'pointer');
+      .attr('cursor', 'pointer')
+      .attr('vectorFeatureId', key);
 
     if (!options?.specificGraphKey) {
       path.on('click', () => options?.onLineClick?.(key, graph.indexer))
@@ -214,6 +215,7 @@ const renderVectorFeatureGraph = (
       });
 
     svg.call(zoom); // Apply zoom behavior to the entire SVG
+    return outputColorMapping;
   }
 
   // X-axis
