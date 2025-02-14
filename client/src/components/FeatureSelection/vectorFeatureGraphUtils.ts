@@ -16,6 +16,7 @@ const renderVectorFeatureGraph = (
     xAxisVerticalLabels?: boolean; // New option to rotate x-axis labels vertically
     zoomable?: boolean; // New option to enable zooming
   },
+  baseHeight = 400,
 ) => {
   const localContainer = container;
   if (!localContainer || !data) return;
@@ -23,11 +24,11 @@ const renderVectorFeatureGraph = (
   const svg = d3.select(localContainer);
   svg.selectAll('*').remove(); // Clear previous content
 
-  const margin = {
-    top: 20, right: 20, bottom: 70, left: 50,
-  };
-  const width = (localContainer.clientWidth || 250) - margin.left - margin.right;
-  const height = 400 - margin.top - margin.bottom;
+  const defaultMargin = {
+    top: 20, right: 20, bottom: options?.xAxisVerticalLabels ? 70 : 15, left: 50,
+  }; // Base left margin
+  const width = (localContainer.clientWidth || 250) - defaultMargin.left - defaultMargin.right;
+  const height = baseHeight - defaultMargin.top - defaultMargin.bottom;
 
   const x = options?.xAxisIsTime
     ? d3.scaleTime().range([0, width]) // Time scale if xAxisIsTime is true
@@ -49,6 +50,33 @@ const renderVectorFeatureGraph = (
 
   x.domain(d3.extent(allDataPoints, (d) => d[0]) as [number, number]);
   y.domain(d3.extent(allDataPoints, (d) => d[1]) as [number, number]);
+
+  // Estimate max label width based on character count
+  const allYValues = Object.values(graphsToRender).flatMap((graph) => graph.data.map((d) => d[1]));
+
+  if (allYValues.length === 0) return;
+
+  y.domain(d3.extent(allYValues) as [number, number]);
+
+  const maxYValue = Math.max(...allYValues);
+  const maxYLabel = maxYValue.toFixed(2); // Format to 2 decimal places
+  const maxCharacters = maxYLabel.length;
+
+  // Font size and estimated character width
+  const fontSize = 12; // Default D3 tick font size
+  const estimatedCharacterWidth = fontSize * 0.6; // Approximate width per character
+
+  const estimatedMaxTickWidth = maxCharacters * estimatedCharacterWidth;
+
+  // Adjust left margin based on estimated max tick width
+  const adjustedLeftMargin = estimatedMaxTickWidth + (options?.yAxisLabel ? 20 : 10);
+
+  const margin = {
+    ...defaultMargin,
+    left: Math.max(adjustedLeftMargin, defaultMargin.left),
+  };
+
+  // Recalculate width after adjusting margin
 
   const g = svg.append('g').attr('transform', `translate(${margin.left},${margin.top})`);
 
@@ -218,7 +246,7 @@ const renderVectorFeatureGraph = (
     yaxis.append('text')
       .attr('transform', 'rotate(-90)')
       .attr('x', -height / 2 - 10) // Adjust the X position to ensure proper spacing
-      .attr('y', -yTickWidth - 10)
+      .attr('y', -yTickWidth - 15)
       .attr('fill', 'black')
       .attr('text-anchor', 'middle')
       .text(options?.yAxisLabel);

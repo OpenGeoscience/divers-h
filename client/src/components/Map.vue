@@ -45,6 +45,12 @@ const VECTOR_LAYER_IDS = VECTOR_LAYERS.map((layer) => layer.id);
 
 export default defineComponent({
   name: 'MapComponent',
+  props: {
+    bottomPanel: {
+      type: Boolean,
+      default: false,
+    },
+  },
   setup() {
     const mapContainer: Ref<HTMLDivElement | null> = ref(null);
     const map: Ref<null | Map> = ref(null);
@@ -243,11 +249,13 @@ export default defineComponent({
 </script>
 
 <template>
-  <div
-    id="map"
-    ref="mapContainer"
-    class="map-container"
-  />
+  <div class="map-container">
+    <div
+      id="map"
+      ref="mapContainer"
+      class="map-content"
+    />
+  </div>
   <v-snackbar v-model="mapAlert" content-class="map-alert">
     <v-alert type="warning" variant="tonal">
       {{ mapAlertMessage }}
@@ -259,8 +267,15 @@ export default defineComponent({
 @import "maplibre-gl/dist/maplibre-gl.css";
 
 .map-container {
+  display: flex;
+  flex-grow: 1;
   width: 100%;
-  height: 90vh;
+}
+
+.map-content {
+  flex-grow: 1;
+  width: 100%;
+  min-height: 300px; /* Ensure map has a minimum height */
 }
 
 .map-alert > .v-snackbar__content {

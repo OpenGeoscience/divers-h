@@ -9,6 +9,7 @@ import {
   NetCDFData,
   NetCDFLayer,
   RasterMapLayer,
+  VectorFeatureTableGraph,
   VectorMapLayer,
 } from './types';
 import UVdatApi from './api/UVDATApi';
@@ -98,6 +99,22 @@ export default class MapStore {
     if (datasetId in MapStore.mapLayersByDataset && !force) return;
     MapStore.mapLayersByDataset[datasetId] = await UVdatApi.getDatasetLayers(datasetId);
   }
+
+  public static mapLayerFeatureGraphs = computed(() => {
+    const foundMapLayerFeatureGraphs: { name: string, id: number; graphs: VectorFeatureTableGraph[]}[] = []
+    MapStore.selectedVectorMapLayers.value.forEach((item) => {
+      if (item.default_style.mapLayerFeatureTableGraphs && item.default_style.mapLayerFeatureTableGraphs.length) {
+        foundMapLayerFeatureGraphs.push({
+          name: item.name,
+          id: item.id,
+          graphs: item.default_style.mapLayerFeatureTableGraphs,
+        });
+      }
+    });
+    return foundMapLayerFeatureGraphs;
+  });
+
+  public static mapLayerFeatureGraphsVisible = ref(false);
 
   // ToolTips
   public static toolTipMenuOpen = ref(false);

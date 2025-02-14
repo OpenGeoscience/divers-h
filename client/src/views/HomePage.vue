@@ -12,6 +12,7 @@ import IndicatorFilterableList from '../components/Indicators/IndicatorFilterabl
 import MapTypePicker from '../components/MapTypePicker.vue';
 import SelectedFeatureList from '../components/FeatureSelection/SelectedFeatureList.vue';
 import Charts from '../components/Charts/Charts.vue';
+import MapLayerTableGraph from '../components/TabularData/MapLayerTableGraph.vue';
 import UVdatApi from '../api/UVDATApi';
 
 export default defineComponent({
@@ -23,6 +24,7 @@ export default defineComponent({
     IndicatorFilterableList,
     SelectedFeatureList,
     Charts,
+    MapLayerTableGraph,
   },
   setup() {
     const oauthClient = inject<OAuthClient>('oauthClient');
@@ -60,26 +62,14 @@ export default defineComponent({
 
     const selectedIds = computed(() => MapStore.selectedIds.value);
 
-    const selectedContext = computed(
-      () => MapStore.availableContexts.value.find(
-        (context) => context.id === MapStore.selectedContextId.value,
-      ),
-    );
+    const hasMapLayerVectorGraphs = computed(() => !!MapStore.mapLayerFeatureGraphs.value.length);
 
-    const indicators = computed(() => selectedContext.value?.indicators ?? []);
-    const hasIndicators = computed(() => indicators.value.length > 0);
-    const showIndicatorsUserToggle = ref(true);
-    const showIndicators = computed(() => hasIndicators.value && MapStore.sideBarCardSettings.value.indicators.enabled);
-    const chartView = computed(() => MapStore.activeSideBarCard.value === 'charts');
-    watch(hasIndicators, () => {
-      if (hasIndicators.value && showIndicatorsUserToggle.value) {
-        MapStore.toggleContext('indicators');
+    const toggleMapLayerVectorGraphs = () => {
+      if (MapStore.mapLayerFeatureGraphs.value.length) {
+        MapStore.mapLayerFeatureGraphsVisible.value = !MapStore.mapLayerFeatureGraphsVisible.value;
       }
-    });
-    const toggleIndicators = () => {
-      showIndicatorsUserToggle.value = !showIndicatorsUserToggle.value;
-      MapStore.toggleContext('indicators');
     };
+    const chartView = computed(() => MapStore.activeSideBarCard.value === 'charts');
     const toggleChartView = () => {
       MapStore.toggleContext('charts');
       MapStore.chartsOpen.value = MapStore.sideBarCardSettings.value.charts.enabled;
@@ -94,9 +84,6 @@ export default defineComponent({
     });
 
     return {
-      indicators,
-      hasIndicators,
-      showIndicators,
       oauthClient,
       loginText,
       logInOrOut,
@@ -116,7 +103,9 @@ export default defineComponent({
       tdotSatelliteLayer: MapStore.tdotSatelliteLayer,
       chartView,
       toggleChartView,
-      toggleIndicators,
+      hasMapLayerVectorGraphs,
+      toggleMapLayerVectorGraphs,
+      mapLayerVectorGraphsVisible: MapStore.mapLayerFeatureGraphsVisible,
       sideBarWidth: MapStore.currentSideBarWidth,
       sideBarOpen: MapStore.sideBarOpen,
       activeSideBar: MapStore.activeSideBarCard,
@@ -199,17 +188,16 @@ export default defineComponent({
         </v-icon>
       </template>
     </v-tooltip>
-    <v-tooltip text="Indicator List">
+    <v-tooltip v-if="hasMapLayerVectorGraphs" text="Tabular Data Graphs">
       <template #activator="{ props }">
         <v-icon
           v-bind="props"
           class="mx-2"
           size="30"
-          :color="showIndicators ? 'primary' : ''"
-          :disabled="!hasIndicators"
-          @click="toggleIndicators()"
+          :color="mapLayerVectorGraphsVisible ? 'primary' : ''"
+          @click="toggleMapLayerVectorGraphs()"
         >
-          mdi-thermometer
+          mdi-chart-line
         </v-icon>
       </template>
     </v-tooltip>
@@ -268,7 +256,12 @@ export default defineComponent({
     >
       <source-selection />
     </v-navigation-drawer>
-    <MapVue />
+    <v-row dense class="fill-height">
+      <v-col class="d-flex flex-column fill-height" style="min-height: 90vh">
+        <MapVue />
+        <MapLayerTableGraph v-if="mapLayerVectorGraphsVisible" />
+      </v-col>
+    </v-row>
     <selected-feature-list />
     <v-navigation-drawer :model-value="sideBarOpen" location="right" :width="sideBarWidth" permanent>
       <indicator-filterable-list v-if="activeSideBar === 'indicators'" :indicators="indicators" />

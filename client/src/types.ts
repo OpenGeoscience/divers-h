@@ -395,6 +395,7 @@ export interface VectorMapLayer extends AbstractMapLayer {
     charts?: CustomChart[];
     selectedFeatureCharts?: FeatureChart[];
     vectorFeatureTableGraphs?: VectorFeatureTableGraph[];
+    mapLayerFeatureTableGraphs?: VectorFeatureTableGraph[];
 
   }
 }

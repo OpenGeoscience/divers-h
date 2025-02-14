@@ -1,10 +1,13 @@
 <script lang="ts">
 import {
   Ref, computed, defineComponent, onMounted, ref,
+  watch,
 } from 'vue';
-import { TableSummary, VectorFeatureTableGraph } from '../../types';
+import { AvailablePropertyDisplay, TableSummary, VectorFeatureTableGraph } from '../../types';
 import UVdatApi from '../../api/UVDATApi';
 import MapStore from '../../MapStore';
+import { getLayerAvailableProperties } from '../../utils';
+import { index } from 'd3';
 
 export default defineComponent({
   name: 'VectorTableSummary',
@@ -24,7 +27,7 @@ export default defineComponent({
     const addingGraph = ref(false);
     const error = ref<string | null>(null);
     const tableChartDialog = ref(false);
-    const activeTab: Ref<'summary' | 'graphs'> = ref('summary'); // Track active tab (0 for summary, 1 for graphing)
+    const activeTab: Ref<'summary' | 'selectedFeatureGraphs' | 'mapLayerGraphs'> = ref('summary'); // Track active tab (0 for summary, 1 for graphing)
     const selectedTableName = ref<string>('Table Name');
     const selectedTableType = ref<string | null>(null);
     const selectedXColumn = ref<string | null>(null);
@@ -32,19 +35,28 @@ export default defineComponent({
     const yAxisLabel = ref('');
     const selectedYColumn = ref<string | null>(null);
     const selectedIndexerColumn = ref<string>('');
-    const graphs = ref<VectorFeatureTableGraph[]>([]);
-
+    const selectedFeatureGraphs = ref<VectorFeatureTableGraph[]>([]);
+    const mapLayerFeatureGraphs = ref<VectorFeatureTableGraph[]>([]);
+    const availableProps: Ref<Record<string, AvailablePropertyDisplay>> = ref({});
     const getStyleVectorFeatureGraphs = () => {
       const found = MapStore.selectedVectorMapLayers.value.find((item) => item.id === props.layerId);
-      if (found && found.default_style.vectorFeatureTableGraphs) {
-        graphs.value = found.default_style.vectorFeatureTableGraphs;
+      if (found) {
+        if (found.default_style.vectorFeatureTableGraphs) {
+          selectedFeatureGraphs.value = found.default_style.vectorFeatureTableGraphs;
+        }
+        if (found.default_style.mapLayerFeatureTableGraphs) {
+          mapLayerFeatureGraphs.value = found.default_style.mapLayerFeatureTableGraphs;
+        }
       }
     };
 
     const updateStyleGraphs = (updatedGraphs: VectorFeatureTableGraph[]) => {
       const found = MapStore.selectedVectorMapLayers.value.find((item) => item.id === props.layerId);
-      if (found && found.default_style) {
+      if (found?.default_style && activeTab.value === 'selectedFeatureGraphs') {
         found.default_style.vectorFeatureTableGraphs = updatedGraphs;
+      }
+      if (found?.default_style && activeTab.value === 'mapLayerGraphs') {
+        found.default_style.mapLayerFeatureTableGraphs = updatedGraphs;
       }
     };
 
@@ -82,21 +94,24 @@ export default defineComponent({
           yAxisLabel: yAxisLabel.value ? yAxisLabel.value : undefined,
           indexer: selectedIndexerColumn.value ? selectedIndexerColumn.value : undefined,
         };
+        const editingGraphList = activeTab.value === 'selectedFeatureGraphs' ? selectedFeatureGraphs : mapLayerFeatureGraphs;
 
         if (editingGraphIndex.value !== null) {
           // If editing, update the existing graph
-          graphs.value[editingGraphIndex.value] = graph;
+          editingGraphList.value[editingGraphIndex.value] = graph;
           editingGraphIndex.value = null;
         } else {
           // Otherwise, add a new graph
-          graphs.value.push(graph);
+          editingGraphList.value.push(graph);
         }
 
-        updateStyleGraphs(graphs.value);
+        updateStyleGraphs(editingGraphList.value);
         // Clear the form after adding/updating the graph
         resetGraphForm();
       }
     };
+
+    
 
     const availableColumns = computed(() => {
       const baseColumns = selectedTableType.value && summaryData.value?.tables[selectedTableType.value]?.columns
@@ -124,7 +139,8 @@ export default defineComponent({
     });
 
     const editGraph = (index: number) => {
-      const graph = graphs.value[index];
+      const editingGraphList = activeTab.value === 'selectedFeatureGraphs' ? selectedFeatureGraphs : mapLayerFeatureGraphs;
+      const graph = editingGraphList.value[index];
       // eslint-disable-next-line prefer-destructuring
       selectedTableType.value = graph.type; // Assuming the table name is part of the graph name
       selectedTableName.value = graph.name;
@@ -138,12 +154,36 @@ export default defineComponent({
     };
 
     const deleteGraph = (index: number) => {
-      graphs.value.splice(index, 1);
+      const editingGraphList = activeTab.value === 'selectedFeatureGraphs' ? selectedFeatureGraphs : mapLayerFeatureGraphs;
+      editingGraphList.value.splice(index, 1);
     };
+
+    watch(activeTab, () => {
+      resetGraphForm();
+    });
+    const indexerVals = computed(() => {
+      const keys = Object.keys(availableProps.value);
+      const output: { title: string, value: string; description?: string}[] = [];
+      keys.forEach((key) => {
+        if (availableProps.value[key]) {
+          output.push({
+            value: key,
+            title: availableProps.value[key].displayName,
+            description: availableProps.value[key].description
+          })
+        }
+      })
+      return output;
+    })
 
     onMounted(() => {
       vectorTableSummary(props.layerId);
+      availableProps.value = getLayerAvailableProperties(props.layerId);
       getStyleVectorFeatureGraphs();
+    });
+    const graphs = computed(() => {
+      const editingGraphList = activeTab.value === 'selectedFeatureGraphs' ? selectedFeatureGraphs : mapLayerFeatureGraphs;
+      return editingGraphList.value;
     });
 
     return {
@@ -167,6 +207,9 @@ export default defineComponent({
       editGraph,
       deleteGraph,
       resetGraphForm,
+      indexerVals,
+      selectedFeatureGraphs,
+      mapLayerFeatureGraphs,
     };
   },
 });
@@ -180,7 +223,8 @@ export default defineComponent({
       mdi-cog
     </v-icon>
   </v-row>
-  <v-row v-for="(graph, index) in graphs" :key="index">
+  <v-row><v-spacer />Selected Feature Graphs<v-spacer /></v-row>
+  <v-row v-for="(graph, index) in selectedFeatureGraphs" :key="index" dense>
     <v-col>
       {{ graph.name }}
     </v-col>
@@ -188,15 +232,28 @@ export default defineComponent({
       {{ `${graph.xAxis} vs ${graph.yAxis}` }}
     </v-col>
   </v-row>
+  <v-row><v-spacer />MapLayer Feature Graphs<v-spacer /></v-row>
+  <v-row v-for="(graph, index) in mapLayerFeatureGraphs" :key="index" dense>
+    <v-col>
+      {{ graph.name }}
+    </v-col>
+    <v-col>
+      {{ `${graph.xAxis} vs ${graph.yAxis}` }}
+    </v-col>
+  </v-row>
+
   <v-dialog v-model="tableChartDialog" max-width="800px">
     <v-card>
       <v-card-title>Vector Table Summary</v-card-title>
       <v-tabs v-model="activeTab">
-        <v-tab value="summary">
+        <v-tab size="small" value="summary">
           Summary
         </v-tab>
-        <v-tab value="graphs">
-          Graphs
+        <v-tab size="small" value="selectedFeatureGraphs">
+          Selected Feature Graphs
+        </v-tab>
+        <v-tab size="small" value="mapLayerGraphs">
+          Map LayerGraphs
         </v-tab>
       </v-tabs>
       <v-card-text v-if="activeTab === 'summary'">
@@ -228,7 +285,7 @@ export default defineComponent({
         </div>
       </v-card-text>
 
-      <v-card-text v-if="activeTab === 'graphs'">
+      <v-card-text v-if="activeTab !== 'summary'">
         <v-card-text>
           <v-form v-if="addingGraph">
             <v-text-field
@@ -261,9 +318,9 @@ export default defineComponent({
               label="Y Axis Label"
             />
             <v-select
-              v-if="!selectedFeature"
+              v-if="activeTab === 'mapLayerGraphs'"
               v-model="selectedIndexerColumn"
-              :items="availableColumns"
+              :items="indexerVals"
               :item-props="true"
               label="Select Indexer Column"
             />
