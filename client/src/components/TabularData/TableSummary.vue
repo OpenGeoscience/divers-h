@@ -13,16 +13,23 @@ export default defineComponent({
       type: Number,
       required: true,
     },
+    selectedFeature: {
+      type: Boolean,
+      default: false,
+    },
   },
   setup(props) {
     const summaryData = ref<TableSummary | null>(null);
     const loading = ref(true);
+    const addingGraph = ref(false);
     const error = ref<string | null>(null);
     const tableChartDialog = ref(false);
     const activeTab: Ref<'summary' | 'graphs'> = ref('summary'); // Track active tab (0 for summary, 1 for graphing)
     const selectedTableName = ref<string>('Table Name');
     const selectedTableType = ref<string | null>(null);
     const selectedXColumn = ref<string | null>(null);
+    const xAxisLabel = ref('');
+    const yAxisLabel = ref('');
     const selectedYColumn = ref<string | null>(null);
     const selectedIndexerColumn = ref<string>('');
     const graphs = ref<VectorFeatureTableGraph[]>([]);
@@ -58,7 +65,10 @@ export default defineComponent({
     const resetGraphForm = () => {
       selectedXColumn.value = null;
       selectedYColumn.value = null;
+      xAxisLabel.value = '';
+      yAxisLabel.value = '';
       selectedIndexerColumn.value = '';
+      addingGraph.value = false;
     };
 
     const addSaveGraph = () => {
@@ -68,6 +78,8 @@ export default defineComponent({
           type: selectedTableType.value,
           xAxis: selectedXColumn.value,
           yAxis: selectedYColumn.value,
+          xAxisLabel: xAxisLabel.value ? xAxisLabel.value : undefined,
+          yAxisLabel: yAxisLabel.value ? yAxisLabel.value : undefined,
           indexer: selectedIndexerColumn.value ? selectedIndexerColumn.value : undefined,
         };
 
@@ -118,8 +130,11 @@ export default defineComponent({
       selectedTableName.value = graph.name;
       selectedXColumn.value = graph.xAxis;
       selectedYColumn.value = graph.yAxis;
+      xAxisLabel.value = graph.xAxisLabel || '';
+      yAxisLabel.value = graph.yAxisLabel || '';
       selectedIndexerColumn.value = graph.indexer || '';
       editingGraphIndex.value = index;
+      addingGraph.value = true;
     };
 
     const deleteGraph = (index: number) => {
@@ -133,6 +148,7 @@ export default defineComponent({
 
     return {
       summaryData,
+      addingGraph,
       loading,
       error,
       tableChartDialog,
@@ -141,13 +157,16 @@ export default defineComponent({
       selectedTableName,
       selectedTableType,
       selectedXColumn,
+      xAxisLabel,
       selectedYColumn,
+      yAxisLabel,
       selectedIndexerColumn,
       editingGraphIndex,
       graphs,
       addSaveGraph,
       editGraph,
       deleteGraph,
+      resetGraphForm,
     };
   },
 });
@@ -169,7 +188,6 @@ export default defineComponent({
       {{ `${graph.xAxis} vs ${graph.yAxis}` }}
     </v-col>
   </v-row>
-
   <v-dialog v-model="tableChartDialog" max-width="800px">
     <v-card>
       <v-card-title>Vector Table Summary</v-card-title>
@@ -212,7 +230,7 @@ export default defineComponent({
 
       <v-card-text v-if="activeTab === 'graphs'">
         <v-card-text>
-          <v-form>
+          <v-form v-if="addingGraph">
             <v-text-field
               v-model="selectedTableName"
               label="Table Name"
@@ -228,32 +246,52 @@ export default defineComponent({
               :item-props="true"
               label="Select X Axis"
             />
+            <v-text-field
+              v-model="xAxisLabel"
+              label="X Axis Label"
+            />
             <v-select
               v-model="selectedYColumn"
               :items="availableColumns"
               :item-props="true"
               label="Select Y Axis"
             />
+            <v-text-field
+              v-model="yAxisLabel"
+              label="Y Axis Label"
+            />
             <v-select
+              v-if="!selectedFeature"
               v-model="selectedIndexerColumn"
               :items="availableColumns"
               :item-props="true"
               label="Select Indexer Column"
             />
-            <v-btn :disabled="!selectedTableType || !selectedXColumn || !selectedYColumn" color="primary" @click="addSaveGraph">
-              {{ editingGraphIndex !== null ? 'Update' : 'Add' }} Graph
-            </v-btn>
+            <v-row dense class="my-2">
+              <v-btn :disabled="!selectedTableType || !selectedXColumn || !selectedYColumn" color="primary" @click="addSaveGraph">
+                {{ editingGraphIndex !== null ? 'Update' : 'Add' }} Graph
+              </v-btn>
+              <v-btn color="error" class="ml-2" @click="resetGraphForm()">
+                Cancel
+              </v-btn>
+            </v-row>
           </v-form>
           <v-divider />
+          <v-row v-if="!addingGraph" dense class="my-2">
+            <v-spacer />
+            <v-btn size="small" color="success" @click="addingGraph = true">
+              Add <v-icon>mdi-plus</v-icon>
+            </v-btn>
+          </v-row>
           <v-list>
             <v-list-item v-for="(graph, index) in graphs" :key="index">
               <v-list-item-title>{{ graph.name }}</v-list-item-title>
               <v-list-item-subtitle>
                 <div>{{ graph.type }}</div>
-                <div>{{ graph.xAxis }} vs {{ graph.yAxis }} {{ graph.indexer ? `(Indexer - ${graph.indexer}` : '' }})</div>
-              </v-list-item-subtitle>
-              <v-list-item-subtitle v-if="graph.inexer">
-                Indexer: {{ graph.indexer }}
+                <div>{{ graph.xAxis }} vs {{ graph.yAxis }})</div>
+                <div v-if="graph.xAxisLabel || graph.yAxisLabel">
+                  {{ graph.xAxisLabel }} - {{ graph.yAxisLabel }}
+                </div>
               </v-list-item-subtitle>
               <v-list-item-action>
                 <v-icon color="warning" @click="editGraph(index)">

@@ -770,9 +770,13 @@ export interface VectorFeatureTableGraph {
   name: string;
   type: string;
   xAxis: string;
+  xAxisLabel?: string;
   yAxis: string;
+  yAxisLabel?: string;
   indexer?: string;
 }
+
+export type VectorFeatureTableGraphSelected = VectorFeatureTableGraph & { expanded: boolean };
 
 export interface FeatureGraphData {
   table_name: string;

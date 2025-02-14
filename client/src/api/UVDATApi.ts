@@ -506,8 +506,6 @@ export default class UVdatApi {
     vectorFeatureId: number,
     xAxis: string = 'index',
     yAxis: string = 'mean_va',
-    filter?: string,
-    filterVal?: string,
   ): Promise<FeatureGraphData> {
     const response = await UVdatApi.apiClient.get('/vectorfeature/tabledata/feature-graph/', {
       params: {
@@ -515,8 +513,27 @@ export default class UVdatApi {
         vectorFeatureId,
         xAxis,
         yAxis,
-        filter,
-        filterVal,
+      },
+    });
+    return response.data;
+  }
+
+  public static async getMapLayerFeatureGraphData(
+    tableType: string,
+    mapLayerId: number,
+    xAxis: string = 'index',
+    yAxis: string = 'mean_va',
+    indexer: string = 'vectorFeatureId',
+    bbox?: string,
+  ): Promise<FeatureGraphData> {
+    const response = await UVdatApi.apiClient.get('/vectorfeature/tabledata/map-layer-feature-graph/', {
+      params: {
+        tableType,
+        mapLayerId,
+        xAxis,
+        yAxis,
+        indexer,
+        bbox,
       },
     });
     return response.data;
