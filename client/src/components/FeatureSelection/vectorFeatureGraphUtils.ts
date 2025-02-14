@@ -11,7 +11,9 @@ const renderVectorFeatureGraph = (
     xAxisLabel?: string;
     yAxisLabel?: string;
     showXYValuesOnHover?: boolean; // New option to show X/Y instead of indexer
-    onLineClick?: (indexer: string | number) => void; // Click handler
+    onLineClick?: (vectorFeatureId: number, indexer: string | number) => void; // Click handler
+    onLineHover?: (vectorFeatureId: number, indexer: string | number) => void;
+    onLineExit?: (vectorFeatureId: number, indexer: string | number) => void;
     xAxisIsTime?: boolean; // New option to convert x-axis values from UNIX timestamp
     xAxisVerticalLabels?: boolean; // New option to rotate x-axis labels vertically
     zoomable?: boolean; // New option to enable zooming
@@ -121,10 +123,15 @@ const renderVectorFeatureGraph = (
       .attr('cursor', 'pointer');
 
     if (!options?.specificGraphKey) {
-      path.on('click', () => options?.onLineClick?.(key))
+      path.on('click', () => options?.onLineClick?.(key, graph.indexer))
         .on('mouseover', function () {
-          d3.select(this).attr('stroke-width', 4); // Highlight the line
+          d3.selectAll('path') // Select all paths
+            .attr('opacity', 0.3); // Dim all lines
+          d3.select(this).attr('stroke-width', 4).attr('opacity', 1.0); // Highlight the line
           tooltipGroup.attr('opacity', 1);
+          if (options?.onLineHover) {
+            options.onLineHover(key, graph.indexer);
+          }
         })
         .on('mousemove', (event) => {
           const [mouseX, mouseY] = d3.pointer(event);
@@ -145,8 +152,13 @@ const renderVectorFeatureGraph = (
           tooltipGroup.attr('transform', `translate(${mouseX + 10}, ${mouseY - 10})`).attr('opacity', 1);
         })
         .on('mouseout', function () {
+          d3.selectAll('path') // Select all paths
+            .attr('opacity', 1.0); // Dim all lines
           d3.select(this).attr('stroke-width', 2); // Reset thickness
           tooltipGroup.attr('opacity', 0);
+          if (options?.onLineExit) {
+            options.onLineExit(key, graph.indexer);
+          }
         });
     } else if (options?.showXYValuesOnHover) {
       g.selectAll(`circle-${key}`)
