@@ -53,6 +53,16 @@ const chainSelected = (result: any[] = [], color = 'cyan', defaultColor = '') =>
   result.push('case');
   result.push(['in', ['get', 'vectorfeatureid'], ['literal', MapStore.selectedIds.value]]);
   result.push(color);
+  if (MapStore.mapLayerFeatureGraphsVisible.value) {
+    result.push(['in', ['get', 'vectorfeatureid'], ['literal', MapStore.hoveredFeatures.value]]);
+    result.push(color);
+  }
+  if (MapStore.enabledMapLayerFeatureColorMapping.value) {
+    Object.entries(MapStore.mapLayerFeatureColorMapping.value).forEach(([vectorfeatureId, mappedColor]) => {
+      result.push(['==', ['get', 'vectorfeatureid'], parseInt(vectorfeatureId, 10)]);
+      result.push(mappedColor);
+    });
+  }
   if (defaultColor) {
     result.push(defaultColor);
   }

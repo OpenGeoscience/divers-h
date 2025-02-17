@@ -20,8 +20,9 @@ const renderVectorFeatureGraph = (
   },
   baseHeight = 400,
 ) => {
+  const outputColorMapping: Record<number, string> = {};
   const localContainer = container;
-  if (!localContainer || !data) return;
+  if (!localContainer || !data) return outputColorMapping;
 
   const svg = d3.select(localContainer);
   svg.selectAll('*').remove(); // Clear previous content
@@ -48,7 +49,7 @@ const renderVectorFeatureGraph = (
   // Gather all data points for scaling
   const allDataPoints = Object.values(graphsToRender).flatMap((graph) => graph.data);
 
-  if (allDataPoints.length === 0) return; // No data to render
+  if (allDataPoints.length === 0) return outputColorMapping; // No data to render
 
   x.domain(d3.extent(allDataPoints, (d) => d[0]) as [number, number]);
   y.domain(d3.extent(allDataPoints, (d) => d[1]) as [number, number]);
@@ -56,7 +57,7 @@ const renderVectorFeatureGraph = (
   // Estimate max label width based on character count
   const allYValues = Object.values(graphsToRender).flatMap((graph) => graph.data.map((d) => d[1]));
 
-  if (allYValues.length === 0) return;
+  if (allYValues.length === 0) return outputColorMapping;
 
   y.domain(d3.extent(allYValues) as [number, number]);
 
@@ -109,7 +110,6 @@ const renderVectorFeatureGraph = (
     }
     return d;
   };
-  const outputColorMapping: Record<number, string> = {};
   graphKeys.forEach((key, index) => {
     const graph = graphsToRender[key];
     const color = options?.colors?.[key] || colorScale(index.toString());
@@ -215,7 +215,6 @@ const renderVectorFeatureGraph = (
       });
 
     svg.call(zoom); // Apply zoom behavior to the entire SVG
-    return outputColorMapping;
   }
 
   // X-axis
@@ -265,6 +264,7 @@ const renderVectorFeatureGraph = (
       .attr('text-anchor', 'middle')
       .text(options?.yAxisLabel);
   }
+  return outputColorMapping;
 };
 
 // eslint-disable-next-line import/prefer-default-export

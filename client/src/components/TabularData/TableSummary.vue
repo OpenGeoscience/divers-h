@@ -7,7 +7,6 @@ import { AvailablePropertyDisplay, TableSummary, VectorFeatureTableGraph } from 
 import UVdatApi from '../../api/UVDATApi';
 import MapStore from '../../MapStore';
 import { getLayerAvailableProperties } from '../../utils';
-import { index } from 'd3';
 
 export default defineComponent({
   name: 'VectorTableSummary',
@@ -27,7 +26,7 @@ export default defineComponent({
     const addingGraph = ref(false);
     const error = ref<string | null>(null);
     const tableChartDialog = ref(false);
-    const activeTab: Ref<'summary' | 'selectedFeatureGraphs' | 'mapLayerGraphs'> = ref('summary'); // Track active tab (0 for summary, 1 for graphing)
+    const activeTab: Ref<'summary' | 'selectedFeatureGraphs' | 'mapLayerGraphs'> = ref('summary');
     const selectedTableName = ref<string>('Table Name');
     const selectedTableType = ref<string | null>(null);
     const selectedXColumn = ref<string | null>(null);
@@ -111,8 +110,6 @@ export default defineComponent({
       }
     };
 
-    
-
     const availableColumns = computed(() => {
       const baseColumns = selectedTableType.value && summaryData.value?.tables[selectedTableType.value]?.columns
         ? summaryData.value?.tables[selectedTableType.value]?.columns : [];
@@ -163,18 +160,18 @@ export default defineComponent({
     });
     const indexerVals = computed(() => {
       const keys = Object.keys(availableProps.value);
-      const output: { title: string, value: string; description?: string}[] = [];
+      const output: { title: string, value: string; description?: string }[] = [];
       keys.forEach((key) => {
         if (availableProps.value[key]) {
           output.push({
             value: key,
             title: availableProps.value[key].displayName,
-            description: availableProps.value[key].description
-          })
+            description: availableProps.value[key].description,
+          });
         }
-      })
+      });
       return output;
-    })
+    });
 
     onMounted(() => {
       vectorTableSummary(props.layerId);
@@ -223,7 +220,9 @@ export default defineComponent({
       mdi-cog
     </v-icon>
   </v-row>
-  <v-row><v-spacer />Selected Feature Graphs<v-spacer /></v-row>
+  <v-row v-if="selectedFeatureGraphs.length">
+    <v-spacer />Selected Feature Graphs<v-spacer />
+  </v-row>
   <v-row v-for="(graph, index) in selectedFeatureGraphs" :key="index" dense>
     <v-col>
       {{ graph.name }}
@@ -232,7 +231,9 @@ export default defineComponent({
       {{ `${graph.xAxis} vs ${graph.yAxis}` }}
     </v-col>
   </v-row>
-  <v-row><v-spacer />MapLayer Feature Graphs<v-spacer /></v-row>
+  <v-row v-if="mapLayerFeatureGraphs.length">
+    <v-spacer />MapLayer Feature Graphs<v-spacer />
+  </v-row>
   <v-row v-for="(graph, index) in mapLayerFeatureGraphs" :key="index" dense>
     <v-col>
       {{ graph.name }}
@@ -275,7 +276,34 @@ export default defineComponent({
                   <v-expansion-panel v-for="column in table.columns" :key="column">
                     <v-expansion-panel-title>{{ column }}</v-expansion-panel-title>
                     <v-expansion-panel-text>
-                      <p>{{ table.summary[column] }}</p>
+                      <div v-if="table.summary[column]">
+                        <v-chip :color="table.summary[column].type === 'number' ? 'primary' : 'secondary'">
+                          <span>{{ table.summary[column].type }}</span>
+                        </v-chip>
+                        <div v-if="table.summary[column].type === 'number'">
+                          min: {{ table.summary[column].min }} -  max: {{ table.summary[column].max }}
+                        </div>
+
+                        <v-tooltip
+                          v-else-if="table.summary[column].type === 'string' && table.summary[column].values.length"
+                          location="top"
+                        >
+                          <template #activator="{ props }">
+                            <v-icon v-bind="props" class="ml-2">
+                              mdi-format-list-bulleted
+                            </v-icon>
+                          </template>
+                          <div>
+                            <span v-for="(value, index) in table.summary[column].values" :key="index">
+                              {{ value }}<br />
+                            </span>
+                          </div>
+                        </v-tooltip>
+
+                        <div v-if="table.summary[column].description" class="text-muted mt-1">
+                          {{ table.summary[column].description }}
+                        </div>
+                      </div>
                     </v-expansion-panel-text>
                   </v-expansion-panel>
                 </v-expansion-panels>

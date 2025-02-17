@@ -170,6 +170,7 @@ export default defineComponent({
         map.value.on('error', (err: ErrorEvent & { sourceId?: string, isSourceLoaded?: boolean }) => {
           if (err.type === 'error' && err?.sourceId === OSM_VECTOR_ID && !err?.isSourceLoaded) {
             handleFailedVectorSource();
+            popupLogic(map);
           } else {
             // eslint-disable-next-line no-console
             console.error(err);
@@ -177,7 +178,6 @@ export default defineComponent({
         });
 
         map.value.on('load', () => {
-          // One time call to setup Popup logic
           popupLogic(map);
         });
       }
@@ -230,9 +230,19 @@ export default defineComponent({
     });
 
     watch(
-      MapStore.selectedFeatures,
+      [MapStore.selectedFeatures, MapStore.enabledMapLayerFeatureColorMapping],
       () => {
         if (map.value) {
+          updateSelected(map.value);
+        }
+      },
+      { deep: true },
+    );
+
+    watch(
+      MapStore.hoveredFeatures,
+      () => {
+        if (map.value && MapStore.mapLayerFeatureGraphsVisible.value) {
           updateSelected(map.value);
         }
       },

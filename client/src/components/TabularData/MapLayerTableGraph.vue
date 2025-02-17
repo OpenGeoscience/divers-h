@@ -1,8 +1,10 @@
 <script lang="ts">
+import * as d3 from 'd3';
 import {
   computed,
   defineComponent,
   onMounted,
+  onUnmounted,
   ref,
   watch,
 } from 'vue';
@@ -21,9 +23,8 @@ export default defineComponent({
     const graphData = ref<FeatureGraphData | null>(null);
     const loading = ref<boolean>(false);
 
-    const availableLayers = computed(() =>
-      MapStore.mapLayerFeatureGraphs.value.map((item) => ({ title: item.name, value: item.id }))
-    );
+    // eslint-disable-next-line vue/max-len
+    const availableLayers = computed(() => MapStore.mapLayerFeatureGraphs.value.map((item) => ({ title: item.name, value: item.id })));
 
     const availableCharts = computed(() => {
       if (availableLayers.value && selectedLayer.value) {
@@ -41,6 +42,17 @@ export default defineComponent({
       graphData.value = null;
     });
 
+    const onLineHover = (vectorFeatureId: number) => {
+      if (!MapStore.hoveredFeatures.value.includes(vectorFeatureId)) {
+        MapStore.hoveredFeatures.value.push(vectorFeatureId);
+      }
+    };
+    const onLineExit = (vectorFeatureId: number) => {
+      const foundIndex = MapStore.hoveredFeatures.value.findIndex((item) => item === vectorFeatureId);
+      if (foundIndex !== -1) {
+        MapStore.hoveredFeatures.value.splice(foundIndex, 1);
+      }
+    };
     // Fetch chart data based on selected layer and chart
     const fetchMapLayerFeatureGraphData = async () => {
       if (selectedLayer.value === null || selectedChart.value === null) return;
@@ -59,21 +71,25 @@ export default defineComponent({
           graph.xAxis,
           graph.yAxis,
           graph.indexer,
-          bbox
+          bbox,
         );
         graphData.value = data;
 
         if (graphContainer.value) {
-          renderVectorFeatureGraph(
+          const colorMapping = renderVectorFeatureGraph(
             data,
             graphContainer.value,
             {
               xAxisIsTime: graph.xAxis === 'unix_time',
+              onLineHover,
+              onLineExit,
             },
-            300
+            300,
           );
+          MapStore.mapLayerFeatureColorMapping.value = colorMapping;
         }
       } catch (error) {
+        // eslint-disable-next-line no-console
         console.error('Error fetching feature graph data:', error);
       } finally {
         loading.value = false;
@@ -90,6 +106,31 @@ export default defineComponent({
     // Watch for chart selection change and fetch data automatically
     watch([selectedChart], fetchMapLayerFeatureGraphData);
 
+    const reversePathHover = (vectorFeatureId: number) => {
+      d3.selectAll('path') // Select all paths
+        .attr('opacity', 0.3); // Dim all lines
+      d3.selectAll('path')
+        .filter((d, i, nodes) => d3.select(nodes[i]).attr('vectorFeatureId') === vectorFeatureId.toString())
+        .attr('stroke-width', 4).attr('opacity', 1.0);
+    };
+
+    watch(MapStore.hoveredFeatures, () => {
+      if (MapStore.hoveredFeatures.value.length === 0) {
+        d3.selectAll('path') // Select all paths
+          .attr('opacity', 1.0)
+          .attr('stroke-width', 2);
+      } else {
+        MapStore.hoveredFeatures.value.forEach((vectorFetureId) => {
+          reversePathHover(vectorFetureId);
+        });
+      }
+    }, { deep: true });
+
+    onUnmounted(() => {
+      MapStore.enabledMapLayerFeatureColorMapping.value = false;
+      MapStore.mapLayerFeatureColorMapping.value = {};
+      MapStore.clearHoveredFeatures();
+    });
     return {
       selectedLayer,
       selectedChart,
@@ -98,6 +139,7 @@ export default defineComponent({
       graphContainer,
       fetchMapLayerFeatureGraphData,
       loading,
+      enabledColorMapping: MapStore.enabledMapLayerFeatureColorMapping,
     };
   },
 });
@@ -108,7 +150,7 @@ export default defineComponent({
     <v-card-text class="pa-0">
       <v-container fluid class="pa-0">
         <v-row no-gutters align="center">
-          <v-col cols="5">
+          <v-col cols="3">
             <v-select
               v-model="selectedLayer"
               density="compact"
@@ -121,7 +163,7 @@ export default defineComponent({
             />
           </v-col>
 
-          <v-col cols="5">
+          <v-col cols="3">
             <v-select
               v-model="selectedChart"
               density="compact"
@@ -134,17 +176,35 @@ export default defineComponent({
               outlined
             />
           </v-col>
-
-          <v-col cols="2" class="d-flex justify-end">
-            <v-btn
-              v-if="selectedChart !== null"
-              color="primary"
-              @click="fetchMapLayerFeatureGraphData"
-              :disabled="loading"
-            >
-              Load Data
-            </v-btn>
-          </v-col>
+          <v-tooltip text="Map Colors from graph to vector features">
+            <template #activator="{ props }">
+              <v-icon
+                v-bind="props"
+                :color="enabledColorMapping ? 'primary' : 'light-gray'"
+                size="x-large"
+                class="pb-4"
+                @click="enabledColorMapping = !enabledColorMapping"
+              >
+                mdi-palette
+              </v-icon>
+            </template>
+          </v-tooltip>
+          <v-tooltip
+            v-if="selectedChart !== null"
+            text="Reload graph data based on current Map View"
+          >
+            <template #activator="{ props }">
+              <v-btn
+                v-bind="props"
+                color="primary"
+                :disabled="loading"
+                class="mb-4 ml-4"
+                @click="fetchMapLayerFeatureGraphData"
+              >
+                Reload <v-icon>mdi-refresh</v-icon>
+              </v-btn>
+            </template>
+          </v-tooltip>
         </v-row>
 
         <v-row no-gutters justify="center">

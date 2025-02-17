@@ -5,7 +5,6 @@ import {
 import UVdatApi from '../../api/UVDATApi';
 import { FeatureGraphData, VectorFeatureTableGraph } from '../../types';
 import { renderVectorFeatureGraph } from './vectorFeatureGraphUtils';
-import { getStringBBox } from '../../map/mapLayers';
 
 export default defineComponent({
   name: 'FeatureGraph',
@@ -28,9 +27,11 @@ export default defineComponent({
     const graphDialogContainer = ref<SVGSVGElement | null>(null);
     const graphData = ref<FeatureGraphData | null>(null);
     const dialogVisible = ref(false);
+    const noGraphData = ref(false);
 
     // Fetch feature graph data when component is mounted or props change
     const fetchFeatureGraphData = async () => {
+      noGraphData.value = false;
       try {
         const data = await UVdatApi.getFeatureGraphData(
           props.graphInfo.type, // Use graphInfo.type (tableType) instead of mapLayerId
@@ -38,17 +39,25 @@ export default defineComponent({
           props.graphInfo.xAxis,
           props.graphInfo.yAxis,
         );
+        if (data.graphs && Object.keys(data.graphs).length === 0) {
+          noGraphData.value = true;
+          return;
+        }
         graphData.value = data;
         if (graphContainer.value) {
-          renderVectorFeatureGraph(
-            data,
-            graphContainer.value,
-            {
-              specificGraphKey: props.vectorFeatureId,
-              xAxisIsTime: props.graphInfo.xAxis === 'unix_time',
-              xAxisVerticalLabels: true,
-            },
-          );
+          nextTick(() => {
+            if (graphContainer.value) {
+              renderVectorFeatureGraph(
+                data,
+                graphContainer.value,
+                {
+                  specificGraphKey: props.vectorFeatureId,
+                  xAxisIsTime: props.graphInfo.xAxis === 'unix_time',
+                  xAxisVerticalLabels: true,
+                },
+              );
+            }
+          });
         }
       } catch (error) {
         // eslint-disable-next-line no-console
@@ -60,8 +69,10 @@ export default defineComponent({
     watch(
       () => [props.graphInfo, props.vectorFeatureId],
       () => fetchFeatureGraphData(),
-      { immediate: true },
     );
+    watch(graphContainer, () => {
+      fetchFeatureGraphData();
+    });
 
     // Open the dialog to display a larger graph
     const openDialog = () => {
@@ -83,42 +94,13 @@ export default defineComponent({
       });
     };
 
-    const testGraphData = ref<FeatureGraphData | null>(null);
-
-    const testBBoxDialog = async () => {
-      const bbox = getStringBBox();
-      testGraphData.value = await UVdatApi.getMapLayerFeatureGraphData(
-        props.graphInfo.type, // Use graphInfo.type (tableType) instead of mapLayerId
-        props.mapLayerId,
-        props.graphInfo.xAxis,
-        props.graphInfo.yAxis,
-        'name',
-        bbox,
-      );
-      dialogVisible.value = true;
-      nextTick(() => {
-        if (testGraphData.value && graphDialogContainer.value) {
-          renderVectorFeatureGraph(
-            testGraphData.value,
-            graphDialogContainer.value,
-            {
-              xAxisIsTime: props.graphInfo.xAxis === 'unix_time',
-              zoomable: true,
-              xAxisLabel: props.graphInfo.xAxisLabel,
-              yAxisLabel: props.graphInfo.yAxisLabel,
-            },
-          );
-        }
-      });
-    };
-
     return {
       graphContainer,
       graphDialogContainer,
       graphData,
       dialogVisible,
       openDialog,
-      testBBoxDialog,
+      noGraphData,
     };
   },
 });
@@ -126,18 +108,17 @@ export default defineComponent({
 
 <template>
   <div>
-    <!-- Button to open dialog -->
-    <v-btn color="primary" size="x-small" @click="openDialog">
-      View Larger Graph
-    </v-btn>
-    <v-btn color="primary" size="x-small" @click="testBBoxDialog">
-      Test BBOX Graph
-    </v-btn>
-
-    <!-- Graph container -->
-    <svg ref="graphContainer" width="100%" height="400" class="selectedFeatureSVG" />
-
-    <!-- Dialog for larger chart -->
+    <div v-if="noGraphData">
+      <v-alert type="warning">
+        No Data to Graph
+      </v-alert>
+    </div>
+    <div v-if="graphData">
+      <v-btn color="primary" size="x-small" @click="openDialog">
+        View Larger Graph
+      </v-btn>
+    </div>
+    <svg ref="graphContainer" width="100%" :height="graphData ? 400 : 0" class="selectedFeatureSVG" />
     <v-dialog v-model="dialogVisible" max-width="800px">
       <v-card>
         <v-card-title>
