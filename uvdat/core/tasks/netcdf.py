@@ -188,7 +188,7 @@ def create_netcdf_data_layer(file_item, metadata):
                 variable=item.get('variable'),
                 x_variable=item.get('x_variable'),
                 y_variable=item.get('y_variable'),
-                color_map=item.get('color_map'),
+                color_map=item.get('color_map', 'viridis'),
                 sliding_variable=item.get('sliding_variable'),
                 description=item.get('description', ''),
                 additional_vars=item.get('additional_var', ''),
