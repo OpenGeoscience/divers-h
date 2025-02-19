@@ -112,9 +112,9 @@ export default defineComponent({
       </v-row>
     </v-card-title>
     <v-card-text>
-      <v-expansion-panels :model-value="selectedFeatureExpanded" @click="toggleFeatureExpaned()">
+      <v-expansion-panels :model-value="selectedFeatureExpanded">
         <v-expansion-panel value="expanded">
-          <v-expansion-panel-title>
+          <v-expansion-panel-title @click="toggleFeatureExpaned()">
             <v-icon class="pr-2">
               mdi-list-box-outline
             </v-icon> Data
@@ -163,7 +163,7 @@ export default defineComponent({
             </v-icon> {{ vectorGraph.name }}
           </v-expansion-panel-title>
           <v-expansion-panel-text class="ma-0">
-            <vector-feature-chart :graph-info="vectorGraph" :vector-feature-id="featureId" />
+            <vector-feature-chart :graph-info="vectorGraph" :vector-feature-id="featureId" :map-layer-id="mapLayerId" />
           </v-expansion-panel-text>
         </v-expansion-panel>
       </v-expansion-panels>

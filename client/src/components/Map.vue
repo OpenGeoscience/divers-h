@@ -45,6 +45,12 @@ const VECTOR_LAYER_IDS = VECTOR_LAYERS.map((layer) => layer.id);
 
 export default defineComponent({
   name: 'MapComponent',
+  props: {
+    bottomPanel: {
+      type: Boolean,
+      default: false,
+    },
+  },
   setup() {
     const mapContainer: Ref<HTMLDivElement | null> = ref(null);
     const map: Ref<null | Map> = ref(null);
@@ -164,6 +170,7 @@ export default defineComponent({
         map.value.on('error', (err: ErrorEvent & { sourceId?: string, isSourceLoaded?: boolean }) => {
           if (err.type === 'error' && err?.sourceId === OSM_VECTOR_ID && !err?.isSourceLoaded) {
             handleFailedVectorSource();
+            popupLogic(map);
           } else {
             // eslint-disable-next-line no-console
             console.error(err);
@@ -171,7 +178,6 @@ export default defineComponent({
         });
 
         map.value.on('load', () => {
-          // One time call to setup Popup logic
           popupLogic(map);
         });
       }
@@ -224,9 +230,19 @@ export default defineComponent({
     });
 
     watch(
-      MapStore.selectedFeatures,
+      [MapStore.selectedFeatures, MapStore.enabledMapLayerFeatureColorMapping],
       () => {
         if (map.value) {
+          updateSelected(map.value);
+        }
+      },
+      { deep: true },
+    );
+
+    watch(
+      MapStore.hoveredFeatures,
+      () => {
+        if (map.value && MapStore.mapLayerFeatureGraphsVisible.value) {
           updateSelected(map.value);
         }
       },
@@ -243,11 +259,13 @@ export default defineComponent({
 </script>
 
 <template>
-  <div
-    id="map"
-    ref="mapContainer"
-    class="map-container"
-  />
+  <div class="map-container">
+    <div
+      id="map"
+      ref="mapContainer"
+      class="map-content"
+    />
+  </div>
   <v-snackbar v-model="mapAlert" content-class="map-alert">
     <v-alert type="warning" variant="tonal">
       {{ mapAlertMessage }}
@@ -259,8 +277,15 @@ export default defineComponent({
 @import "maplibre-gl/dist/maplibre-gl.css";
 
 .map-container {
+  display: flex;
+  flex-grow: 1;
   width: 100%;
-  height: 90vh;
+}
+
+.map-content {
+  flex-grow: 1;
+  width: 100%;
+  min-height: 300px; /* Ensure map has a minimum height */
 }
 
 .map-alert > .v-snackbar__content {

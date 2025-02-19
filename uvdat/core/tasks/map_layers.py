@@ -589,7 +589,7 @@ def process_tabular_vector_feature_data(map_layer_id, json_data, matcher):
 
     for feature in vector_features:
         # Ensure properties contain the matcher key
-        matcher_value = feature.properties.get(matcher)
+        matcher_value = str(feature.properties.get(matcher))
 
         # Ensure the matcher value exists in json_data
         if matcher_value not in json_data:

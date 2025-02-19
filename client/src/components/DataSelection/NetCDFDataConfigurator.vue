@@ -377,7 +377,7 @@ export default defineComponent({
 
 <template>
   <v-list dense>
-    <v-row dense align="center" justify="center" class="mx-1">
+    <v-row dense align="center" justify="center" class="mx-1 pa-0">
       <v-icon v-tooltip="'NetCDF Layer'">
         mdi-grid
       </v-icon>
@@ -764,6 +764,7 @@ export default defineComponent({
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  max-width:210px;
   }
 .select-variable {
     border: 1px solid gray;

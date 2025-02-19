@@ -29,7 +29,7 @@ const popupLogic = async (mapArg: ShallowRef<null | Map>) => {
 const hoveredInfo: Ref<FeatureProps[]> = ref([]);
 
 const mouseenter = async (e: MapLayerMouseEvent) => {
-  if (e.features && MapStore.toolTipsEnabled.value) {
+  if (e.features && (MapStore.toolTipsEnabled.value || MapStore.mapLayerFeatureGraphsVisible.value)) {
     const coordinates = e.lngLat;
     const data: FeatureProps[] = [];
     for (let i = 0; i < e.features.length; i += 1) {
@@ -40,16 +40,23 @@ const mouseenter = async (e: MapLayerMouseEvent) => {
     }
     hoveredInfo.value = data;
     popUpProps.value = hoveredInfo.value;
-    // eslint-disable-next-line @typescript-eslint/no-use-before-define
-    createPopupComponent(coordinates, popUpProps.value);
+    if (MapStore.toolTipsEnabled.value) {
+      // eslint-disable-next-line @typescript-eslint/no-use-before-define
+      createPopupComponent(coordinates, popUpProps.value);
+    }
+    if (MapStore.mapLayerFeatureGraphsVisible.value) {
+      MapStore.hoveredFeatures.value = data.map((item) => item.vectorfeatureid);
+    }
   }
 };
 
 const mouseleave = async (e: MapLayerMouseEvent) => {
+  const featureIds: number[] = [];
   if (e.features) {
     for (let i = 0; i < e.features.length; i += 1) {
       const props = e.features[i]?.properties;
       if (props) {
+        featureIds.push(props.vectorfeatureid);
         const foundIndex = hoveredInfo.value.findIndex((item) => isEqual(item, props));
         if (foundIndex !== -1) {
           hoveredInfo.value.splice(foundIndex, 1);
@@ -57,6 +64,9 @@ const mouseleave = async (e: MapLayerMouseEvent) => {
       }
     }
     popUpProps.value = hoveredInfo.value;
+  }
+  if (MapStore.mapLayerFeatureGraphsVisible.value) {
+    MapStore.hoveredFeatures.value.pop();
   }
   if (timeout !== null) {
     clearTimeout(timeout);
@@ -223,7 +233,7 @@ const setPopupEvents = (localMap: Map) => {
                 clickFunc = annotationDisplayType.selectable === 'singleSelect' ? singleClick : click;
                 localMap.on('click', `Layer_${id}_${annotationType}`, clickFunc);
               }
-              if (annotationDisplayType.hoverable) {
+              if (annotationDisplayType.hoverable || MapStore.mapLayerFeatureGraphsVisible) {
                 localMap.on('mouseenter', `Layer_${id}_${annotationType}`, mouseenter);
                 localMap.on('mouseleave', `Layer_${id}_${annotationType}`, mouseleave);
               }

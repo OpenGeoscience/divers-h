@@ -25,7 +25,7 @@ export default defineComponent({
     });
     const totalIndex = computed(() => {
       const found = visibleNetCDFLayers.find((item) => item.netCDFLayer === props.layer.id);
-      return found?.images.length || 0;
+      return found?.images.length ? found.images.length - 1 : 0;
     });
     const stepMapping = computed(() => {
       const found = visibleNetCDFLayers.find((item) => item.netCDFLayer === props.layer.id);

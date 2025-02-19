@@ -9,6 +9,7 @@ import {
   NetCDFData,
   NetCDFLayer,
   RasterMapLayer,
+  VectorFeatureTableGraph,
   VectorMapLayer,
 } from './types';
 import UVdatApi from './api/UVDATApi';
@@ -99,6 +100,31 @@ export default class MapStore {
     MapStore.mapLayersByDataset[datasetId] = await UVdatApi.getDatasetLayers(datasetId);
   }
 
+  public static mapLayerFeatureGraphs = computed(() => {
+    const foundMapLayerFeatureGraphs: { name: string, id: number; graphs: VectorFeatureTableGraph[] }[] = [];
+    MapStore.selectedVectorMapLayers.value.forEach((item) => {
+      if (item.default_style.mapLayerFeatureTableGraphs && item.default_style.mapLayerFeatureTableGraphs.length) {
+        foundMapLayerFeatureGraphs.push({
+          name: item.name,
+          id: item.id,
+          graphs: item.default_style.mapLayerFeatureTableGraphs,
+        });
+      }
+    });
+    return foundMapLayerFeatureGraphs;
+  });
+
+  public static mapLayerFeatureGraphsVisible = ref(false);
+
+  // Graph color mapping implementation
+  public static enabledMapLayerFeatureColorMapping = ref(false);
+
+  public static mapLayerFeatureColorMapping: Ref<Record<number, string>> = ref({});
+
+  public static clearMapLayerFeatureColorMapping = () => {
+    MapStore.mapLayerFeatureColorMapping.value = {};
+  };
+
   // ToolTips
   public static toolTipMenuOpen = ref(false);
 
@@ -130,6 +156,27 @@ export default class MapStore {
   public static selectedFeatureExpanded = ref(true);
 
   public static selectedIds = computed(() => MapStore.selectedFeatures.value.map((item) => item.properties.vectorfeatureid));
+
+  public static hoveredFeatures: Ref<number[]> = ref([]);
+
+  public static setHoveredFeature = (feature: number) => {
+    MapStore.hoveredFeatures.value = [feature];
+  };
+
+  public static removeHoveredFeature = (feature: number) => {
+    const foundIndex = MapStore.hoveredFeatures.value.findIndex((item) => item === feature);
+    if (foundIndex !== -1) {
+      MapStore.hoveredFeatures.value.splice(foundIndex, 1);
+    }
+  };
+
+  public static removeHoveredFeatures = (features: number[]) => {
+    MapStore.hoveredFeatures.value = MapStore.hoveredFeatures.value.filter((item) => !features.includes(item));
+  };
+
+  public static clearHoveredFeatures = () => {
+    MapStore.hoveredFeatures.value = [];
+  };
 
   public static pollForVectorBasemap = (pollInterval: number = 5000) => {
     let cancelled = false;

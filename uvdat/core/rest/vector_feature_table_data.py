@@ -201,7 +201,7 @@ class VectorFeatureTableDataViewSet(
         x_axis = request.query_params.get('xAxis', 'index')
         y_axis = request.query_params.get('yAxis', 'mean_va')
         indexer = request.query_params.get('indexer', 'vectorFeatureId')
-        bbox = request.query_params.getlist('bbox', None)  # Optional: [min_x, min_y, max_x, max_y]
+        bbox = request.query_params.get('bbox', None)  # Optional: [min_x, min_y, max_x, max_y]
 
         if not bbox:
             return Response({'error': 'bbox parameter is required'}, status=400)
@@ -217,7 +217,7 @@ class VectorFeatureTableDataViewSet(
         vector_features = VectorFeature.objects.filter(
             geometry__intersects=bbox_polygon, map_layer=map_layer_id
         ).values_list('id', flat=True)
-
+        logger.warning(f'Vector Features: {vector_features}')
         if not table_type:
             return Response({'error': 'tableType is required'}, status=status.HTTP_400_BAD_REQUEST)
 
