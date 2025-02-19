@@ -106,6 +106,7 @@ export default defineComponent({
       hasMapLayerVectorGraphs,
       toggleMapLayerVectorGraphs,
       mapLayerVectorGraphsVisible: MapStore.mapLayerFeatureGraphsVisible,
+      mapLayerFeatureGraphs: MapStore.mapLayerFeatureGraphs,
       sideBarWidth: MapStore.currentSideBarWidth,
       sideBarOpen: MapStore.sideBarOpen,
       activeSideBar: MapStore.activeSideBarCard,
@@ -259,7 +260,7 @@ export default defineComponent({
     <v-row dense class="fill-height">
       <v-col class="d-flex flex-column fill-height" style="min-height: 90vh">
         <MapVue />
-        <MapLayerTableGraph v-if="mapLayerVectorGraphsVisible" />
+        <MapLayerTableGraph v-if="mapLayerVectorGraphsVisible && mapLayerFeatureGraphs.length" />
       </v-col>
     </v-row>
     <selected-feature-list />

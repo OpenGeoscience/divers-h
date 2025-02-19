@@ -175,17 +175,18 @@ export default defineComponent({
         </template>
       </v-tooltip>
     </div>
-    <v-list>
+    <v-list class="pa-0">
       <v-list-group
         v-for="dataset in datasets"
         :key="`${dataset.id}_${dataset.modified}`"
         :value="`dataset:${dataset.id}`"
-        class="list-group"
+        class="list-group pa-0"
       >
         <template #activator="{ props, isOpen }">
           <v-list-item
             v-bind="props"
             :title="dataset.name"
+            class="pa-0"
             @click="!isOpen && loadDataset(dataset)"
           >
             <v-tooltip
@@ -242,6 +243,7 @@ export default defineComponent({
         <v-list-item
           v-for="layer in layersByDataset[dataset.id]"
           :key="layer.id"
+          class="pa-0"
         >
           <DatasetItem :layer="layer" @netcdf-deleted="updateNetCDFLayer(dataset.id)" />
         </v-list-item>
@@ -291,7 +293,7 @@ export default defineComponent({
 .list-group {
   /* reduce padding of nested groups */
   --list-indent-size: 0px;
-  --prepend-width: 24px;
+  --prepend-width: 8px;
 }
 
 .layer-selection {

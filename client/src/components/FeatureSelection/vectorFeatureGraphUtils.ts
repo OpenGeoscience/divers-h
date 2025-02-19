@@ -28,7 +28,7 @@ const renderVectorFeatureGraph = (
   svg.selectAll('*').remove(); // Clear previous content
 
   const defaultMargin = {
-    top: 20, right: 20, bottom: options?.xAxisVerticalLabels ? 70 : 15, left: 50,
+    top: 20, right: 20, bottom: options?.xAxisVerticalLabels ? 70 : 35, left: 50,
   }; // Base left margin
   const width = (localContainer.clientWidth || 250) - defaultMargin.left - defaultMargin.right;
   const height = baseHeight - defaultMargin.top - defaultMargin.bottom;
@@ -244,7 +244,7 @@ const renderVectorFeatureGraph = (
   if (options?.xAxisLabel) {
     xaxis.append('text')
       .attr('x', width / 2)
-      .attr('y', 40)
+      .attr('y', 25)
       .attr('fill', 'black')
       .attr('text-anchor', 'middle')
       .text(options?.xAxisLabel);

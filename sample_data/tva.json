@@ -40,7 +40,6 @@
                 "description": "TVA USGS WaterFlow and temperature",
                 "category": "tabular",
                 "metadata": {},
-                "action": "replace",
                 "files": [
                     {
                         "path": "./data/tva_sites.geojson",
@@ -74,6 +73,7 @@
                 "description": "TVA Power Plants",
                 "category": "vector",
                 "metadata": {},
+                "action": "replace",
                 "files": [
                     {
                         "path": "./data/tva/hydrostations.geojson",
@@ -83,13 +83,294 @@
                         "metadata": {}
                     },
                     {
-                        "path": "./data/tva/powerplants.zip",
-                        "url": "https://data.kitware.com/api/v1/file/67a645d7091a514e82eec881/download",
+                        "path": "./data/tva/powerplants.geojson",
+                        "url": "https://data.kitware.com/api/v1/file/67b4e6f4146ff7c60286eaaa/download",
                         "name": "TVA Power Plants",
-                        "type": "zip",
-                        "metadata": {}
+                        "type": "geojson",
+                        "metadata": {
+                            "tabular": {
+                                "path": "./data/mergednetcdf.json",
+                                "name": "Merged Surface Air Temperature",
+                                "url": "https://data.kitware.com/api/v1/file/67b4e73b146ff7c60286eaad/download",
+                                "featurePropertyMatcher": "Plant_Code"
+                            },
+                            "default_style": {
+                                "layers": {
+                                    "fill": {
+                                        "color": "#888888",
+                                        "enabled": false
+                                    },
+                                    "line": {
+                                        "size": 1,
+                                        "color": "#000000",
+                                        "enabled": false
+                                    },
+                                    "text": {
+                                        "color": "#888888",
+                                        "enabled": false
+                                    },
+                                    "circle": {
+                                        "color": "#888888",
+                                        "enabled": true,
+                                        "selectable": "singleSelect",
+                                        "selectColor": "#00FFFF"
+                                    },
+                                    "fill-extrusion": {
+                                        "color": "#888888",
+                                        "enabled": false
+                                    }
+                                },
+                                "properties": {
+                                    "selectionDisplay": true,
+                                    "availableProperties": {
+                                        "City": {
+                                            "key": "City",
+                                            "type": "string",
+                                            "values": [
+                                                "Ackerman",
+                                                "Albertville",
+                                                "Ashland",
+                                                "Ashland City",
+                                                "Batesville",
+                                                "Benton",
+                                                "Blairsville",
+                                                "Blue Ridge",
+                                                "Bolivar",
+                                                "Bristol",
+                                                "Brownsville",
+                                                "Calhoun",
+                                                "Camden",
+                                                "Carthage",
+                                                "Celina",
+                                                "Chattanooga",
+                                                "Cherokee",
+                                                "Clinton",
+                                                "Collinsville",
+                                                "Columbus",
+                                                "Cordova",
+                                                "Counce",
+                                                "Culberson",
+                                                "Cumberland City",
+                                                "Dalton",
+                                                "Dandridge",
+                                                "De Kalb",
+                                                "Decatur",
+                                                "Drakesboro",
+                                                "Elizabethon",
+                                                "Elizabethton",
+                                                "Elkmont",
+                                                "Elora",
+                                                "Florence",
+                                                "French Camp",
+                                                "Gallatin",
+                                                "Glasgow",
+                                                "Gleason",
+                                                "Grand Rivers",
+                                                "Greeneville",
+                                                "Guntersville",
+                                                "Hayesville",
+                                                "Hendersonville",
+                                                "Hollywood",
+                                                "Houston",
+                                                "Huntsville",
+                                                "Jackson",
+                                                "Jonesborough",
+                                                "Kingsport",
+                                                "Kingston",
+                                                "Knoxville",
+                                                "Kyles Ford",
+                                                "Lancaster",
+                                                "Leesburg",
+                                                "Lenoir City",
+                                                "Limestone",
+                                                "Loudon",
+                                                "Madison",
+                                                "McMinnville",
+                                                "Memphis",
+                                                "Millington",
+                                                "Moscow",
+                                                "Mountain Home",
+                                                "Murfreesboro",
+                                                "Murphy",
+                                                "Muscle Shoals",
+                                                "Nashville",
+                                                "New Hope",
+                                                "New Johnsonville",
+                                                "Norris",
+                                                "Obion",
+                                                "Oliver Springs",
+                                                "Paris",
+                                                "Pickwick Dam",
+                                                "Reliance",
+                                                "Rock Island",
+                                                "Rogersville",
+                                                "Rudledge",
+                                                "Selmer",
+                                                "Soddy Daisy",
+                                                "Somerville",
+                                                "Spring City",
+                                                "Stanton",
+                                                "Steens",
+                                                "Tallassee",
+                                                "Tarrant",
+                                                "Town Creek",
+                                                "Trinity",
+                                                "Tuscumbia",
+                                                "Whiteville",
+                                                "Winchester",
+                                                "Woodlawn"
+                                            ],
+                                            "display": true,
+                                            "tooltip": false,
+                                            "description": "",
+                                            "displayName": "City"
+                                        },
+                                        "Total_MW": {
+                                            "key": "Total_MW",
+                                            "max": 3661.7,
+                                            "min": 0.9,
+                                            "type": "number",
+                                            "display": true,
+                                            "tooltip": false,
+                                            "description": "",
+                                            "displayName": "MW"
+                                        },
+                                        "tech_desc": {
+                                            "key": "tech_desc",
+                                            "type": "string",
+                                            "values": [
+                                                "Batteries; Solar Photovoltaic;",
+                                                "Conventional Hydroelectric",
+                                                "Conventional Steam Coal",
+                                                "Conventional Steam Coal; Natural Gas Fired Combustion Turbine;",
+                                                "Hydroelectric Pumped Storage",
+                                                "Hydroelectric Pumped Storage; Conventional Hydroelectric;",
+                                                "Landfill Gas",
+                                                "Natural Gas Fired Combined Cycle",
+                                                "Natural Gas Fired Combined Cycle; Natural Gas Fired Combustion Turbine;",
+                                                "Natural Gas Fired Combined Cycle; Petroleum Liquids;",
+                                                "Natural Gas Fired Combustion Turbine",
+                                                "Natural Gas Internal Combustion Engine; Petroleum Liquids;",
+                                                "Nuclear",
+                                                "Onshore Wind Turbine",
+                                                "Other Gases",
+                                                "Other Waste Biomass; Petroleum Liquids;",
+                                                "Petroleum Liquids",
+                                                "Solar Photovoltaic",
+                                                "Wood/Wood Waste Biomass"
+                                            ],
+                                            "display": true,
+                                            "tooltip": false,
+                                            "description": "",
+                                            "displayName": "Technology"
+                                        },
+                                        "Plant_Name": {
+                                            "key": "Plant_Name",
+                                            "type": "string",
+                                            "unique": 121,
+                                            "display": true,
+                                            "tooltip": false,
+                                            "searchable": true,
+                                            "description": "",
+                                            "displayName": "Plant Name"
+                                        },
+                                        "PrimSource": {
+                                            "key": "PrimSource",
+                                            "type": "string",
+                                            "values": [
+                                                "biomass",
+                                                "coal",
+                                                "hydroelectric",
+                                                "natural gas",
+                                                "nuclear",
+                                                "other",
+                                                "petroleum",
+                                                "pumped storage",
+                                                "solar",
+                                                "wind"
+                                            ],
+                                            "display": true,
+                                            "tooltip": false,
+                                            "description": "",
+                                            "displayName": "Primary source"
+                                        },
+                                        "Utility_Na": {
+                                            "key": "Utility_Na",
+                                            "type": "string",
+                                            "values": [
+                                                "Adapture Renewables, Inc.",
+                                                "Alabama Power Co",
+                                                "Albertville Municipal Utilities Board",
+                                                "Arevon Energy, Inc.",
+                                                "Brookfield Smoky Mountain Hydropower LP",
+                                                "Chattanooga Metropolitan Airport",
+                                                "Choctaw Generation L.P, L.L.L.P.",
+                                                "Cooperative Energy",
+                                                "Cube District Energy, LLC",
+                                                "Cumberland Land Holdings, LLC",
+                                                "Decatur Energy Center LLC",
+                                                "Drummond Company, Inc.",
+                                                "Duke Energy Renewables Services",
+                                                "EDL Inc",
+                                                "East Kentucky Power Coop, Inc",
+                                                "Elora Solar",
+                                                "Energy Systems Group LLC",
+                                                "Entergy Mississippi LLC",
+                                                "Gaylord Entertainment Co",
+                                                "Haywood Solar, SMLLC",
+                                                "IKEA Property Inc",
+                                                "Ingenco Renewable Development, LLC",
+                                                "International Paper Columbus Mill",
+                                                "Invenergy Services LLC",
+                                                "MN8 Energy LLC",
+                                                "McMinnville Electric System",
+                                                "Middle River Power II, LLC",
+                                                "Middle Tennessee State University",
+                                                "Mississippi Power Co",
+                                                "Morgan Energy Center LLC",
+                                                "Muscle Shoals Solar, LLC",
+                                                "Nashville Electric Service",
+                                                "Northbrook Carolina Hydro II, LLC",
+                                                "OE_TN1",
+                                                "Oglethorpe Power Corporation",
+                                                "Onward Energy",
+                                                "PRIMIENT, LLC",
+                                                "Packaging Corp of America",
+                                                "Powell Valley Electric Coop",
+                                                "Providence Solar Center, LLC",
+                                                "Resolute Forest Products",
+                                                "River Bend Solar, LLC",
+                                                "SR Bolivar, LLC",
+                                                "SR Enterprise South, LLC",
+                                                "SR Greenville I, LLC",
+                                                "SR Greenville II, LLC",
+                                                "SR Houston Holdings, LLC",
+                                                "SR Innovation, LLC",
+                                                "SR Jackson II, LLC",
+                                                "SR Jonesborough II, LLC",
+                                                "SR Millington, LLC",
+                                                "SR Paris, LLC",
+                                                "SR Washington I, LLC",
+                                                "Selmer North Solar I, LLC",
+                                                "Selmer North Solar II, LLC",
+                                                "Somerville Solar, LLC",
+                                                "Tennessee Valley Authority",
+                                                "USCE-Nashville District",
+                                                "UT West Tennessee Solar Farm",
+                                                "University of Tennessee",
+                                                "Vanderbilt University",
+                                                "WM Renewable Energy LLC"
+                                            ],
+                                            "display": true,
+                                            "tooltip": false,
+                                            "description": "",
+                                            "displayName": "Utility"
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
-
                 ]
             }
         ]
@@ -108,13 +389,61 @@
                 "description": "DIVERS-H Input/Outputs",
                 "category": "raster",
                 "metadata": {},
+                "action": "replace",
                 "files": [
                     {
-                        "path": "./data/tva/atmosperic_input_output.tiff",
-                        "url": "https://data.kitware.com/api/v1/file/67a620ba091a514e82eec87c/download",
-                        "name": "Atm Water Supply 2020-2040 diff",
-                        "type": "tif",
-                        "metadata": {}
+                        "path": "./data/tva/evaporation_CONUS.nc",
+                        "url": "https://data.kitware.com/api/v1/file/67b4ccbf146ff7c60286eaa5/download",
+                        "name": "Evaporation CONUS 2015-2063",
+                        "type": "netcdf",
+                        "metadata": {
+                            "generate": [
+                                {
+                                    "name": "Evaporation Layer",
+                                    "variable": "evspsbl",
+                                    "color_map": "OrRd",
+                                    "sliding_variable": "time",
+                                    "x_variable": "lon",
+                                    "y_variable": "lat"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "path": "./data/tva/precipitation_CONUS.nc",
+                        "url": "https://data.kitware.com/api/v1/file/67b4cc60146ff7c60286ea9d/download",
+                        "name": "Precipitation CONUS 2015-2063",
+                        "type": "netcdf",
+                        "metadata": {
+                            "generate": [
+                                {
+                                    "name": "Precipitation Layer",
+                                    "variable": "pr",
+                                    "color_map": "GnBu",
+                                    "sliding_variable": "time",
+                                    "x_variable": "lon",
+                                    "y_variable": "lat"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "path": "./data/tva/surfaceairtemp_CONUS.nc",
+                        "url": "https://data.kitware.com/api/v1/file/67b4cc8c146ff7c60286eaa1/download",
+                        "name": "Surface Air Temperature CONUS 2015-2063",
+                        "type": "netcdf",
+                        "metadata": {
+                            "generate": [
+                                {
+                                    "name": "Surface Air Temperature",
+                                    "variable": "tas",
+                                    "sliding_variable": "time",
+                                    "x_variable": "lon",
+                                    "color_map": "turbo",
+                                    "y_variable": "lat"
+                                }
+                            ]
+                        }
                     }
                 ]
             }

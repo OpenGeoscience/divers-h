@@ -233,7 +233,7 @@ const setPopupEvents = (localMap: Map) => {
                 clickFunc = annotationDisplayType.selectable === 'singleSelect' ? singleClick : click;
                 localMap.on('click', `Layer_${id}_${annotationType}`, clickFunc);
               }
-              if (annotationDisplayType.hoverable) {
+              if (annotationDisplayType.hoverable || MapStore.mapLayerFeatureGraphsVisible) {
                 localMap.on('mouseenter', `Layer_${id}_${annotationType}`, mouseenter);
                 localMap.on('mouseleave', `Layer_${id}_${annotationType}`, mouseleave);
               }

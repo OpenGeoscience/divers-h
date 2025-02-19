@@ -167,7 +167,7 @@ export default defineComponent({
         </v-icon>
       </v-col>
     </v-row>
-    <v-card v-if="expanded">
+    <v-card v-if="visibility && expanded">
       <layer-representation-vue
         v-if="['raster', 'vector'].includes(layer.type)"
         :layer-id="layer.id"

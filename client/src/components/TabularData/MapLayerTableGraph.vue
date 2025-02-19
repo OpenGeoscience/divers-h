@@ -83,6 +83,8 @@ export default defineComponent({
               xAxisIsTime: graph.xAxis === 'unix_time',
               onLineHover,
               onLineExit,
+              xAxisLabel: graph.xAxisLabel,
+              yAxisLabel: graph.yAxisLabel,
             },
             300,
           );

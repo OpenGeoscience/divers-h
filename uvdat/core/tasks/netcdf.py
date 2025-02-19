@@ -173,7 +173,7 @@ def create_netcdf_data_layer(file_item, metadata):
         # Create the NetCDF Layer Item
         created_netcdf = NetCDFData.objects.create(
             dataset=file_item.dataset,
-            name=file_item.dataset.name,
+            name=file_item.name,
             file_item=file_item,
             metadata=description,
             default_style={},
@@ -188,6 +188,7 @@ def create_netcdf_data_layer(file_item, metadata):
                 variable=item.get('variable'),
                 x_variable=item.get('x_variable'),
                 y_variable=item.get('y_variable'),
+                color_map=item.get('color_map'),
                 sliding_variable=item.get('sliding_variable'),
                 description=item.get('description', ''),
                 additional_vars=item.get('additional_var', ''),
