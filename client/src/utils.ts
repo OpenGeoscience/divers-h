@@ -259,7 +259,6 @@ const getLayerConfigColor = (layerId: number, layerType: AnnotationTypes) => {
   return '#00FF00';
 };
 
-
 export {
   getVectorLayerDisplayConfig,
   getRasterLayerDisplayConfig,

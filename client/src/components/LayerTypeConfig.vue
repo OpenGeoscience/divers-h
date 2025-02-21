@@ -236,6 +236,11 @@ export default defineComponent({
           const foundColorIndex = found.default_style.savedColors.findIndex((item) => item.name === name);
           if (foundColorIndex !== -1) {
             currentLayerType.value.color = found.default_style.savedColors[foundColorIndex].color;
+            if (typeof (currentLayerType.value.color) !== 'string' && currentLayerType.value.color?.type) {
+              updateLayerTypeField('legend', true);
+            } else {
+              updateLayerTypeField('legend', true);
+            }
             updateLayer(found);
           }
           colorSaveChooser.value = false;

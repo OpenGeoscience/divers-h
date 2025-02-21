@@ -107,7 +107,6 @@ export default defineComponent({
     return {
       datasets: filteredDatasets,
       layersByDataset: MapStore.mapLayersByDataset,
-      selectedLayers: MapStore.selectedMapLayers,
       toggleLayerSelection,
       loadDataset,
       updateNetCDFLayer,

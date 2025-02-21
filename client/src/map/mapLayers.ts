@@ -63,7 +63,6 @@ const updateLayer = (layer: AbstractMapLayer) => {
   } else if (layer.type === 'raster') {
     updateRasterLayer(layer as RasterMapLayer);
   }
-  setPopupEvents(internalMap.value as maplibregl.Map);
 };
 
 const zoomToBounds = (bbox: Bounds) => {

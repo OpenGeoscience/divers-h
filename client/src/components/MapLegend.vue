@@ -5,11 +5,13 @@ import {
 import MapStore from '../MapStore';
 import ColorKey from './MapLegends/ColorKey.vue';
 import FilterKey from './MapLegends/FilterKey.vue';
+import OpacityFilter from './MapLegends/OpacityFilter.vue';
 
 export default defineComponent({
   components: {
     ColorKey,
     FilterKey,
+    OpacityFilter,
   },
   props: {
   },
@@ -29,7 +31,7 @@ export default defineComponent({
       });
       return exists;
     });
-    const tab: Ref<'colors' | 'filters'> = ref('colors');
+    const tab: Ref<'colors' | 'opacity' | 'filters'> = ref('colors');
     return {
       selectedVectorMapLayers,
       selectedNetCDFMapLayers,
@@ -52,8 +54,11 @@ export default defineComponent({
           v-model="tab"
           density="compact"
         >
-          <v-tab value="colors">
+        <v-tab value="colors">
             Colors
+          </v-tab>
+          <v-tab value="opacity">
+            Opacity
           </v-tab>
           <v-tab v-if="hasFilters" value="filters">
             Filters
@@ -67,6 +72,12 @@ export default defineComponent({
         v-if="tab === 'colors'"
         :vector-layers="selectedVectorMapLayers"
         :netcdf-layers="selectedNetCDFMapLayers"
+      />
+      <OpacityFilter
+        v-if="tab === 'opacity'"
+        :vector-layers="selectedVectorMapLayers"
+        :netcdf-layers="selectedNetCDFMapLayers"
+        :raster-layers="[]"
       />
       <filter-key
         v-if="tab === 'filters'"

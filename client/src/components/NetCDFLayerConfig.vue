@@ -19,16 +19,16 @@ export default defineComponent({
     const layerOpacity = ref(0);
     const currentIndex = ref(0);
     onMounted(() => {
-      const found = visibleNetCDFLayers.find((item) => item.netCDFLayer === props.layer.id);
+      const found = visibleNetCDFLayers.value.find((item) => item.netCDFLayer === props.layer.id);
       layerOpacity.value = found?.opacity || 0.75;
       currentIndex.value = found?.currentIndex || 0;
     });
     const totalIndex = computed(() => {
-      const found = visibleNetCDFLayers.find((item) => item.netCDFLayer === props.layer.id);
+      const found = visibleNetCDFLayers.value.find((item) => item.netCDFLayer === props.layer.id);
       return found?.images.length ? found.images.length - 1 : 0;
     });
     const stepMapping = computed(() => {
-      const found = visibleNetCDFLayers.find((item) => item.netCDFLayer === props.layer.id);
+      const found = visibleNetCDFLayers.value.find((item) => item.netCDFLayer === props.layer.id);
       const mapSlicer: Record<number, string | number> = {};
       let unixTimeStamp = true;
       if (found) {

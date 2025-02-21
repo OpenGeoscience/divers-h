@@ -447,6 +447,8 @@ export interface NetCDFImages {
   sliding: { min: number, max: number; step: number, variable: string };
 }
 
+// Working type for setting index/opacity
+export type NetCDFImageWorking = NetCDFImages & { currentIndex: number, opacity: number, name: string };
 export interface NetCDFVariable {
   max: number;
   min: number;
