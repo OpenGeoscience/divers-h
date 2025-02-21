@@ -283,6 +283,7 @@ export interface VectorLayerDisplayConfig {
   selectable?: boolean | 'singleSelect';
   selectColor?: ColorSolid;
   hoverable?: boolean;
+  legend?: boolean;
   opacity?: number;
   size?: SizeTypes;
   text?: TextConfig;

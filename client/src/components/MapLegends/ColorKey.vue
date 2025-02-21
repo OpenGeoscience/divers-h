@@ -15,8 +15,8 @@ import {
   VectorLayerDisplay,
   VectorLayerDisplayConfig,
   VectorMapLayer,
-} from '../types'; // Import your defined types
-import { createColorNumberPairs, formatNumPrecision, getLayerAvailableProperties } from '../utils';
+} from '../../types'; // Import your defined types
+import { createColorNumberPairs, formatNumPrecision, getLayerAvailableProperties } from '../../utils';
 
 export default defineComponent({
   name: 'ColorKey',
@@ -71,7 +71,7 @@ export default defineComponent({
           };
           const layerDisplayConfig = layerDisplay as VectorLayerDisplayConfig;
 
-          if (layerDisplayConfig?.color && layerDisplayConfig.enabled) {
+          if (layerDisplayConfig?.color && layerDisplayConfig.enabled && layerDisplayConfig.legend) {
             if (type !== 'heatmap') {
               if (typeof layerDisplayConfig.color === 'string') {
                 keyType.colors.push({
@@ -248,7 +248,7 @@ export default defineComponent({
 
 <template>
   <v-expansion-panels
-    :model-value="[0]"
+    @update:model-value="drawDelay()"
   >
     <v-expansion-panel
       v-for="layer in processedLayers"
@@ -285,6 +285,107 @@ export default defineComponent({
               />
             </v-col>
           </v-row>
+          <div v-else-if="keyType.colors.length === 1">
+            <span
+              v-for="(colorConfig, index) in keyType.colors"
+              :key="`${layer.id}_${keyType.type}_${index}`"
+            >
+              <v-row class="pb-2">
+                <v-spacer />
+                <b v-if="colorConfig.type === 'linearNetCDF'">{{ capitalize(colorConfig.value) }}</b>
+                <b v-else-if="['categorical', 'linear'].includes(colorConfig.type)">
+                  {{ attributeValues[layer.id][colorConfig.attribute].displayName }}
+                </b>
+                <v-spacer />
+              </v-row>
+              <div v-if="colorConfig.type === 'categorical'">
+                <v-row
+                  v-for="pair in colorConfig.pairs"
+                  :key="pair.value"
+                  dense
+                  no-gutters
+                  class="py-1"
+                  align="center"
+                  justify="center"
+                >
+                  <v-col>
+                    <span>{{ pair.value }}: </span>
+                  </v-col>
+                  <v-col cols="1">
+                    <div
+                      class="color-icon"
+                      :style="{ backgroundColor: pair.color }"
+                    />
+                  </v-col>
+                </v-row>
+              </div>
+              <div v-else-if="colorConfig.type === 'linear'">
+                <v-row
+                  dense
+                  no-gutters
+                  class="py-1"
+                  align="center"
+                  justify="center"
+                >
+                  <v-col cols="3">
+                    <span>{{ formatNumPrecision((attributeValues[layer.id][colorConfig.attribute].min || 0)) }}</span>
+                  </v-col>
+                  <v-col>
+                    <svg
+                      :id="`gradientImage-${layer.id}-${keyType.type}`"
+                      width="125"
+                      height="20"
+                    />
+                  </v-col>
+                  <v-col cols="3">
+                    <span>{{ formatNumPrecision((attributeValues[layer.id][colorConfig.attribute].max || 100)) }}</span>
+                  </v-col>
+                </v-row>
+              </div>
+              <div v-else-if="colorConfig.type === 'heatmap'">
+                <v-row
+                  dense
+                  no-gutters
+                  class="py-1"
+                  align="center"
+                  justify="center"
+                >
+                  <v-spacer />
+                  <v-col>
+                    <svg
+                      :id="`gradientImage-${layer.id}-${keyType.type}`"
+                      width="125"
+                      height="20"
+                    />
+                  </v-col>
+                  <v-spacer />
+                </v-row>
+              </div>
+              <div v-else-if="colorConfig.type === 'linearNetCDF'">
+                <v-row
+                  dense
+                  no-gutters
+                  class="py-1"
+                  align="center"
+                  justify="center"
+                >
+                  <v-col cols="3">
+                    <span>{{ formatNumPrecision((colorConfig.min || 0)) }}</span>
+                  </v-col>
+                  <v-col>
+                    <svg
+                      :id="`gradientImage-${layer.id}-${keyType.type}`"
+                      width="125"
+                      height="20"
+                    />
+                  </v-col>
+                  <v-col cols="3">
+                    <span>{{ formatNumPrecision((colorConfig.max || 100)) }}</span>
+                  </v-col>
+                </v-row>
+              </div>
+            </span>
+          </div>
           <div v-else>
             <v-expansion-panels
               @update:model-value="drawDelay()"

@@ -3,8 +3,8 @@ import {
   Ref, computed, defineComponent, ref,
 } from 'vue';
 import MapStore from '../MapStore';
-import ColorKey from './ColorKey.vue';
-import FilterKey from './FilterKey.vue';
+import ColorKey from './MapLegends/ColorKey.vue';
+import FilterKey from './MapLegends/FilterKey.vue';
 
 export default defineComponent({
   components: {

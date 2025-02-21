@@ -245,6 +245,21 @@ function convert360Longitude(longitude: number): number {
   return longitude - 180;
 }
 
+const getLayerConfigColor = (layerId: number, layerType: AnnotationTypes) => {
+  const found = MapStore.selectedVectorMapLayers.value.find((item: VectorMapLayer) => item.id === layerId);
+  if (found?.default_style?.layers) {
+    const layerTypeVal = found?.default_style?.layers[layerType];
+    if (layerTypeVal !== false && layerTypeVal !== true) {
+      if (layerTypeVal.color === undefined) {
+        layerTypeVal.color = '#00FF00';
+      }
+      return layerTypeVal.color;
+    }
+  }
+  return '#00FF00';
+};
+
+
 export {
   getVectorLayerDisplayConfig,
   getRasterLayerDisplayConfig,
@@ -259,4 +274,5 @@ export {
   formatCompactToISO,
   formatISOToYYMMDD,
   convert360Longitude,
+  getLayerConfigColor,
 };
