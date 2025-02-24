@@ -721,15 +721,15 @@ def create_netcdf_slices(
             'yRange': y_range,
             'SlidingRange': slicer_range,
         }
-        startDate = (
+        start_date = (
             netcdf_data.metadata.get('variables', {}).get(sliding_variable, {}).get('startDate', {})
         )
-        endDate = (
+        end_date = (
             netcdf_data.metadata.get('variables', {}).get(sliding_variable, {}).get('endDate', {})
         )
-        if startDate and endDate:
-            parameters['sliding_dimension']['startDate'] = startDate
-            parameters['sliding_dimension']['endDate'] = endDate
+        if start_date and end_date:
+            parameters['sliding_dimension']['startDate'] = start_date
+            parameters['sliding_dimension']['endDate'] = end_date
         netcdf_layer = NetCDFLayer.objects.create(
             netcdf_data=netcdf_data,
             name=name,

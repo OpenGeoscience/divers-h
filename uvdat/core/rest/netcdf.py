@@ -86,10 +86,10 @@ class NetCDFDataView(GenericViewSet, mixins.ListModelMixin, mixins.CreateModelMi
             step_count = netcdf_layer.parameters.get('stepCount', None)
             if sliding_dim and step_count:
                 if sliding_dim.get('startDate', False) and sliding_dim.get('endDate', False):
-                    startDate = sliding_dim.get('startDate')
-                    endDate = sliding_dim.get('endDate')
-                    min = datetime.fromisoformat(startDate[:26]).timestamp()
-                    max = datetime.fromisoformat(endDate[:26]).timestamp()
+                    start_date = sliding_dim.get('startDate')
+                    end_date = sliding_dim.get('endDate')
+                    min = datetime.fromisoformat(start_date[:26]).timestamp()
+                    max = datetime.fromisoformat(end_date[:26]).timestamp()
                     sliding_data = {
                         'min': min,
                         'max': max,
