@@ -155,14 +155,14 @@ def create_netcdf_data_layer(file_item, metadata):
 
                     if var_name in description['dimensions'].keys():
                         var_info['steps'] = description['dimensions'][var_name]
-                    if re.search(r'\blat\b|\blatitude\b', var_name, re.IGNORECASE):
-                        if -90 <= var_min <= 90 and -90 <= var_max <= 90:
-                            var_info['geospatial'] = 'latitude'
-                    elif re.search(r'\blon\b|\blongitude\b', var_name, re.IGNORECASE):
+                    if re.search(r'\blon\b|\blongitude\b', var_name, re.IGNORECASE):
                         if -180 <= var_min <= 180 and -180 <= var_max <= 180:
                             var_info['geospatial'] = 'longitude'
                         elif 0 <= var_min <= 360 and 0 <= var_max <= 360:
                             var_info['geospatial'] = 'longitude360'
+                    elif re.search(r'\blat\b|\blatitude\b', var_name, re.IGNORECASE):
+                        if -90 <= var_min <= 90 and -90 <= var_max <= 90:
+                            var_info['geospatial'] = 'latitude'
                 except Exception:
                     var_info['min'] = 0
                     var_info['max'] = variable.size
@@ -230,6 +230,10 @@ def preview_netcdf_slice(
             netcdf_data.metadata.get('variables', {}).get(x_variable, {}).get('geospatial', '')
             == 'longitude360'
         )
+        degrees_east = (
+            netcdf_data.metadata.get('variables', {}).get(x_variable, {}).get('attributes', {}) .get('units', '')
+            == 'degrees_east'
+        )
         x_range_updated = x_range
         # This is a little complicated but we have latitude of -180 to 180 where 0 is greenwich
         # then there is the data in the system where it is 0 to 360 where 0 is greenwich
@@ -246,7 +250,10 @@ def preview_netcdf_slice(
                 x_range_updated = [x for x in x_range]
             # If both values are negative we need to to convert to the 180-360 range
             else:
-                x_range_updated = [x + 360 for x in x_range]
+                if degrees_east:
+                    x_range_updated = [360 - (x + 180) for x in x_range]
+                else:
+                    x_range_updated = [x + 360 for x in x_range]
                 x_range_updated.sort()
 
         # Validate and subset data if ranges are provided
@@ -443,6 +450,10 @@ def create_netcdf_slices(
         if longitude360 and x_range is None:
             x_range = [ds[x_variable].values.min() - 180, ds[x_variable].values.max() - 180]
 
+        degrees_east = (
+            netcdf_data.metadata.get('variables', {}).get(x_variable, {}).get('attributes', {}) .get('units', '')
+            == 'degrees_east'
+        )
         x_range_updated = x_range
         # This is a little complicated but we have latitude of -180 to 180 where 0 is greenwich
         # then there is the data in the system where it is 0 to 360 where 0 is greenwich
@@ -459,7 +470,10 @@ def create_netcdf_slices(
                 x_range_updated = [x for x in x_range]
             # If both values are negative we need to to convert to the 180-360 range
             else:
-                x_range_updated = [x + 360 for x in x_range]
+                if degrees_east:
+                    x_range_updated = [360 - (x + 180) for x in x_range]
+                else:
+                    x_range_updated = [x + 360 for x in x_range]
                 x_range_updated.sort()
         # Validate and subset data if ranges are provided
         if x_range:
@@ -650,6 +664,10 @@ def create_netcdf_slices(
                 # Handles longitude360 values
                 if x_range and longitude360:
                     x_bbox_range = [x_range[0], x_range[1]]
+                    if degrees_east:
+                        x_bbox_range = [-(x + 180) for x in x_bbox_range]
+                        x_bbox_range.sort()
+                logger.info(f'XBOXRANGE: {x_bbox_range}')
                 bounds = Polygon.from_bbox((x_bbox_range[0], y_min, x_bbox_range[1], y_max))
             except GEOSException as geos_err:
                 error = f'Error constructing polygon bounds: {geos_err}'
@@ -697,6 +715,11 @@ def create_netcdf_slices(
             'yRange': y_range,
             'SlidingRange': slicer_range,
         }
+        startDate = netcdf_data.metadata.get('variables', {}).get(sliding_variable, {}).get('startDate', {})
+        endDate = netcdf_data.metadata.get('variables', {}).get(sliding_variable, {}).get('endDate', {})
+        if startDate and endDate:
+            parameters['sliding_dimension']['startDate'] = startDate
+            parameters['sliding_dimension']['endDate'] = endDate
         netcdf_layer = NetCDFLayer.objects.create(
             netcdf_data=netcdf_data,
             name=name,

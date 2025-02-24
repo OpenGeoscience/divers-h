@@ -91,6 +91,9 @@ export default defineComponent({
       const data = getVariableInformation(variable);
       if (data) {
         if (data.geospatial === 'longitude360') {
+          if (data.attributes.units === 'degrees_east') {
+            return [-1 * convert360Longitude(data.max), -1 * convert360Longitude(data.min)]
+          }
           return [convert360Longitude(data.min), convert360Longitude(data.max)];
         }
         return [data.min, data.max];
@@ -106,7 +109,11 @@ export default defineComponent({
         const dataX = getVariableInformation(newLayerX.value);
         let xRange = [dataX.min, dataX.max];
         if (dataX.geospatial === 'longitude360') {
-          xRange = [convert360Longitude(dataX.min), convert360Longitude(dataX.max)];
+          if (dataX.attributes.units === 'degrees_east') {
+            xRange = [-1 * convert360Longitude(dataX.max), -1 * convert360Longitude(dataX.min)];
+          } else {
+            xRange = [convert360Longitude(dataX.min), convert360Longitude(dataX.max)];
+          }
         }
         const dataY = getVariableInformation(newLayerY.value);
         const yRange = [dataY.min, dataY.max];
@@ -142,7 +149,11 @@ export default defineComponent({
         const dataX = getVariableInformation(newLayerX.value);
         let xRange = [dataX.min, dataX.max];
         if (dataX.geospatial === 'longitude360') {
-          xRange = [convert360Longitude(dataX.min), convert360Longitude(dataX.max)];
+          if (dataX.attributes.units === 'degrees_east') {
+            xRange = [-1 * convert360Longitude(dataX.max), -1 * convert360Longitude(dataX.min)];
+          } else {
+            xRange = [convert360Longitude(dataX.min), convert360Longitude(dataX.max)];
+          }
         }
         const dataY = getVariableInformation(newLayerY.value);
 
@@ -168,7 +179,11 @@ export default defineComponent({
       xLayerRange.value = [data.min, data.max];
       xLayerRangeStep.value = (data.max - data.min) / (data.steps || 1);
       if (data.geospatial === 'longitude360') {
-        xLayerRange.value = [convert360Longitude(data.min), convert360Longitude(data.max)];
+        if (data.attributes.units === 'degrees_east') {
+          xLayerRange.value = [-1 * convert360Longitude(data.max), -1 * convert360Longitude(data.min)];
+        } else {
+          xLayerRange.value = [convert360Longitude(data.min), convert360Longitude(data.max)];
+        }
         xLayerRangeStep.value = (xLayerRange.value[1] - xLayerRange.value[0]) / (data.steps || 1);
       }
     });
