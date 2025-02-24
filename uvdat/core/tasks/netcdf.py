@@ -231,7 +231,10 @@ def preview_netcdf_slice(
             == 'longitude360'
         )
         degrees_east = (
-            netcdf_data.metadata.get('variables', {}).get(x_variable, {}).get('attributes', {}) .get('units', '')
+            netcdf_data.metadata.get('variables', {})
+            .get(x_variable, {})
+            .get('attributes', {})
+            .get('units', '')
             == 'degrees_east'
         )
         x_range_updated = x_range
@@ -451,7 +454,10 @@ def create_netcdf_slices(
             x_range = [ds[x_variable].values.min() - 180, ds[x_variable].values.max() - 180]
 
         degrees_east = (
-            netcdf_data.metadata.get('variables', {}).get(x_variable, {}).get('attributes', {}) .get('units', '')
+            netcdf_data.metadata.get('variables', {})
+            .get(x_variable, {})
+            .get('attributes', {})
+            .get('units', '')
             == 'degrees_east'
         )
         x_range_updated = x_range
@@ -715,8 +721,12 @@ def create_netcdf_slices(
             'yRange': y_range,
             'SlidingRange': slicer_range,
         }
-        startDate = netcdf_data.metadata.get('variables', {}).get(sliding_variable, {}).get('startDate', {})
-        endDate = netcdf_data.metadata.get('variables', {}).get(sliding_variable, {}).get('endDate', {})
+        startDate = (
+            netcdf_data.metadata.get('variables', {}).get(sliding_variable, {}).get('startDate', {})
+        )
+        endDate = (
+            netcdf_data.metadata.get('variables', {}).get(sliding_variable, {}).get('endDate', {})
+        )
         if startDate and endDate:
             parameters['sliding_dimension']['startDate'] = startDate
             parameters['sliding_dimension']['endDate'] = endDate

@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from rest_framework import mixins, status
 from rest_framework.decorators import action, permission_classes
 from rest_framework.exceptions import PermissionDenied
@@ -9,7 +11,6 @@ from uvdat.core.models.netcdf import NetCDFData, NetCDFImage, NetCDFLayer
 from uvdat.core.models.processing_task import ProcessingTask
 from uvdat.core.tasks.netcdf import create_netcdf_slices, preview_netcdf_slice
 
-from datetime import datetime
 
 class NetCDFDataView(GenericViewSet, mixins.ListModelMixin, mixins.CreateModelMixin):
 
