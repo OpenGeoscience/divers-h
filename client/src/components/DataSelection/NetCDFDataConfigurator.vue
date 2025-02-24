@@ -92,7 +92,7 @@ export default defineComponent({
       if (data) {
         if (data.geospatial === 'longitude360') {
           if (data.attributes.units === 'degrees_east') {
-            return [-1 * convert360Longitude(data.max), -1 * convert360Longitude(data.min)]
+            return [-1 * convert360Longitude(data.max), -1 * convert360Longitude(data.min)];
           }
           return [convert360Longitude(data.min), convert360Longitude(data.max)];
         }
