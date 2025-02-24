@@ -1,7 +1,9 @@
+<!-- eslint-disable vue/max-len -->
 <script lang="ts">
 import {
   computed, defineComponent,
 } from 'vue';
+import { throttle } from 'lodash';
 import {
   AnnotationTypes,
   NetCDFLayer,
@@ -12,11 +14,11 @@ import {
 } from '../../types'; // Import your defined types
 import MapStore from '../../MapStore';
 import { updateNetCDFLayer, visibleNetCDFLayers } from '../../map/mapNetCDFLayer';
-import { getVectorLayerDisplayConfig } from '../../utils';
+import { getRasterLayerDisplayConfig, getVectorLayerDisplayConfig } from '../../utils';
 import { updateLayer } from '../../map/mapLayers';
 
 export default defineComponent({
-  name: 'ColorKey',
+  name: 'ControlsKey',
   props: {
     vectorLayers: {
       type: Array as () => VectorMapLayer[],
@@ -69,23 +71,35 @@ export default defineComponent({
         });
       });
       // Compute NetCDF Layer Keys
+      const stepIndexMap: Record<string, { length: number, currentIndex: number }> = {};
       visibleNetCDFLayers.value.forEach((item) => {
         const found = props.netcdfLayers.find((layer) => layer.id === item.netCDFLayer);
         if (found) {
           const { opacity } = item;
           mapLayerOpacityMap[`netcdf_${found.id}`] = opacity !== undefined ? opacity : 1.0;
+          stepIndexMap[`netcdf_${found.id}`] = {
+            length: item.images.length,
+            currentIndex: item.currentIndex,
+          };
         }
       });
 
       props.rasterLayers.forEach((layer) => {
         mapLayerOpacityMap[`raster_${layer.id}`] = layer?.default_style?.opacity !== undefined ? layer.default_style.opacity : 1.0;
       });
-      const order: { id: number, opacity: number, name: string, type: 'netcdf' | 'vector' | 'raster' } [] = [];
+      const order: { id: number, opacity: number, name: string, type: 'netcdf' | 'vector' | 'raster', length?: number, currentIndex?: number } [] = [];
       MapStore.selectedMapLayers.value.forEach((layer) => {
         if (layer.type === 'netcdf') {
           if (mapLayerOpacityMap[`netcdf_${layer.id}`] !== undefined) {
+            let length: undefined | number;
+            let currentIndex: undefined | number;
+            if (stepIndexMap[`netcdf_${layer.id}`]) {
+              const data = stepIndexMap[`netcdf_${layer.id}`];
+              length = data.length;
+              currentIndex = data.currentIndex;
+            }
             order.push({
-              id: layer.id, opacity: mapLayerOpacityMap[`netcdf_${layer.id}`], name: layer.name, type: layer.type,
+              id: layer.id, opacity: mapLayerOpacityMap[`netcdf_${layer.id}`], name: layer.name, type: layer.type, length, currentIndex,
             });
           }
         } else if (layer.type === 'raster') {
@@ -104,6 +118,46 @@ export default defineComponent({
       });
       return order;
     });
+
+    const stepMapping = computed(() => {
+      const mappedStepMapping: Record<string, Record<number, string | number>> = {};
+      visibleNetCDFLayers.value.forEach((item) => {
+        const foundLayer = props.netcdfLayers.find((layer) => layer.id === item.netCDFLayer);
+        mappedStepMapping[`netcdf_${foundLayer?.id}`] = {};
+        const mapSlicer: Record<number, string | number> = {};
+        let unixTimeStamp = true;
+        if (item?.sliding) {
+          for (let i = 0; i < item.images.length; i += 1) {
+            mapSlicer[i] = item.sliding.min + i * item.sliding.step;
+            if (item.sliding.variable === 'time') {
+              // convert unix timestamp to human readable date YYYY-MM-DD
+              try {
+                const date = new Date((mapSlicer[i] as number) * 1000);
+                // eslint-disable-next-line prefer-destructuring
+                mapSlicer[i] = date.toISOString().split('T')[0];
+              } catch (e) {
+                unixTimeStamp = false;
+                break;
+              }
+            }
+          }
+          if (unixTimeStamp) {
+            mappedStepMapping[`netcdf_${foundLayer?.id}`] = mapSlicer;
+          }
+        } else {
+          for (let i = 0; i < item.images.length; i += 1) {
+            mapSlicer[i] = i;
+          }
+          mappedStepMapping[`netcdf_${foundLayer?.id}`] = mapSlicer;
+        }
+      });
+      return mappedStepMapping;
+    });
+
+    const updateIndex = (layerId: number, currentIndex: number) => {
+      updateNetCDFLayer(layerId, currentIndex);
+    };
+    const throttledUpdateNetCDFLayer = throttle(updateIndex, 50);
 
     const updateOpacity = (item: { id: number, opacity: number, name: string, type: 'netcdf' | 'vector' | 'raster' }, val: number) => {
       if (item.type === 'vector') {
@@ -124,11 +178,24 @@ export default defineComponent({
           updateNetCDFLayer(item.id, undefined, val);
         }
       }
+      if (item.type === 'raster') {
+        const { layer, displayConfig } = getRasterLayerDisplayConfig(
+          item.id,
+        );
+        if (displayConfig) {
+          displayConfig.opacity = val;
+          if (layer) {
+            updateLayer(layer);
+          }
+        }
+      }
     };
     return {
       processedLayers,
       iconMapper,
       updateOpacity,
+      throttledUpdateNetCDFLayer,
+      stepMapping,
     };
   },
 });
@@ -142,9 +209,6 @@ export default defineComponent({
     elevation="2"
     density="compact"
   >
-    <!-- Compact Card Title -->
-
-    <!-- Compact Opacity Slider -->
     <v-card-text class="py-1 px-2">
       <span class="py-1 px-2 d-flex align-center">
         <v-icon size="16" class="mr-1" color="primary">
@@ -154,7 +218,20 @@ export default defineComponent({
       </span>
 
       <v-row align="center" no-gutters>
-        <v-col cols="9">
+        <v-col cols="1">
+          <v-tooltip text="Opacity">
+            <template #activator="{ props }">
+              <v-icon
+                class="pl-3"
+                v-bind="props"
+                color="primary"
+              >
+                mdi-square-opacity
+              </v-icon>
+            </template>
+          </v-tooltip>
+        </v-col>
+        <v-col cols="8">
           <v-slider
             :model-value="item.opacity"
             min="0"
@@ -174,6 +251,42 @@ export default defineComponent({
           class="text-right pr-1"
         >
           <span class="text-xs">{{ Math.round(item.opacity * 100) }}%</span>
+        </v-col>
+      </v-row>
+      <v-row v-if="item.length !== undefined && item.currentIndex !== undefined" align="center" no-gutters>
+        <v-col cols="1">
+          <v-tooltip text="NetCDF Layer index">
+            <template #activator="{ props }">
+              <v-icon
+                class="pl-3"
+                v-bind="props"
+                color="primary"
+              >
+                mdi-timer-outline
+              </v-icon>
+            </template>
+          </v-tooltip>
+        </v-col>
+        <v-col cols="6">
+          <v-slider
+            :model-value="item.currentIndex"
+            min="0"
+            :max="item.length"
+            step="1"
+            hide-details
+            thumb-size="12"
+            track-size="4"
+            color="primary"
+            track-color="grey lighten-3"
+            density="compact"
+            @update:model-value="throttledUpdateNetCDFLayer(item.id, $event)"
+          />
+        </v-col>
+        <v-col
+          cols="5"
+          class="text-right pr-1"
+        >
+          <span class="text-xs">{{ stepMapping[`netcdf_${item.id}`][item.currentIndex] }}</span>
         </v-col>
       </v-row>
     </v-card-text>

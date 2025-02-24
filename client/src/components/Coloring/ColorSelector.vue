@@ -126,6 +126,17 @@ export default defineComponent({
             && layer.default_style.layers[props.layerType] !== true
           ) {
             (layer.default_style.layers[props.layerType] as VectorLayerDisplayConfig).color = '#888888';
+            (layer.default_style.layers[props.layerType] as VectorLayerDisplayConfig).legend = false;
+          }
+        }
+      } else {
+        const { layer } = getVectorLayerDisplayConfig(props.layerId, props.layerType);
+        if (layer?.default_style?.layers && layer.default_style.layers[props.layerType]) {
+          if (
+            layer.default_style.layers[props.layerType] !== false
+            && layer.default_style.layers[props.layerType] !== true
+          ) {
+            (layer.default_style.layers[props.layerType] as VectorLayerDisplayConfig).legend = true;
           }
         }
       }

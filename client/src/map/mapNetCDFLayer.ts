@@ -73,6 +73,7 @@ const updateNetCDFLayer = (layer: number, newindex?: number, newOpacity?: number
           coordinates,
         });
       }
+      foundLayer.currentIndex = newindex;
     }
     if (newOpacity !== undefined) {
       internalMap.value.setPaintProperty(`NetCDFLayer_${layer}`, 'raster-opacity', newOpacity);

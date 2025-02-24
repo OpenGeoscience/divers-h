@@ -100,22 +100,21 @@ export default defineComponent({
         </v-tooltip>
       </v-col>
       <v-col>
-        <v-icon>
-          mdi-checkbox-marked
-        </v-icon>
-        <span class="pl-2">
-          {{
-            stepMapping[currentIndex]
-          }}</span>
-      </v-col>
-      <v-col>
         <v-slider
           v-model="currentIndex"
           density="compact"
           min="0"
           step="1"
           :max="totalIndex"
-        />
+          hide-details
+        >
+          <template #prepend>
+            <span class="pl-2">
+              {{
+                stepMapping[currentIndex]
+              }}</span>
+          </template>
+        </v-slider>
       </v-col>
     </v-row>
     <v-row
@@ -136,21 +135,20 @@ export default defineComponent({
         </v-tooltip>
       </v-col>
       <v-col>
-        <v-icon>
-          mdi-checkbox-marked
-        </v-icon>
-        <span class="pl-2">Opacity
-          {{
-            layerOpacity.toFixed(2)
-          }}</span>
-      </v-col>
-      <v-col>
         <v-slider
           v-model="layerOpacity"
           density="compact"
           min="0"
           max="1.0"
-        />
+          hide-details
+        >
+          <template #prepend>
+            <span class="pl-2">Opacity
+              {{
+                layerOpacity.toFixed(2)
+              }}</span>
+          </template>
+        </v-slider>
       </v-col>
     </v-row>
   </v-card-text>

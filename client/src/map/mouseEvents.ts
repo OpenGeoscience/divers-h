@@ -97,7 +97,6 @@ const click = async (e: MapLayerMouseEvent) => {
 };
 
 const singleClick = async (e: MapLayerMouseEvent) => {
-  console.log(e.features.length);
   if (e.features?.length) {
     for (let i = 0; i < e.features?.length; i += 1) {
       const feature = e.features[i];
@@ -183,7 +182,7 @@ const setPopupEvents = (localMap: Map) => {
       // Remove events for all layers
       // Doesn't matter if it exists or not
       annotationTypes.forEach((annotationType) => {
-        localMap.off('mouseenter', `Layer_${data.id}_${annotationType}`);
+        localMap.off('mouseenter', `Layer_${data.id}_${annotationType}`, data.mouseenter);
         localMap.off('mouseleave', `Layer_${data.id}_${annotationType}`, data.mouseleave);
         localMap.off('click', `Layer_${data.id}_${annotationType}`, data.click);
       });

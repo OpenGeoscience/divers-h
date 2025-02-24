@@ -106,6 +106,13 @@ const updateProps = (map: maplibregl.Map, layer: VectorMapLayer) => {
         `${layerType}-opacity`,
         layerDisplayConfig.opacity !== undefined ? layerDisplayConfig.opacity : null,
       );
+      if (layerType === 'circle') {
+        map.setPaintProperty(
+          subLayerName,
+          `${layerType}-stroke-opacity`,
+          layerDisplayConfig.opacity !== undefined ? layerDisplayConfig.opacity : null,
+        );
+      }
       if (layerDisplayConfig.size !== undefined) {
         processSize(map, subLayerName, layerType, layerDisplayConfig.size);
       }
