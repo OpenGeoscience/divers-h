@@ -494,6 +494,55 @@ class MapLayerViewSet(GenericViewSet):
         # Return the combined data
         return Response(response_data, status=status.HTTP_200_OK)
 
+    def list(self, request, *args, **kwargs):
+        map_layer_ids = request.query_params.getlist('mapLayerIds', [])
+        map_layer_types = request.query_params.getlist('mapLayerTypes', [])
+
+        if not map_layer_ids:
+            return Response([], status=status.HTTP_200_OK)
+
+        response_data = []
+
+        # Query for layers based on ID and type
+        for index in range(len(map_layer_ids)):
+            layer_id = map_layer_ids[index]
+            layer_type = map_layer_types[index]
+            map_layer = None
+            serializer = None
+            if 'raster' == layer_type:
+                map_layer = RasterMapLayer.objects.filter(id=layer_id).first()
+                serializer_class = RasterMapLayerSerializer
+            if not map_layer and 'vector' == layer_type:
+                map_layer = VectorMapLayer.objects.filter(id=layer_id).first()
+                serializer_class = VectorMapLayerSerializer
+            if not map_layer and 'netcdf' == layer_type:
+                map_layer = NetCDFLayer.objects.filter(id=layer_id).first()
+                serializer_class = NetCDFLayerSerializer
+
+            if not map_layer:
+                continue  # Skip if no matching layer is found
+
+            # Serialize layer data
+            serializer = serializer_class(map_layer)
+            layer_response = serializer.data
+            layer_response['type'] = 'raster' if isinstance(map_layer, RasterMapLayer) else (
+                'vector' if isinstance(map_layer, VectorMapLayer) else 'netcdf'
+            )
+
+            # Check for LayerRepresentation if provided
+            layer_representation = None
+            if layer_type == 'raster' or layer_type == 'vector':
+                layer_representation = LayerRepresentation.objects.filter(map_layer=map_layer)
+
+            if layer_representation and layer_representation.exists():
+                layer_rep_obj = layer_representation.first()
+                layer_response['default_style'] = layer_rep_obj.default_style or layer_response.get('default_style')
+                layer_response['layerRepresentationId'] = layer_rep_obj.id
+
+            response_data.append(layer_response)
+
+        return Response(response_data, status=status.HTTP_200_OK)
+
     @action(
         detail=False,
         methods=['get'],

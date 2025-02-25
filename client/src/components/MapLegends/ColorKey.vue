@@ -220,6 +220,7 @@ export default defineComponent({
         const indexB = orderMap.get(b.id) ?? Infinity;
         return indexA - indexB;
       });
+      console.log(tempProcessLayers);
       return tempProcessLayers;
     });
 

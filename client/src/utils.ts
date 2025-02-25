@@ -133,6 +133,10 @@ const colorSchemes = [
   { name: 'd3.YlGn', colors: ['#ffffe5', '#f7fcc4', '#e4f4ac', '#c7e89b', '#a2d88a', '#78c578', '#4eaf63', '#2f944e', '#15793f', '#036034', '#004529'] },
   { name: 'd3.YlOrBr', colors: ['#ffffe5', '#fff8c4', '#feeaa1', '#fed676', '#feba4a', '#fb992c', '#ee7918', '#d85b0a', '#b74304', '#8f3204', '#662506'] },
   { name: 'd3.YlOrRd', colors: ['#ffffcc', '#fff0a9', '#fee087', '#fec965', '#feab4b', '#fd893c', '#fa5c2e', '#ec3023', '#d31121', '#af0225', '#800026'] },
+  { name: 'd3.Blues', colors: ['#f7fbff', '#e3eef9', '#cfe1f2', '#b5d4e9', '#93c3df', '#6daed5', '#4b97c9', '#2f7ebc', '#1864aa', '#0a4a90', '#08306b'] },
+  { name: 'd3.Reds', colors: ['#fff5f0', '#fee3d6', '#fdc9b4', '#fcaa8e', '#fc8a6b', '#f9694c', '#ef4533', '#d92723', '#bb151a', '#970b13', '#67000d'] },
+  { name: 'd3.Greens', colors: ['#f7fcf5', '#e8f6e3', '#d3eecd', '#b7e2b1', '#97d494', '#73c378', '#4daf62', '#2f984f', '#157f3b', '#036429', '#00441b'] },
+
 ];
 
 const createColorNumberPairs = (min: number, max: number, scheme: string) => {

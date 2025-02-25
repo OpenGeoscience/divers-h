@@ -452,8 +452,6 @@ def create_netcdf_slices(
             == 'longitude360'
         )
         # Handle the case of being 360 degrees and having no x_range
-        if longitude360 and x_range is None:
-            x_range = [ds[x_variable].values.min() - 180, ds[x_variable].values.max() - 180]
 
         degrees_east = (
             netcdf_data.metadata.get('variables', {})
@@ -462,6 +460,12 @@ def create_netcdf_slices(
             .get('units', '')
             == 'degrees_east'
         )
+        
+        if longitude360 and x_range is None and degrees_east is False:
+            x_range = [ds[x_variable].values.min() - 180, ds[x_variable].values.max() - 180]
+        elif longitude360 and x_range is None and degrees_east:
+            x_range = [360 - (ds[x_variable].values.min() + 180), 360 - (ds[x_variable].values.max() + 180)]
+
         x_range_updated = x_range
         # This is a little complicated but we have latitude of -180 to 180 where 0 is greenwich
         # then there is the data in the system where it is 0 to 360 where 0 is greenwich
@@ -488,7 +492,7 @@ def create_netcdf_slices(
             x_min, x_max = ds[x_variable].values.min(), ds[x_variable].values.max()
             if not (x_min <= x_range_updated[0] <= x_max and x_min <= x_range_updated[1] <= x_max):
                 raise ValueError(
-                    f'x_range {x_range_updated} is outside the bounds of {x_min} to {x_max}.'
+                    f'x_range {x_range_updated} and {x_range} is outside the bounds of {x_min} to {x_max}.'
                 )
             # if we cross the 0 boundary we need to keep the filtering but use an OR
             # this is to get the values about the 180 range and the values below
@@ -733,7 +737,7 @@ def create_netcdf_slices(
             parameters['sliding_dimension']['endDate'] = end_date
         metadata = None
         if netcdf_data.metadata.get('tags', False):
-            metadata = {'tags': netcdf_data.metadata.get('tags')}
+            metadata = { 'tags': netcdf_data.metadata.get('tags')}
         netcdf_layer = NetCDFLayer.objects.create(
             netcdf_data=netcdf_data,
             name=name,

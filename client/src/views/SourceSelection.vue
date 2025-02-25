@@ -7,6 +7,7 @@ import Datasets from '../components/DataSelection/Datasets.vue';
 import Context from '../components/DataSelection/Context.vue';
 import Selected from '../components/DataSelection/Selected.vue';
 import MapStore from '../MapStore';
+import MetadataLayerFilter from '../components/MetadataLayerFilter/MetadataLayerFilter.vue';
 
 export default defineComponent({
   components: {
@@ -14,10 +15,11 @@ export default defineComponent({
     Selected,
     Collection,
     Datasets,
+    MetadataLayerFilter,
   },
   setup() {
     onMounted(() => MapStore.loadCollections()); // Load for tab display if collections exists
-    const tab: Ref<'Scenarios' | 'Datasets' | 'Collections'> = ref('Scenarios');
+    const tab: Ref<'Scenarios' | 'Datasets' | 'Collections' | 'Metadata Filters'> = ref('Scenarios');
     const selectedLayersCount = computed(() => MapStore.selectedMapLayers.value.length);
     return {
       tab,
@@ -42,6 +44,9 @@ export default defineComponent({
       <v-tab v-if="collectionList.length" value="Collections" class="tab">
         Collections
       </v-tab>
+      <v-tab value="Metadata Filters" class="tab">
+        Metadata <v-icon>mdi-filter</v-icon>
+      </v-tab>
     </v-tabs>
     <context v-if="tab === 'Scenarios'" />
     <datasets
@@ -50,6 +55,7 @@ export default defineComponent({
     <collection
       v-else-if="tab === 'Collections'"
     />
+    <MetadataLayerFilter v-else-if="tab === 'Metadata Filters'" />
   </div>
   <v-divider v-if="selectedLayersCount" />
   <selected />

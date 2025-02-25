@@ -17,11 +17,14 @@ class MetadataFilterViewSet(viewsets.GenericViewSet):
             layers = model.objects.all()
 
             for layer in layers:
+                if layer.metadata is None:
+                    continue
                 metadata = layer.metadata.get('tags', {}).get('filters', {})
                 for key, value in metadata.items():
-                    if key not in filters:
-                        filters[key] = set()
-                    filters[key].update(value if isinstance(value, list) else [value])
+                    if value is not None:
+                        if key not in filters:
+                            filters[key] = set()
+                        filters[key].update(value if (isinstance(value, list) and len(value)) else [value])
 
         # Convert sets to lists for JSON response
         filters = {key: list(value) for key, value in filters.items()}
@@ -34,23 +37,32 @@ class MetadataFilterViewSet(viewsets.GenericViewSet):
 
         # Collecting all models
         models = [RasterMapLayer, VectorMapLayer, NetCDFLayer]
-        matching_ids = {'RasterMapLayer': [], 'VectorMapLayer': [], 'NetCDFLayer': []}
-
+        matching_ids = []
+        type_mapper = {'RasterMapLayer': 'raster', 'VectorMapLayer': 'vector', 'NetCDFLayer': 'netcdf'}
         for model in models:
             layers = model.objects.all()
 
             for layer in layers:
+                if layer.metadata is None:
+                    continue
                 metadata = layer.metadata.get('tags', {}).get('filters', {})
                 match = True
+                matches = {}
                 for key, values in filters.items():
                     if key in metadata:
-                        if not any(value in metadata[key] for value in values):
-                            match = False
-                            break
-                    else:
-                        match = False
-                        break
-                if match:
-                    matching_ids[model.__name__].append(layer.id)
+                        for value in values:
+                            if (value not in metadata[key]):
+                                match = False
+                                break
+                            else:
+                                matches[key] = value
 
+
+                if match:
+                    matching_ids.append({
+                        'id': layer.id,
+                        'name': layer.name,
+                        'type': type_mapper[model.__name__],
+                        'matches': matches
+                    })
         return Response(matching_ids)

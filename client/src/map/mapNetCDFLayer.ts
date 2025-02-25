@@ -24,8 +24,8 @@ const toggleNetCDFMapLayers = async (map: maplibregl.Map) => {
     if (index === -1) {
       // eslint-disable-next-line no-await-in-loop
       const newData = await UVdatApi.getNetCDFLayerImages(addLayer.id);
-      const modifiedData = {
-        ...newData, currentIndex: 0, opacity: 0.75, name: addLayer.name,
+      const modifiedData: NetCDFImageWorking = {
+        ...newData, currentIndex: 0, opacity: 0.75, name: addLayer.name, resampling: 'linear',
       };
       visibleNetCDFLayers.value.push(modifiedData);
       // Coordinates need to be top-left then clockwise
@@ -59,12 +59,13 @@ const toggleNetCDFMapLayers = async (map: maplibregl.Map) => {
   }
 };
 
-const updateNetCDFLayer = (layer: number, newindex?: number, newOpacity?: number) => {
+const updateNetCDFLayer = (layer: number, data: { index?: number, opacity?: number, resampling?: 'nearest' | 'linear' }) => {
+  const { index, opacity, resampling } = data;
   const foundLayer = visibleNetCDFLayers.value.find((item) => item.netCDFLayer === layer);
   if (foundLayer && internalMap.value) {
-    if (newindex !== undefined) {
+    if (index !== undefined) {
       const source = internalMap.value.getSource(`NetCDFSource_${layer}`);
-      const newURL = foundLayer.images[newindex];
+      const newURL = foundLayer.images[index];
       const baseCoordinates = foundLayer.parent_bounds[0].slice(0, 4);
       const coordinates = [baseCoordinates[3], baseCoordinates[2], baseCoordinates[1], baseCoordinates[0]] as MapLibreCoordinates;
       if (source && newURL) {
@@ -73,10 +74,13 @@ const updateNetCDFLayer = (layer: number, newindex?: number, newOpacity?: number
           coordinates,
         });
       }
-      foundLayer.currentIndex = newindex;
+      foundLayer.currentIndex = index;
     }
-    if (newOpacity !== undefined) {
-      internalMap.value.setPaintProperty(`NetCDFLayer_${layer}`, 'raster-opacity', newOpacity);
+    if (opacity !== undefined) {
+      internalMap.value.setPaintProperty(`NetCDFLayer_${layer}`, 'raster-opacity', opacity);
+    }
+    if (resampling) {
+      internalMap.value.setPaintProperty(`NetCDFLayer_${layer}`, 'raster-resampling', resampling);
     }
   }
   visibleNetCDFLayers.value = visibleNetCDFLayers.value.map((item) => item);
