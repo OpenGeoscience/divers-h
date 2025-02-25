@@ -19,6 +19,7 @@ class NetCDFLayer(TimeStampedModel):
     netcdf_data = models.ForeignKey(NetCDFData, on_delete=models.CASCADE, null=False)
     name = models.CharField(max_length=255, unique=False, blank=True)
     parameters = models.JSONField()
+    metadata = models.JSONField(blank=True, null=True)
     description = models.TextField(null=True, blank=True)
     color_scheme = models.CharField(max_length=255, unique=False, blank=True)
     bounds = geomodels.PolygonField(

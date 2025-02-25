@@ -297,7 +297,7 @@ def create_raster_map_layer_from_file(file_item, file_path, style_options, name=
     return new_map_layer
 
 
-def create_vector_map_layer(file_item, style_options, name='', index=None):
+def create_vector_map_layer(file_item, style_options, name='', index=None, metadata=None):
     """Save a VectorMapLayer from a FileItem's contents."""
     geojson_array = []
     if file_item.file_type == 'zip':
@@ -328,7 +328,9 @@ def create_vector_map_layer(file_item, style_options, name='', index=None):
     return new_map_layers
 
 
-def create_vector_map_from_json(file_item, geojson_data, style_options, name='', index=None):
+def create_vector_map_from_json(
+    file_item, geojson_data, style_options, name='', index=None, metadata=None
+):
     updated_style_options = calculate_styling(geojson_data, style_options)
     layer_index = file_item.index
     if index is not None:
@@ -336,7 +338,7 @@ def create_vector_map_from_json(file_item, geojson_data, style_options, name='',
     new_map_layer = VectorMapLayer.objects.create(
         dataset=file_item.dataset,
         name=name,
-        metadata={},
+        metadata=metadata,
         default_style=updated_style_options,
         index=layer_index,
     )

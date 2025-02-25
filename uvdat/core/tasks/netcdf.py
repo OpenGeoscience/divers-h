@@ -169,6 +169,8 @@ def create_netcdf_data_layer(file_item, metadata):
                     var_info['steps'] = variable.size
 
             description['variables'][var_name] = var_info
+            if metadata.get('tags', False):
+                description['tags'] = metadata.get('tags')
 
         # Create the NetCDF Layer Item
         created_netcdf = NetCDFData.objects.create(
@@ -587,7 +589,7 @@ def create_netcdf_slices(
         ds = ds.sortby(ds[y_variable], ascending=False)
         data_var = ds.get(variable)
         variables_data = data_var.dims
-        dim_size = ds.dims.get(sliding_variable)
+        dim_size = ds.sizes.get(sliding_variable)
         end = dim_size if end is None else end
 
         base_variables = (x_variable, y_variable, sliding_variable)
@@ -673,7 +675,6 @@ def create_netcdf_slices(
                     if degrees_east:
                         x_bbox_range = [-(x + 180) for x in x_bbox_range]
                         x_bbox_range.sort()
-                logger.info(f'XBOXRANGE: {x_bbox_range}')
                 bounds = Polygon.from_bbox((x_bbox_range[0], y_min, x_bbox_range[1], y_max))
             except GEOSException as geos_err:
                 error = f'Error constructing polygon bounds: {geos_err}'
@@ -730,9 +731,13 @@ def create_netcdf_slices(
         if start_date and end_date:
             parameters['sliding_dimension']['startDate'] = start_date
             parameters['sliding_dimension']['endDate'] = end_date
+        metadata = None
+        if netcdf_data.metadata.get('tags', False):
+            metadata = {'tags': netcdf_data.metadata.get('tags')}
         netcdf_layer = NetCDFLayer.objects.create(
             netcdf_data=netcdf_data,
             name=name,
+            metadata=metadata,
             color_scheme=color_map,
             description=description,
             parameters=parameters,

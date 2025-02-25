@@ -1,0 +1,2159 @@
+[
+    {
+        "type": "Context",
+        "name": "TVA Power Plants",
+        "default_map_center": [
+            34.8019,
+            -86.1794
+        ],
+        "default_map_zoom": 6,
+        "datasets": [
+            {
+                "name": "TVA Power Plants",
+                "description": "TVA Power Plants",
+                "category": "vector",
+                "metadata": {},
+                "action": "replace",
+                "files": [
+                    {
+                        "path": "./data/tva/powerplants.geojson",
+                        "url": "https://data.kitware.com/api/v1/file/67b4e6f4146ff7c60286eaaa/download",
+                        "name": "TVA Power Plants",
+                        "type": "geojson",
+                        "metadata": {
+                            "default_style": {
+                                "layers": {
+                                    "fill": {
+                                        "color": "#888888",
+                                        "enabled": false
+                                    },
+                                    "line": {
+                                        "size": 1,
+                                        "color": "#000000",
+                                        "enabled": false
+                                    },
+                                    "text": {
+                                        "color": "#888888",
+                                        "enabled": false
+                                    },
+                                    "circle": {
+                                        "color": "#888888",
+                                        "enabled": true,
+                                        "selectable": "singleSelect",
+                                        "selectColor": "#00FFFF"
+                                    },
+                                    "fill-extrusion": {
+                                        "color": "#888888",
+                                        "enabled": false
+                                    }
+                                },
+                                "properties": {
+                                    "selectionDisplay": true,
+                                    "availableProperties": {
+                                        "City": {
+                                            "key": "City",
+                                            "type": "string",
+                                            "values": [
+                                                "Ackerman",
+                                                "Albertville",
+                                                "Ashland",
+                                                "Ashland City",
+                                                "Batesville",
+                                                "Benton",
+                                                "Blairsville",
+                                                "Blue Ridge",
+                                                "Bolivar",
+                                                "Bristol",
+                                                "Brownsville",
+                                                "Calhoun",
+                                                "Camden",
+                                                "Carthage",
+                                                "Celina",
+                                                "Chattanooga",
+                                                "Cherokee",
+                                                "Clinton",
+                                                "Collinsville",
+                                                "Columbus",
+                                                "Cordova",
+                                                "Counce",
+                                                "Culberson",
+                                                "Cumberland City",
+                                                "Dalton",
+                                                "Dandridge",
+                                                "De Kalb",
+                                                "Decatur",
+                                                "Drakesboro",
+                                                "Elizabethon",
+                                                "Elizabethton",
+                                                "Elkmont",
+                                                "Elora",
+                                                "Florence",
+                                                "French Camp",
+                                                "Gallatin",
+                                                "Glasgow",
+                                                "Gleason",
+                                                "Grand Rivers",
+                                                "Greeneville",
+                                                "Guntersville",
+                                                "Hayesville",
+                                                "Hendersonville",
+                                                "Hollywood",
+                                                "Houston",
+                                                "Huntsville",
+                                                "Jackson",
+                                                "Jonesborough",
+                                                "Kingsport",
+                                                "Kingston",
+                                                "Knoxville",
+                                                "Kyles Ford",
+                                                "Lancaster",
+                                                "Leesburg",
+                                                "Lenoir City",
+                                                "Limestone",
+                                                "Loudon",
+                                                "Madison",
+                                                "McMinnville",
+                                                "Memphis",
+                                                "Millington",
+                                                "Moscow",
+                                                "Mountain Home",
+                                                "Murfreesboro",
+                                                "Murphy",
+                                                "Muscle Shoals",
+                                                "Nashville",
+                                                "New Hope",
+                                                "New Johnsonville",
+                                                "Norris",
+                                                "Obion",
+                                                "Oliver Springs",
+                                                "Paris",
+                                                "Pickwick Dam",
+                                                "Reliance",
+                                                "Rock Island",
+                                                "Rogersville",
+                                                "Rudledge",
+                                                "Selmer",
+                                                "Soddy Daisy",
+                                                "Somerville",
+                                                "Spring City",
+                                                "Stanton",
+                                                "Steens",
+                                                "Tallassee",
+                                                "Tarrant",
+                                                "Town Creek",
+                                                "Trinity",
+                                                "Tuscumbia",
+                                                "Whiteville",
+                                                "Winchester",
+                                                "Woodlawn"
+                                            ],
+                                            "display": true,
+                                            "tooltip": false,
+                                            "description": "",
+                                            "displayName": "City"
+                                        },
+                                        "Total_MW": {
+                                            "key": "Total_MW",
+                                            "max": 3661.7,
+                                            "min": 0.9,
+                                            "type": "number",
+                                            "display": true,
+                                            "tooltip": false,
+                                            "description": "",
+                                            "displayName": "MW"
+                                        },
+                                        "tech_desc": {
+                                            "key": "tech_desc",
+                                            "type": "string",
+                                            "values": [
+                                                "Batteries; Solar Photovoltaic;",
+                                                "Conventional Hydroelectric",
+                                                "Conventional Steam Coal",
+                                                "Conventional Steam Coal; Natural Gas Fired Combustion Turbine;",
+                                                "Hydroelectric Pumped Storage",
+                                                "Hydroelectric Pumped Storage; Conventional Hydroelectric;",
+                                                "Landfill Gas",
+                                                "Natural Gas Fired Combined Cycle",
+                                                "Natural Gas Fired Combined Cycle; Natural Gas Fired Combustion Turbine;",
+                                                "Natural Gas Fired Combined Cycle; Petroleum Liquids;",
+                                                "Natural Gas Fired Combustion Turbine",
+                                                "Natural Gas Internal Combustion Engine; Petroleum Liquids;",
+                                                "Nuclear",
+                                                "Onshore Wind Turbine",
+                                                "Other Gases",
+                                                "Other Waste Biomass; Petroleum Liquids;",
+                                                "Petroleum Liquids",
+                                                "Solar Photovoltaic",
+                                                "Wood/Wood Waste Biomass"
+                                            ],
+                                            "display": true,
+                                            "tooltip": false,
+                                            "description": "",
+                                            "displayName": "Technology"
+                                        },
+                                        "Plant_Name": {
+                                            "key": "Plant_Name",
+                                            "type": "string",
+                                            "unique": 121,
+                                            "display": true,
+                                            "tooltip": false,
+                                            "searchable": true,
+                                            "description": "",
+                                            "displayName": "Plant Name"
+                                        },
+                                        "PrimSource": {
+                                            "key": "PrimSource",
+                                            "type": "string",
+                                            "values": [
+                                                "biomass",
+                                                "coal",
+                                                "hydroelectric",
+                                                "natural gas",
+                                                "nuclear",
+                                                "other",
+                                                "petroleum",
+                                                "pumped storage",
+                                                "solar",
+                                                "wind"
+                                            ],
+                                            "display": true,
+                                            "tooltip": false,
+                                            "description": "",
+                                            "displayName": "Primary source"
+                                        },
+                                        "Utility_Na": {
+                                            "key": "Utility_Na",
+                                            "type": "string",
+                                            "values": [
+                                                "Adapture Renewables, Inc.",
+                                                "Alabama Power Co",
+                                                "Albertville Municipal Utilities Board",
+                                                "Arevon Energy, Inc.",
+                                                "Brookfield Smoky Mountain Hydropower LP",
+                                                "Chattanooga Metropolitan Airport",
+                                                "Choctaw Generation L.P, L.L.L.P.",
+                                                "Cooperative Energy",
+                                                "Cube District Energy, LLC",
+                                                "Cumberland Land Holdings, LLC",
+                                                "Decatur Energy Center LLC",
+                                                "Drummond Company, Inc.",
+                                                "Duke Energy Renewables Services",
+                                                "EDL Inc",
+                                                "East Kentucky Power Coop, Inc",
+                                                "Elora Solar",
+                                                "Energy Systems Group LLC",
+                                                "Entergy Mississippi LLC",
+                                                "Gaylord Entertainment Co",
+                                                "Haywood Solar, SMLLC",
+                                                "IKEA Property Inc",
+                                                "Ingenco Renewable Development, LLC",
+                                                "International Paper Columbus Mill",
+                                                "Invenergy Services LLC",
+                                                "MN8 Energy LLC",
+                                                "McMinnville Electric System",
+                                                "Middle River Power II, LLC",
+                                                "Middle Tennessee State University",
+                                                "Mississippi Power Co",
+                                                "Morgan Energy Center LLC",
+                                                "Muscle Shoals Solar, LLC",
+                                                "Nashville Electric Service",
+                                                "Northbrook Carolina Hydro II, LLC",
+                                                "OE_TN1",
+                                                "Oglethorpe Power Corporation",
+                                                "Onward Energy",
+                                                "PRIMIENT, LLC",
+                                                "Packaging Corp of America",
+                                                "Powell Valley Electric Coop",
+                                                "Providence Solar Center, LLC",
+                                                "Resolute Forest Products",
+                                                "River Bend Solar, LLC",
+                                                "SR Bolivar, LLC",
+                                                "SR Enterprise South, LLC",
+                                                "SR Greenville I, LLC",
+                                                "SR Greenville II, LLC",
+                                                "SR Houston Holdings, LLC",
+                                                "SR Innovation, LLC",
+                                                "SR Jackson II, LLC",
+                                                "SR Jonesborough II, LLC",
+                                                "SR Millington, LLC",
+                                                "SR Paris, LLC",
+                                                "SR Washington I, LLC",
+                                                "Selmer North Solar I, LLC",
+                                                "Selmer North Solar II, LLC",
+                                                "Somerville Solar, LLC",
+                                                "Tennessee Valley Authority",
+                                                "USCE-Nashville District",
+                                                "UT West Tennessee Solar Farm",
+                                                "University of Tennessee",
+                                                "Vanderbilt University",
+                                                "WM Renewable Energy LLC"
+                                            ],
+                                            "display": true,
+                                            "tooltip": false,
+                                            "description": "",
+                                            "displayName": "Utility"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "type": "Context",
+        "name": "Input/Outputs",
+        "default_map_center": [
+            34.8019,
+            -86.1794
+        ],
+        "default_map_zoom": 6,
+        "datasets": [
+            {
+                "name": "Inputs",
+                "description": "DIVERS-H Inputs",
+                "category": "inputs",
+                "metadata": {},
+                "files": [
+                    {
+                        "name": "evspsbl_Amon_CESM2_ssp126_r10i1p1f1_gn_201501-206412",
+                        "path": "./data/DIVERS-H/Input/evspsbl_Amon_CESM2_ssp126_r10i1p1f1_gn_201501-206412.nc",
+                        "url": "https://data.kitware.com/api/v1/item/67bdcfbfde1cd5c0d8ba633f/download",
+                        "type": "netcdf",
+                        "metadata": {
+                            "generate": [
+                                {
+                                    "name": "evspsbl_Amon_CESM2_ssp126_r10i1p1f1_gn_201501-206412",
+                                    "x_variable": "lon",
+                                    "y_variable": "lat",
+                                    "variable": "evspsbl",
+                                    "sliding_variable": "time",
+                                    "color_map": "Blues"
+                                }
+                            ],
+                            "tags": {
+                                "filters": {
+                                    "Variable": "evspsbl",
+                                    "Model": "CESM2",
+                                    "Scenario": "ssp126",
+                                    "Ensemble": "r10i1p1f1",
+                                    "Grid": "gn",
+                                    "Time Range": "201501-206412",
+                                    "Input/Output": "Input"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "evspsbl_Amon_CESM2_ssp126_r11i1p1f1_gn_201501-206412",
+                        "path": "./data/DIVERS-H/Input/evspsbl_Amon_CESM2_ssp126_r11i1p1f1_gn_201501-206412.nc",
+                        "url": "https://data.kitware.com/api/v1/item/67bdcfc1de1cd5c0d8ba6342/download",
+                        "type": "netcdf",
+                        "metadata": {
+                            "generate": [
+                                {
+                                    "name": "evspsbl_Amon_CESM2_ssp126_r11i1p1f1_gn_201501-206412",
+                                    "x_variable": "lon",
+                                    "y_variable": "lat",
+                                    "variable": "evspsbl",
+                                    "sliding_variable": "time",
+                                    "color_map": "Blues"
+                                }
+                            ],
+                            "tags": {
+                                "filters": {
+                                    "Variable": "evspsbl",
+                                    "Model": "CESM2",
+                                    "Scenario": "ssp126",
+                                    "Ensemble": "r11i1p1f1",
+                                    "Grid": "gn",
+                                    "Time Range": "201501-206412",
+                                    "Input/Output": "Input"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "evspsbl_Amon_CESM2_ssp126_r4i1p1f1_gn_201501-206412",
+                        "path": "./data/DIVERS-H/Input/evspsbl_Amon_CESM2_ssp126_r4i1p1f1_gn_201501-206412.nc",
+                        "url": "https://data.kitware.com/api/v1/item/67bdcfc4de1cd5c0d8ba6345/download",
+                        "type": "netcdf",
+                        "metadata": {
+                            "generate": [
+                                {
+                                    "name": "evspsbl_Amon_CESM2_ssp126_r4i1p1f1_gn_201501-206412",
+                                    "x_variable": "lon",
+                                    "y_variable": "lat",
+                                    "variable": "evspsbl",
+                                    "sliding_variable": "time",
+                                    "color_map": "Blues"
+                                }
+                            ],
+                            "tags": {
+                                "filters": {
+                                    "Variable": "evspsbl",
+                                    "Model": "CESM2",
+                                    "Scenario": "ssp126",
+                                    "Ensemble": "r4i1p1f1",
+                                    "Grid": "gn",
+                                    "Time Range": "201501-206412",
+                                    "Input/Output": "Input"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "evspsbl_Amon_CESM2_ssp245_r10i1p1f1_gn_201501-206412",
+                        "path": "./data/DIVERS-H/Input/evspsbl_Amon_CESM2_ssp245_r10i1p1f1_gn_201501-206412.nc",
+                        "url": "https://data.kitware.com/api/v1/item/67bdcfc5de1cd5c0d8ba6348/download",
+                        "type": "netcdf",
+                        "metadata": {
+                            "generate": [
+                                {
+                                    "name": "evspsbl_Amon_CESM2_ssp245_r10i1p1f1_gn_201501-206412",
+                                    "x_variable": "lon",
+                                    "y_variable": "lat",
+                                    "variable": "evspsbl",
+                                    "sliding_variable": "time",
+                                    "color_map": "Blues"
+                                }
+                            ],
+                            "tags": {
+                                "filters": {
+                                    "Variable": "evspsbl",
+                                    "Model": "CESM2",
+                                    "Scenario": "ssp245",
+                                    "Ensemble": "r10i1p1f1",
+                                    "Grid": "gn",
+                                    "Time Range": "201501-206412",
+                                    "Input/Output": "Input"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "evspsbl_Amon_CESM2_ssp245_r11i1p1f1_gn_201501-206412",
+                        "path": "./data/DIVERS-H/Input/evspsbl_Amon_CESM2_ssp245_r11i1p1f1_gn_201501-206412.nc",
+                        "url": "https://data.kitware.com/api/v1/item/67bdcfc9de1cd5c0d8ba634b/download",
+                        "type": "netcdf",
+                        "metadata": {
+                            "generate": [
+                                {
+                                    "name": "evspsbl_Amon_CESM2_ssp245_r11i1p1f1_gn_201501-206412",
+                                    "x_variable": "lon",
+                                    "y_variable": "lat",
+                                    "variable": "evspsbl",
+                                    "sliding_variable": "time",
+                                    "color_map": "Blues"
+                                }
+                            ],
+                            "tags": {
+                                "filters": {
+                                    "Variable": "evspsbl",
+                                    "Model": "CESM2",
+                                    "Scenario": "ssp245",
+                                    "Ensemble": "r11i1p1f1",
+                                    "Grid": "gn",
+                                    "Time Range": "201501-206412",
+                                    "Input/Output": "Input"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "evspsbl_Amon_CESM2_ssp245_r4i1p1f1_gn_201501-206412",
+                        "path": "./data/DIVERS-H/Input/evspsbl_Amon_CESM2_ssp245_r4i1p1f1_gn_201501-206412.nc",
+                        "url": "https://data.kitware.com/api/v1/item/67bdcfcbde1cd5c0d8ba634e/download",
+                        "type": "netcdf",
+                        "metadata": {
+                            "generate": [
+                                {
+                                    "name": "evspsbl_Amon_CESM2_ssp245_r4i1p1f1_gn_201501-206412",
+                                    "x_variable": "lon",
+                                    "y_variable": "lat",
+                                    "variable": "evspsbl",
+                                    "sliding_variable": "time",
+                                    "color_map": "Blues"
+                                }
+                            ],
+                            "tags": {
+                                "filters": {
+                                    "Variable": "evspsbl",
+                                    "Model": "CESM2",
+                                    "Scenario": "ssp245",
+                                    "Ensemble": "r4i1p1f1",
+                                    "Grid": "gn",
+                                    "Time Range": "201501-206412",
+                                    "Input/Output": "Input"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "evspsbl_Amon_CESM2_ssp585_r10i1p1f1_gn_201501-206412",
+                        "path": "./data/DIVERS-H/Input/evspsbl_Amon_CESM2_ssp585_r10i1p1f1_gn_201501-206412.nc",
+                        "url": "https://data.kitware.com/api/v1/item/67bdcfcdde1cd5c0d8ba6351/download",
+                        "type": "netcdf",
+                        "metadata": {
+                            "generate": [
+                                {
+                                    "name": "evspsbl_Amon_CESM2_ssp585_r10i1p1f1_gn_201501-206412",
+                                    "x_variable": "lon",
+                                    "y_variable": "lat",
+                                    "variable": "evspsbl",
+                                    "sliding_variable": "time",
+                                    "color_map": "Blues"
+                                }
+                            ],
+                            "tags": {
+                                "filters": {
+                                    "Variable": "evspsbl",
+                                    "Model": "CESM2",
+                                    "Scenario": "ssp585",
+                                    "Ensemble": "r10i1p1f1",
+                                    "Grid": "gn",
+                                    "Time Range": "201501-206412",
+                                    "Input/Output": "Input"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "evspsbl_Amon_CESM2_ssp585_r11i1p1f1_gn_201501-206412",
+                        "path": "./data/DIVERS-H/Input/evspsbl_Amon_CESM2_ssp585_r11i1p1f1_gn_201501-206412.nc",
+                        "url": "https://data.kitware.com/api/v1/item/67bdcfd0de1cd5c0d8ba6354/download",
+                        "type": "netcdf",
+                        "metadata": {
+                            "generate": [
+                                {
+                                    "name": "evspsbl_Amon_CESM2_ssp585_r11i1p1f1_gn_201501-206412",
+                                    "x_variable": "lon",
+                                    "y_variable": "lat",
+                                    "variable": "evspsbl",
+                                    "sliding_variable": "time",
+                                    "color_map": "Blues"
+                                }
+                            ],
+                            "tags": {
+                                "filters": {
+                                    "Variable": "evspsbl",
+                                    "Model": "CESM2",
+                                    "Scenario": "ssp585",
+                                    "Ensemble": "r11i1p1f1",
+                                    "Grid": "gn",
+                                    "Time Range": "201501-206412",
+                                    "Input/Output": "Input"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "evspsbl_Amon_CESM2_ssp585_r4i1p1f1_gn_201501-206412",
+                        "path": "./data/DIVERS-H/Input/evspsbl_Amon_CESM2_ssp585_r4i1p1f1_gn_201501-206412.nc",
+                        "url": "https://data.kitware.com/api/v1/item/67bdcfd2de1cd5c0d8ba6357/download",
+                        "type": "netcdf",
+                        "metadata": {
+                            "generate": [
+                                {
+                                    "name": "evspsbl_Amon_CESM2_ssp585_r4i1p1f1_gn_201501-206412",
+                                    "x_variable": "lon",
+                                    "y_variable": "lat",
+                                    "variable": "evspsbl",
+                                    "sliding_variable": "time",
+                                    "color_map": "Blues"
+                                }
+                            ],
+                            "tags": {
+                                "filters": {
+                                    "Variable": "evspsbl",
+                                    "Model": "CESM2",
+                                    "Scenario": "ssp585",
+                                    "Ensemble": "r4i1p1f1",
+                                    "Grid": "gn",
+                                    "Time Range": "201501-206412",
+                                    "Input/Output": "Input"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "evspsbl_Amon_CNRM-CM6-1_ssp126_r4i1p1f2_gr_201501-210012",
+                        "path": "./data/DIVERS-H/Input/evspsbl_Amon_CNRM-CM6-1_ssp126_r4i1p1f2_gr_201501-210012.nc",
+                        "url": "https://data.kitware.com/api/v1/item/67bdcfd2de1cd5c0d8ba635a/download",
+                        "type": "netcdf",
+                        "metadata": {
+                            "generate": [
+                                {
+                                    "name": "evspsbl_Amon_CNRM-CM6-1_ssp126_r4i1p1f2_gr_201501-210012",
+                                    "x_variable": "lon",
+                                    "y_variable": "lat",
+                                    "variable": "evspsbl",
+                                    "sliding_variable": "time",
+                                    "color_map": "Blues"
+                                }
+                            ],
+                            "tags": {
+                                "filters": {
+                                    "Variable": "evspsbl",
+                                    "Model": "CNRM-CM6-1",
+                                    "Scenario": "ssp126",
+                                    "Ensemble": "r4i1p1f2",
+                                    "Grid": "gr",
+                                    "Time Range": "201501-210012",
+                                    "Input/Output": "Input"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "evspsbl_Amon_CNRM-CM6-1_ssp126_r6i1p1f2_gr_201501-210012",
+                        "path": "./data/DIVERS-H/Input/evspsbl_Amon_CNRM-CM6-1_ssp126_r6i1p1f2_gr_201501-210012.nc",
+                        "url": "https://data.kitware.com/api/v1/item/67bdcfd3de1cd5c0d8ba635d/download",
+                        "type": "netcdf",
+                        "metadata": {
+                            "generate": [
+                                {
+                                    "name": "evspsbl_Amon_CNRM-CM6-1_ssp126_r6i1p1f2_gr_201501-210012",
+                                    "x_variable": "lon",
+                                    "y_variable": "lat",
+                                    "variable": "evspsbl",
+                                    "sliding_variable": "time",
+                                    "color_map": "Blues"
+                                }
+                            ],
+                            "tags": {
+                                "filters": {
+                                    "Variable": "evspsbl",
+                                    "Model": "CNRM-CM6-1",
+                                    "Scenario": "ssp126",
+                                    "Ensemble": "r6i1p1f2",
+                                    "Grid": "gr",
+                                    "Time Range": "201501-210012",
+                                    "Input/Output": "Input"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "evspsbl_Amon_CNRM-CM6-1_ssp245_r4i1p1f2_gr_201501-210012",
+                        "path": "./data/DIVERS-H/Input/evspsbl_Amon_CNRM-CM6-1_ssp245_r4i1p1f2_gr_201501-210012.nc",
+                        "url": "https://data.kitware.com/api/v1/item/67bdcfd5de1cd5c0d8ba6360/download",
+                        "type": "netcdf",
+                        "metadata": {
+                            "generate": [
+                                {
+                                    "name": "evspsbl_Amon_CNRM-CM6-1_ssp245_r4i1p1f2_gr_201501-210012",
+                                    "x_variable": "lon",
+                                    "y_variable": "lat",
+                                    "variable": "evspsbl",
+                                    "sliding_variable": "time",
+                                    "color_map": "Blues"
+                                }
+                            ],
+                            "tags": {
+                                "filters": {
+                                    "Variable": "evspsbl",
+                                    "Model": "CNRM-CM6-1",
+                                    "Scenario": "ssp245",
+                                    "Ensemble": "r4i1p1f2",
+                                    "Grid": "gr",
+                                    "Time Range": "201501-210012",
+                                    "Input/Output": "Input"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "tas_Amon_CESM2_ssp245_r4i1p1f1_gn_201501-206412",
+                        "path": "./data/DIVERS-H/Input/tas_Amon_CESM2_ssp245_r4i1p1f1_gn_201501-206412.nc",
+                        "url": "https://data.kitware.com/api/v1/item/67bdcfd6de1cd5c0d8ba6363/download",
+                        "type": "netcdf",
+                        "metadata": {
+                            "generate": [
+                                {
+                                    "name": "tas_Amon_CESM2_ssp245_r4i1p1f1_gn_201501-206412",
+                                    "x_variable": "lon",
+                                    "y_variable": "lat",
+                                    "variable": "tas",
+                                    "sliding_variable": "time",
+                                    "color_map": "Reds"
+                                }
+                            ],
+                            "tags": {
+                                "filters": {
+                                    "Variable": "tas",
+                                    "Model": "CESM2",
+                                    "Scenario": "ssp245",
+                                    "Ensemble": "r4i1p1f1",
+                                    "Grid": "gn",
+                                    "Time Range": "201501-206412",
+                                    "Input/Output": "Input"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "tas_Amon_CESM2_ssp585_r10i1p1f1_gn_201501-206412",
+                        "path": "./data/DIVERS-H/Input/tas_Amon_CESM2_ssp585_r10i1p1f1_gn_201501-206412.nc",
+                        "url": "https://data.kitware.com/api/v1/item/67bdcfd7de1cd5c0d8ba6366/download",
+                        "type": "netcdf",
+                        "metadata": {
+                            "generate": [
+                                {
+                                    "name": "tas_Amon_CESM2_ssp585_r10i1p1f1_gn_201501-206412",
+                                    "x_variable": "lon",
+                                    "y_variable": "lat",
+                                    "variable": "tas",
+                                    "sliding_variable": "time",
+                                    "color_map": "Reds"
+                                }
+                            ],
+                            "tags": {
+                                "filters": {
+                                    "Variable": "tas",
+                                    "Model": "CESM2",
+                                    "Scenario": "ssp585",
+                                    "Ensemble": "r10i1p1f1",
+                                    "Grid": "gn",
+                                    "Time Range": "201501-206412",
+                                    "Input/Output": "Input"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "tas_Amon_CESM2_ssp585_r11i1p1f1_gn_201501-206412",
+                        "path": "./data/DIVERS-H/Input/tas_Amon_CESM2_ssp585_r11i1p1f1_gn_201501-206412.nc",
+                        "url": "https://data.kitware.com/api/v1/item/67bdcfd7de1cd5c0d8ba6369/download",
+                        "type": "netcdf",
+                        "metadata": {
+                            "generate": [
+                                {
+                                    "name": "tas_Amon_CESM2_ssp585_r11i1p1f1_gn_201501-206412",
+                                    "x_variable": "lon",
+                                    "y_variable": "lat",
+                                    "variable": "tas",
+                                    "sliding_variable": "time",
+                                    "color_map": "Reds"
+                                }
+                            ],
+                            "tags": {
+                                "filters": {
+                                    "Variable": "tas",
+                                    "Model": "CESM2",
+                                    "Scenario": "ssp585",
+                                    "Ensemble": "r11i1p1f1",
+                                    "Grid": "gn",
+                                    "Time Range": "201501-206412",
+                                    "Input/Output": "Input"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "tas_Amon_CESM2_ssp585_r4i1p1f1_gn_201501-206412",
+                        "path": "./data/DIVERS-H/Input/tas_Amon_CESM2_ssp585_r4i1p1f1_gn_201501-206412.nc",
+                        "url": "https://data.kitware.com/api/v1/item/67bdcfdade1cd5c0d8ba636c/download",
+                        "type": "netcdf",
+                        "metadata": {
+                            "generate": [
+                                {
+                                    "name": "tas_Amon_CESM2_ssp585_r4i1p1f1_gn_201501-206412",
+                                    "x_variable": "lon",
+                                    "y_variable": "lat",
+                                    "variable": "tas",
+                                    "sliding_variable": "time",
+                                    "color_map": "Reds"
+                                }
+                            ],
+                            "tags": {
+                                "filters": {
+                                    "Variable": "tas",
+                                    "Model": "CESM2",
+                                    "Scenario": "ssp585",
+                                    "Ensemble": "r4i1p1f1",
+                                    "Grid": "gn",
+                                    "Time Range": "201501-206412",
+                                    "Input/Output": "Input"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "tas_Amon_CNRM-CM6-1_ssp126_r4i1p1f2_gr_201501-210012",
+                        "path": "./data/DIVERS-H/Input/tas_Amon_CNRM-CM6-1_ssp126_r4i1p1f2_gr_201501-210012.nc",
+                        "url": "https://data.kitware.com/api/v1/item/67bdcfdbde1cd5c0d8ba636f/download",
+                        "type": "netcdf",
+                        "metadata": {
+                            "generate": [
+                                {
+                                    "name": "tas_Amon_CNRM-CM6-1_ssp126_r4i1p1f2_gr_201501-210012",
+                                    "x_variable": "lon",
+                                    "y_variable": "lat",
+                                    "variable": "tas",
+                                    "sliding_variable": "time",
+                                    "color_map": "Reds"
+                                }
+                            ],
+                            "tags": {
+                                "filters": {
+                                    "Variable": "tas",
+                                    "Model": "CNRM-CM6-1",
+                                    "Scenario": "ssp126",
+                                    "Ensemble": "r4i1p1f2",
+                                    "Grid": "gr",
+                                    "Time Range": "201501-210012",
+                                    "Input/Output": "Input"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "tas_Amon_CNRM-CM6-1_ssp126_r6i1p1f2_gr_201501-210012",
+                        "path": "./data/DIVERS-H/Input/tas_Amon_CNRM-CM6-1_ssp126_r6i1p1f2_gr_201501-210012.nc",
+                        "url": "https://data.kitware.com/api/v1/item/67bdcfddde1cd5c0d8ba6372/download",
+                        "type": "netcdf",
+                        "metadata": {
+                            "generate": [
+                                {
+                                    "name": "tas_Amon_CNRM-CM6-1_ssp126_r6i1p1f2_gr_201501-210012",
+                                    "x_variable": "lon",
+                                    "y_variable": "lat",
+                                    "variable": "tas",
+                                    "sliding_variable": "time",
+                                    "color_map": "Reds"
+                                }
+                            ],
+                            "tags": {
+                                "filters": {
+                                    "Variable": "tas",
+                                    "Model": "CNRM-CM6-1",
+                                    "Scenario": "ssp126",
+                                    "Ensemble": "r6i1p1f2",
+                                    "Grid": "gr",
+                                    "Time Range": "201501-210012",
+                                    "Input/Output": "Input"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "tas_Amon_CNRM-CM6-1_ssp245_r4i1p1f2_gr_201501-210012",
+                        "path": "./data/DIVERS-H/Input/tas_Amon_CNRM-CM6-1_ssp245_r4i1p1f2_gr_201501-210012.nc",
+                        "url": "https://data.kitware.com/api/v1/item/67bdcfdede1cd5c0d8ba6375/download",
+                        "type": "netcdf",
+                        "metadata": {
+                            "generate": [
+                                {
+                                    "name": "tas_Amon_CNRM-CM6-1_ssp245_r4i1p1f2_gr_201501-210012",
+                                    "x_variable": "lon",
+                                    "y_variable": "lat",
+                                    "variable": "tas",
+                                    "sliding_variable": "time",
+                                    "color_map": "Reds"
+                                }
+                            ],
+                            "tags": {
+                                "filters": {
+                                    "Variable": "tas",
+                                    "Model": "CNRM-CM6-1",
+                                    "Scenario": "ssp245",
+                                    "Ensemble": "r4i1p1f2",
+                                    "Grid": "gr",
+                                    "Time Range": "201501-210012",
+                                    "Input/Output": "Input"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "tas_Amon_CNRM-CM6-1_ssp245_r6i1p1f2_gr_201501-210012",
+                        "path": "./data/DIVERS-H/Input/tas_Amon_CNRM-CM6-1_ssp245_r6i1p1f2_gr_201501-210012.nc",
+                        "url": "https://data.kitware.com/api/v1/item/67bdcfdede1cd5c0d8ba6378/download",
+                        "type": "netcdf",
+                        "metadata": {
+                            "generate": [
+                                {
+                                    "name": "tas_Amon_CNRM-CM6-1_ssp245_r6i1p1f2_gr_201501-210012",
+                                    "x_variable": "lon",
+                                    "y_variable": "lat",
+                                    "variable": "tas",
+                                    "sliding_variable": "time",
+                                    "color_map": "Reds"
+                                }
+                            ],
+                            "tags": {
+                                "filters": {
+                                    "Variable": "tas",
+                                    "Model": "CNRM-CM6-1",
+                                    "Scenario": "ssp245",
+                                    "Ensemble": "r6i1p1f2",
+                                    "Grid": "gr",
+                                    "Time Range": "201501-210012",
+                                    "Input/Output": "Input"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "tas_Amon_CNRM-CM6-1_ssp585_r4i1p1f2_gr_201501-210012",
+                        "path": "./data/DIVERS-H/Input/tas_Amon_CNRM-CM6-1_ssp585_r4i1p1f2_gr_201501-210012.nc",
+                        "url": "https://data.kitware.com/api/v1/item/67bdcfdfde1cd5c0d8ba637b/download",
+                        "type": "netcdf",
+                        "metadata": {
+                            "generate": [
+                                {
+                                    "name": "tas_Amon_CNRM-CM6-1_ssp585_r4i1p1f2_gr_201501-210012",
+                                    "x_variable": "lon",
+                                    "y_variable": "lat",
+                                    "variable": "tas",
+                                    "sliding_variable": "time",
+                                    "color_map": "Reds"
+                                }
+                            ],
+                            "tags": {
+                                "filters": {
+                                    "Variable": "tas",
+                                    "Model": "CNRM-CM6-1",
+                                    "Scenario": "ssp585",
+                                    "Ensemble": "r4i1p1f2",
+                                    "Grid": "gr",
+                                    "Time Range": "201501-210012",
+                                    "Input/Output": "Input"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "tas_Amon_CNRM-CM6-1_ssp585_r6i1p1f2_gr_201501-210012",
+                        "path": "./data/DIVERS-H/Input/tas_Amon_CNRM-CM6-1_ssp585_r6i1p1f2_gr_201501-210012.nc",
+                        "url": "https://data.kitware.com/api/v1/item/67bdcfe0de1cd5c0d8ba637e/download",
+                        "type": "netcdf",
+                        "metadata": {
+                            "generate": [
+                                {
+                                    "name": "tas_Amon_CNRM-CM6-1_ssp585_r6i1p1f2_gr_201501-210012",
+                                    "x_variable": "lon",
+                                    "y_variable": "lat",
+                                    "variable": "tas",
+                                    "sliding_variable": "time",
+                                    "color_map": "Reds"
+                                }
+                            ],
+                            "tags": {
+                                "filters": {
+                                    "Variable": "tas",
+                                    "Model": "CNRM-CM6-1",
+                                    "Scenario": "ssp585",
+                                    "Ensemble": "r6i1p1f2",
+                                    "Grid": "gr",
+                                    "Time Range": "201501-210012",
+                                    "Input/Output": "Input"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "pr_Amon_CNRM-CM6-1_ssp126_r4i1p1f2_gr_201501-210012",
+                        "path": "./data/DIVERS-H/Input/pr_Amon_CNRM-CM6-1_ssp126_r4i1p1f2_gr_201501-210012.nc",
+                        "url": "https://data.kitware.com/api/v1/item/67bdcfe1de1cd5c0d8ba6381/download",
+                        "type": "netcdf",
+                        "metadata": {
+                            "generate": [
+                                {
+                                    "name": "pr_Amon_CNRM-CM6-1_ssp126_r4i1p1f2_gr_201501-210012",
+                                    "x_variable": "lon",
+                                    "y_variable": "lat",
+                                    "variable": "pr",
+                                    "sliding_variable": "time",
+                                    "color_map": "Greens"
+                                }
+                            ],
+                            "tags": {
+                                "filters": {
+                                    "Variable": "pr",
+                                    "Model": "CNRM-CM6-1",
+                                    "Scenario": "ssp126",
+                                    "Ensemble": "r4i1p1f2",
+                                    "Grid": "gr",
+                                    "Time Range": "201501-210012",
+                                    "Input/Output": "Input"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "pr_Amon_CNRM-CM6-1_ssp126_r6i1p1f2_gr_201501-210012",
+                        "path": "./data/DIVERS-H/Input/pr_Amon_CNRM-CM6-1_ssp126_r6i1p1f2_gr_201501-210012.nc",
+                        "url": "https://data.kitware.com/api/v1/item/67bdcfe4de1cd5c0d8ba6384/download",
+                        "type": "netcdf",
+                        "metadata": {
+                            "generate": [
+                                {
+                                    "name": "pr_Amon_CNRM-CM6-1_ssp126_r6i1p1f2_gr_201501-210012",
+                                    "x_variable": "lon",
+                                    "y_variable": "lat",
+                                    "variable": "pr",
+                                    "sliding_variable": "time",
+                                    "color_map": "Greens"
+                                }
+                            ],
+                            "tags": {
+                                "filters": {
+                                    "Variable": "pr",
+                                    "Model": "CNRM-CM6-1",
+                                    "Scenario": "ssp126",
+                                    "Ensemble": "r6i1p1f2",
+                                    "Grid": "gr",
+                                    "Time Range": "201501-210012",
+                                    "Input/Output": "Input"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "pr_Amon_CNRM-CM6-1_ssp245_r4i1p1f2_gr_201501-210012",
+                        "path": "./data/DIVERS-H/Input/pr_Amon_CNRM-CM6-1_ssp245_r4i1p1f2_gr_201501-210012.nc",
+                        "url": "https://data.kitware.com/api/v1/item/67bdcfe8de1cd5c0d8ba6387/download",
+                        "type": "netcdf",
+                        "metadata": {
+                            "generate": [
+                                {
+                                    "name": "pr_Amon_CNRM-CM6-1_ssp245_r4i1p1f2_gr_201501-210012",
+                                    "x_variable": "lon",
+                                    "y_variable": "lat",
+                                    "variable": "pr",
+                                    "sliding_variable": "time",
+                                    "color_map": "Greens"
+                                }
+                            ],
+                            "tags": {
+                                "filters": {
+                                    "Variable": "pr",
+                                    "Model": "CNRM-CM6-1",
+                                    "Scenario": "ssp245",
+                                    "Ensemble": "r4i1p1f2",
+                                    "Grid": "gr",
+                                    "Time Range": "201501-210012",
+                                    "Input/Output": "Input"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "pr_Amon_CNRM-CM6-1_ssp245_r6i1p1f2_gr_201501-210012",
+                        "path": "./data/DIVERS-H/Input/pr_Amon_CNRM-CM6-1_ssp245_r6i1p1f2_gr_201501-210012.nc",
+                        "url": "https://data.kitware.com/api/v1/item/67bdcfe9de1cd5c0d8ba638a/download",
+                        "type": "netcdf",
+                        "metadata": {
+                            "generate": [
+                                {
+                                    "name": "pr_Amon_CNRM-CM6-1_ssp245_r6i1p1f2_gr_201501-210012",
+                                    "x_variable": "lon",
+                                    "y_variable": "lat",
+                                    "variable": "pr",
+                                    "sliding_variable": "time",
+                                    "color_map": "Greens"
+                                }
+                            ],
+                            "tags": {
+                                "filters": {
+                                    "Variable": "pr",
+                                    "Model": "CNRM-CM6-1",
+                                    "Scenario": "ssp245",
+                                    "Ensemble": "r6i1p1f2",
+                                    "Grid": "gr",
+                                    "Time Range": "201501-210012",
+                                    "Input/Output": "Input"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "pr_Amon_CNRM-CM6-1_ssp585_r4i1p1f2_gr_201501-210012",
+                        "path": "./data/DIVERS-H/Input/pr_Amon_CNRM-CM6-1_ssp585_r4i1p1f2_gr_201501-210012.nc",
+                        "url": "https://data.kitware.com/api/v1/item/67bdcfebde1cd5c0d8ba638d/download",
+                        "type": "netcdf",
+                        "metadata": {
+                            "generate": [
+                                {
+                                    "name": "pr_Amon_CNRM-CM6-1_ssp585_r4i1p1f2_gr_201501-210012",
+                                    "x_variable": "lon",
+                                    "y_variable": "lat",
+                                    "variable": "pr",
+                                    "sliding_variable": "time",
+                                    "color_map": "Greens"
+                                }
+                            ],
+                            "tags": {
+                                "filters": {
+                                    "Variable": "pr",
+                                    "Model": "CNRM-CM6-1",
+                                    "Scenario": "ssp585",
+                                    "Ensemble": "r4i1p1f2",
+                                    "Grid": "gr",
+                                    "Time Range": "201501-210012",
+                                    "Input/Output": "Input"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "pr_Amon_CNRM-CM6-1_ssp585_r6i1p1f2_gr_201501-210012",
+                        "path": "./data/DIVERS-H/Input/pr_Amon_CNRM-CM6-1_ssp585_r6i1p1f2_gr_201501-210012.nc",
+                        "url": "https://data.kitware.com/api/v1/item/67bdcfeede1cd5c0d8ba6390/download",
+                        "type": "netcdf",
+                        "metadata": {
+                            "generate": [
+                                {
+                                    "name": "pr_Amon_CNRM-CM6-1_ssp585_r6i1p1f2_gr_201501-210012",
+                                    "x_variable": "lon",
+                                    "y_variable": "lat",
+                                    "variable": "pr",
+                                    "sliding_variable": "time",
+                                    "color_map": "Greens"
+                                }
+                            ],
+                            "tags": {
+                                "filters": {
+                                    "Variable": "pr",
+                                    "Model": "CNRM-CM6-1",
+                                    "Scenario": "ssp585",
+                                    "Ensemble": "r6i1p1f2",
+                                    "Grid": "gr",
+                                    "Time Range": "201501-210012",
+                                    "Input/Output": "Input"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "tas_Amon_CESM2_ssp126_r10i1p1f1_gn_201501-206412",
+                        "path": "./data/DIVERS-H/Input/tas_Amon_CESM2_ssp126_r10i1p1f1_gn_201501-206412.nc",
+                        "url": "https://data.kitware.com/api/v1/item/67bdcff0de1cd5c0d8ba6393/download",
+                        "type": "netcdf",
+                        "metadata": {
+                            "generate": [
+                                {
+                                    "name": "tas_Amon_CESM2_ssp126_r10i1p1f1_gn_201501-206412",
+                                    "x_variable": "lon",
+                                    "y_variable": "lat",
+                                    "variable": "tas",
+                                    "sliding_variable": "time",
+                                    "color_map": "Reds"
+                                }
+                            ],
+                            "tags": {
+                                "filters": {
+                                    "Variable": "tas",
+                                    "Model": "CESM2",
+                                    "Scenario": "ssp126",
+                                    "Ensemble": "r10i1p1f1",
+                                    "Grid": "gn",
+                                    "Time Range": "201501-206412",
+                                    "Input/Output": "Input"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "tas_Amon_CESM2_ssp126_r11i1p1f1_gn_201501-206412",
+                        "path": "./data/DIVERS-H/Input/tas_Amon_CESM2_ssp126_r11i1p1f1_gn_201501-206412.nc",
+                        "url": "https://data.kitware.com/api/v1/item/67bdcff2de1cd5c0d8ba6396/download",
+                        "type": "netcdf",
+                        "metadata": {
+                            "generate": [
+                                {
+                                    "name": "tas_Amon_CESM2_ssp126_r11i1p1f1_gn_201501-206412",
+                                    "x_variable": "lon",
+                                    "y_variable": "lat",
+                                    "variable": "tas",
+                                    "sliding_variable": "time",
+                                    "color_map": "Reds"
+                                }
+                            ],
+                            "tags": {
+                                "filters": {
+                                    "Variable": "tas",
+                                    "Model": "CESM2",
+                                    "Scenario": "ssp126",
+                                    "Ensemble": "r11i1p1f1",
+                                    "Grid": "gn",
+                                    "Time Range": "201501-206412",
+                                    "Input/Output": "Input"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "tas_Amon_CESM2_ssp126_r4i1p1f1_gn_201501-206412",
+                        "path": "./data/DIVERS-H/Input/tas_Amon_CESM2_ssp126_r4i1p1f1_gn_201501-206412.nc",
+                        "url": "https://data.kitware.com/api/v1/item/67bdcff2de1cd5c0d8ba6399/download",
+                        "type": "netcdf",
+                        "metadata": {
+                            "generate": [
+                                {
+                                    "name": "tas_Amon_CESM2_ssp126_r4i1p1f1_gn_201501-206412",
+                                    "x_variable": "lon",
+                                    "y_variable": "lat",
+                                    "variable": "tas",
+                                    "sliding_variable": "time",
+                                    "color_map": "Reds"
+                                }
+                            ],
+                            "tags": {
+                                "filters": {
+                                    "Variable": "tas",
+                                    "Model": "CESM2",
+                                    "Scenario": "ssp126",
+                                    "Ensemble": "r4i1p1f1",
+                                    "Grid": "gn",
+                                    "Time Range": "201501-206412",
+                                    "Input/Output": "Input"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "tas_Amon_CESM2_ssp245_r10i1p1f1_gn_201501-206412",
+                        "path": "./data/DIVERS-H/Input/tas_Amon_CESM2_ssp245_r10i1p1f1_gn_201501-206412.nc",
+                        "url": "https://data.kitware.com/api/v1/item/67bdcff4de1cd5c0d8ba639c/download",
+                        "type": "netcdf",
+                        "metadata": {
+                            "generate": [
+                                {
+                                    "name": "tas_Amon_CESM2_ssp245_r10i1p1f1_gn_201501-206412",
+                                    "x_variable": "lon",
+                                    "y_variable": "lat",
+                                    "variable": "tas",
+                                    "sliding_variable": "time",
+                                    "color_map": "Reds"
+                                }
+                            ],
+                            "tags": {
+                                "filters": {
+                                    "Variable": "tas",
+                                    "Model": "CESM2",
+                                    "Scenario": "ssp245",
+                                    "Ensemble": "r10i1p1f1",
+                                    "Grid": "gn",
+                                    "Time Range": "201501-206412",
+                                    "Input/Output": "Input"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "evspsbl_Amon_CNRM-CM6-1_ssp245_r6i1p1f2_gr_201501-210012",
+                        "path": "./data/DIVERS-H/Input/evspsbl_Amon_CNRM-CM6-1_ssp245_r6i1p1f2_gr_201501-210012.nc",
+                        "url": "https://data.kitware.com/api/v1/item/67bdcff4de1cd5c0d8ba639f/download",
+                        "type": "netcdf",
+                        "metadata": {
+                            "generate": [
+                                {
+                                    "name": "evspsbl_Amon_CNRM-CM6-1_ssp245_r6i1p1f2_gr_201501-210012",
+                                    "x_variable": "lon",
+                                    "y_variable": "lat",
+                                    "variable": "evspsbl",
+                                    "sliding_variable": "time",
+                                    "color_map": "Blues"
+                                }
+                            ],
+                            "tags": {
+                                "filters": {
+                                    "Variable": "evspsbl",
+                                    "Model": "CNRM-CM6-1",
+                                    "Scenario": "ssp245",
+                                    "Ensemble": "r6i1p1f2",
+                                    "Grid": "gr",
+                                    "Time Range": "201501-210012",
+                                    "Input/Output": "Input"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "pr_Amon_CESM2_ssp585_r4i1p1f1_gn_201501-206412",
+                        "path": "./data/DIVERS-H/Input/pr_Amon_CESM2_ssp585_r4i1p1f1_gn_201501-206412.nc",
+                        "url": "https://data.kitware.com/api/v1/item/67bdcff5de1cd5c0d8ba63a2/download",
+                        "type": "netcdf",
+                        "metadata": {
+                            "generate": [
+                                {
+                                    "name": "pr_Amon_CESM2_ssp585_r4i1p1f1_gn_201501-206412",
+                                    "x_variable": "lon",
+                                    "y_variable": "lat",
+                                    "variable": "pr",
+                                    "sliding_variable": "time",
+                                    "color_map": "Greens"
+                                }
+                            ],
+                            "tags": {
+                                "filters": {
+                                    "Variable": "pr",
+                                    "Model": "CESM2",
+                                    "Scenario": "ssp585",
+                                    "Ensemble": "r4i1p1f1",
+                                    "Grid": "gn",
+                                    "Time Range": "201501-206412",
+                                    "Input/Output": "Input"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "tas_Amon_CESM2_ssp245_r11i1p1f1_gn_201501-206412",
+                        "path": "./data/DIVERS-H/Input/tas_Amon_CESM2_ssp245_r11i1p1f1_gn_201501-206412.nc",
+                        "url": "https://data.kitware.com/api/v1/item/67bdcff6de1cd5c0d8ba63a5/download",
+                        "type": "netcdf",
+                        "metadata": {
+                            "generate": [
+                                {
+                                    "name": "tas_Amon_CESM2_ssp245_r11i1p1f1_gn_201501-206412",
+                                    "x_variable": "lon",
+                                    "y_variable": "lat",
+                                    "variable": "tas",
+                                    "sliding_variable": "time",
+                                    "color_map": "Reds"
+                                }
+                            ],
+                            "tags": {
+                                "filters": {
+                                    "Variable": "tas",
+                                    "Model": "CESM2",
+                                    "Scenario": "ssp245",
+                                    "Ensemble": "r11i1p1f1",
+                                    "Grid": "gn",
+                                    "Time Range": "201501-206412",
+                                    "Input/Output": "Input"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "evspsbl_Amon_CNRM-CM6-1_ssp585_r4i1p1f2_gr_201501-210012",
+                        "path": "./data/DIVERS-H/Input/evspsbl_Amon_CNRM-CM6-1_ssp585_r4i1p1f2_gr_201501-210012.nc",
+                        "url": "https://data.kitware.com/api/v1/item/67bdcff7de1cd5c0d8ba63a8/download",
+                        "type": "netcdf",
+                        "metadata": {
+                            "generate": [
+                                {
+                                    "name": "evspsbl_Amon_CNRM-CM6-1_ssp585_r4i1p1f2_gr_201501-210012",
+                                    "x_variable": "lon",
+                                    "y_variable": "lat",
+                                    "variable": "evspsbl",
+                                    "sliding_variable": "time",
+                                    "color_map": "Blues"
+                                }
+                            ],
+                            "tags": {
+                                "filters": {
+                                    "Variable": "evspsbl",
+                                    "Model": "CNRM-CM6-1",
+                                    "Scenario": "ssp585",
+                                    "Ensemble": "r4i1p1f2",
+                                    "Grid": "gr",
+                                    "Time Range": "201501-210012",
+                                    "Input/Output": "Input"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "evspsbl_Amon_CNRM-CM6-1_ssp585_r6i1p1f2_gr_201501-210012",
+                        "path": "./data/DIVERS-H/Input/evspsbl_Amon_CNRM-CM6-1_ssp585_r6i1p1f2_gr_201501-210012.nc",
+                        "url": "https://data.kitware.com/api/v1/item/67bdcff8de1cd5c0d8ba63ab/download",
+                        "type": "netcdf",
+                        "metadata": {
+                            "generate": [
+                                {
+                                    "name": "evspsbl_Amon_CNRM-CM6-1_ssp585_r6i1p1f2_gr_201501-210012",
+                                    "x_variable": "lon",
+                                    "y_variable": "lat",
+                                    "variable": "evspsbl",
+                                    "sliding_variable": "time",
+                                    "color_map": "Blues"
+                                }
+                            ],
+                            "tags": {
+                                "filters": {
+                                    "Variable": "evspsbl",
+                                    "Model": "CNRM-CM6-1",
+                                    "Scenario": "ssp585",
+                                    "Ensemble": "r6i1p1f2",
+                                    "Grid": "gr",
+                                    "Time Range": "201501-210012",
+                                    "Input/Output": "Input"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "pr_Amon_CESM2_ssp126_r10i1p1f1_gn_201501-206412",
+                        "path": "./data/DIVERS-H/Input/pr_Amon_CESM2_ssp126_r10i1p1f1_gn_201501-206412.nc",
+                        "url": "https://data.kitware.com/api/v1/item/67bdcff9de1cd5c0d8ba63ae/download",
+                        "type": "netcdf",
+                        "metadata": {
+                            "generate": [
+                                {
+                                    "name": "pr_Amon_CESM2_ssp126_r10i1p1f1_gn_201501-206412",
+                                    "x_variable": "lon",
+                                    "y_variable": "lat",
+                                    "variable": "pr",
+                                    "sliding_variable": "time",
+                                    "color_map": "Greens"
+                                }
+                            ],
+                            "tags": {
+                                "filters": {
+                                    "Variable": "pr",
+                                    "Model": "CESM2",
+                                    "Scenario": "ssp126",
+                                    "Ensemble": "r10i1p1f1",
+                                    "Grid": "gn",
+                                    "Time Range": "201501-206412",
+                                    "Input/Output": "Input"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "pr_Amon_CESM2_ssp126_r11i1p1f1_gn_201501-206412",
+                        "path": "./data/DIVERS-H/Input/pr_Amon_CESM2_ssp126_r11i1p1f1_gn_201501-206412.nc",
+                        "url": "https://data.kitware.com/api/v1/item/67bdcffade1cd5c0d8ba63b1/download",
+                        "type": "netcdf",
+                        "metadata": {
+                            "generate": [
+                                {
+                                    "name": "pr_Amon_CESM2_ssp126_r11i1p1f1_gn_201501-206412",
+                                    "x_variable": "lon",
+                                    "y_variable": "lat",
+                                    "variable": "pr",
+                                    "sliding_variable": "time",
+                                    "color_map": "Greens"
+                                }
+                            ],
+                            "tags": {
+                                "filters": {
+                                    "Variable": "pr",
+                                    "Model": "CESM2",
+                                    "Scenario": "ssp126",
+                                    "Ensemble": "r11i1p1f1",
+                                    "Grid": "gn",
+                                    "Time Range": "201501-206412",
+                                    "Input/Output": "Input"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "pr_Amon_CESM2_ssp126_r4i1p1f1_gn_201501-206412",
+                        "path": "./data/DIVERS-H/Input/pr_Amon_CESM2_ssp126_r4i1p1f1_gn_201501-206412.nc",
+                        "url": "https://data.kitware.com/api/v1/item/67bdcffbde1cd5c0d8ba63b4/download",
+                        "type": "netcdf",
+                        "metadata": {
+                            "generate": [
+                                {
+                                    "name": "pr_Amon_CESM2_ssp126_r4i1p1f1_gn_201501-206412",
+                                    "x_variable": "lon",
+                                    "y_variable": "lat",
+                                    "variable": "pr",
+                                    "sliding_variable": "time",
+                                    "color_map": "Greens"
+                                }
+                            ],
+                            "tags": {
+                                "filters": {
+                                    "Variable": "pr",
+                                    "Model": "CESM2",
+                                    "Scenario": "ssp126",
+                                    "Ensemble": "r4i1p1f1",
+                                    "Grid": "gn",
+                                    "Time Range": "201501-206412",
+                                    "Input/Output": "Input"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "pr_Amon_CESM2_ssp245_r10i1p1f1_gn_201501-206412",
+                        "path": "./data/DIVERS-H/Input/pr_Amon_CESM2_ssp245_r10i1p1f1_gn_201501-206412.nc",
+                        "url": "https://data.kitware.com/api/v1/item/67bdcffcde1cd5c0d8ba63b7/download",
+                        "type": "netcdf",
+                        "metadata": {
+                            "generate": [
+                                {
+                                    "name": "pr_Amon_CESM2_ssp245_r10i1p1f1_gn_201501-206412",
+                                    "x_variable": "lon",
+                                    "y_variable": "lat",
+                                    "variable": "pr",
+                                    "sliding_variable": "time",
+                                    "color_map": "Greens"
+                                }
+                            ],
+                            "tags": {
+                                "filters": {
+                                    "Variable": "pr",
+                                    "Model": "CESM2",
+                                    "Scenario": "ssp245",
+                                    "Ensemble": "r10i1p1f1",
+                                    "Grid": "gn",
+                                    "Time Range": "201501-206412",
+                                    "Input/Output": "Input"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "pr_Amon_CESM2_ssp245_r11i1p1f1_gn_201501-206412",
+                        "path": "./data/DIVERS-H/Input/pr_Amon_CESM2_ssp245_r11i1p1f1_gn_201501-206412.nc",
+                        "url": "https://data.kitware.com/api/v1/item/67bdcffdde1cd5c0d8ba63ba/download",
+                        "type": "netcdf",
+                        "metadata": {
+                            "generate": [
+                                {
+                                    "name": "pr_Amon_CESM2_ssp245_r11i1p1f1_gn_201501-206412",
+                                    "x_variable": "lon",
+                                    "y_variable": "lat",
+                                    "variable": "pr",
+                                    "sliding_variable": "time",
+                                    "color_map": "Greens"
+                                }
+                            ],
+                            "tags": {
+                                "filters": {
+                                    "Variable": "pr",
+                                    "Model": "CESM2",
+                                    "Scenario": "ssp245",
+                                    "Ensemble": "r11i1p1f1",
+                                    "Grid": "gn",
+                                    "Time Range": "201501-206412",
+                                    "Input/Output": "Input"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "pr_Amon_CESM2_ssp245_r4i1p1f1_gn_201501-206412",
+                        "path": "./data/DIVERS-H/Input/pr_Amon_CESM2_ssp245_r4i1p1f1_gn_201501-206412.nc",
+                        "url": "https://data.kitware.com/api/v1/item/67bdcffede1cd5c0d8ba63bd/download",
+                        "type": "netcdf",
+                        "metadata": {
+                            "generate": [
+                                {
+                                    "name": "pr_Amon_CESM2_ssp245_r4i1p1f1_gn_201501-206412",
+                                    "x_variable": "lon",
+                                    "y_variable": "lat",
+                                    "variable": "pr",
+                                    "sliding_variable": "time",
+                                    "color_map": "Greens"
+                                }
+                            ],
+                            "tags": {
+                                "filters": {
+                                    "Variable": "pr",
+                                    "Model": "CESM2",
+                                    "Scenario": "ssp245",
+                                    "Ensemble": "r4i1p1f1",
+                                    "Grid": "gn",
+                                    "Time Range": "201501-206412",
+                                    "Input/Output": "Input"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "pr_Amon_CESM2_ssp585_r10i1p1f1_gn_201501-206412",
+                        "path": "./data/DIVERS-H/Input/pr_Amon_CESM2_ssp585_r10i1p1f1_gn_201501-206412.nc",
+                        "url": "https://data.kitware.com/api/v1/item/67bdcfffde1cd5c0d8ba63c0/download",
+                        "type": "netcdf",
+                        "metadata": {
+                            "generate": [
+                                {
+                                    "name": "pr_Amon_CESM2_ssp585_r10i1p1f1_gn_201501-206412",
+                                    "x_variable": "lon",
+                                    "y_variable": "lat",
+                                    "variable": "pr",
+                                    "sliding_variable": "time",
+                                    "color_map": "Greens"
+                                }
+                            ],
+                            "tags": {
+                                "filters": {
+                                    "Variable": "pr",
+                                    "Model": "CESM2",
+                                    "Scenario": "ssp585",
+                                    "Ensemble": "r10i1p1f1",
+                                    "Grid": "gn",
+                                    "Time Range": "201501-206412",
+                                    "Input/Output": "Input"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "pr_Amon_CESM2_ssp585_r11i1p1f1_gn_201501-206412",
+                        "path": "./data/DIVERS-H/Input/pr_Amon_CESM2_ssp585_r11i1p1f1_gn_201501-206412.nc",
+                        "url": "https://data.kitware.com/api/v1/item/67bdd003de1cd5c0d8ba63c3/download",
+                        "type": "netcdf",
+                        "metadata": {
+                            "generate": [
+                                {
+                                    "name": "pr_Amon_CESM2_ssp585_r11i1p1f1_gn_201501-206412",
+                                    "x_variable": "lon",
+                                    "y_variable": "lat",
+                                    "variable": "pr",
+                                    "sliding_variable": "time",
+                                    "color_map": "Greens"
+                                }
+                            ],
+                            "tags": {
+                                "filters": {
+                                    "Variable": "pr",
+                                    "Model": "CESM2",
+                                    "Scenario": "ssp585",
+                                    "Ensemble": "r11i1p1f1",
+                                    "Grid": "gn",
+                                    "Time Range": "201501-206412",
+                                    "Input/Output": "Input"
+                                }
+                            }
+                        }
+                    }
+                ]
+            },
+            {
+                "name": "Outputs",
+                "description": "DIVERS-H Outputs",
+                "category": "outputs",
+                "metadata": {},
+                "files": [
+                    {
+                        "name": "PminusE_Amon_CESM2_ssp126_r10i1p1f1_2015-2055",
+                        "path": "./data/DIVERS-H/Output/PminusE_Amon_CESM2_ssp126_r10i1p1f1_2015-2055.nc",
+                        "url": "https://data.kitware.com/api/v1/item/67bdd007de1cd5c0d8ba63c6/download",
+                        "type": "netcdf",
+                        "metadata": {
+                            "generate": [
+                                {
+                                    "name": "PminusE_Amon_CESM2_ssp126_r10i1p1f1_2015-2055",
+                                    "x_variable": "lon",
+                                    "y_variable": "lat",
+                                    "variable": "P_minus_E",
+                                    "sliding_variable": "time",
+                                    "color_map": "turbo"
+                                }
+                            ],
+                            "tags": {
+                                "filters": {
+                                    "Variable": "PminusE",
+                                    "Model": "CESM2",
+                                    "Scenario": "ssp126",
+                                    "Ensemble": "r10i1p1f1",
+                                    "Grid": null,
+                                    "Time Range": "2015-2055",
+                                    "Input/Output": "Output"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "PminusE_Amon_CESM2_ssp126_r11i1p1f1_2015-2055",
+                        "path": "./data/DIVERS-H/Output/PminusE_Amon_CESM2_ssp126_r11i1p1f1_2015-2055.nc",
+                        "url": "https://data.kitware.com/api/v1/item/67bdd06dde1cd5c0d8ba63c9/download",
+                        "type": "netcdf",
+                        "metadata": {
+                            "generate": [
+                                {
+                                    "name": "PminusE_Amon_CESM2_ssp126_r11i1p1f1_2015-2055",
+                                    "x_variable": "lon",
+                                    "y_variable": "lat",
+                                    "variable": "P_minus_E",
+                                    "sliding_variable": "time",
+                                    "color_map": "turbo"
+                                }
+                            ],
+                            "tags": {
+                                "filters": {
+                                    "Variable": "PminusE",
+                                    "Model": "CESM2",
+                                    "Scenario": "ssp126",
+                                    "Ensemble": "r11i1p1f1",
+                                    "Grid": null,
+                                    "Time Range": "2015-2055",
+                                    "Input/Output": "Output"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "PminusE_Amon_CESM2_ssp126_r4i1p1f1_2015-2055",
+                        "path": "./data/DIVERS-H/Output/PminusE_Amon_CESM2_ssp126_r4i1p1f1_2015-2055.nc",
+                        "url": "https://data.kitware.com/api/v1/item/67bdd070de1cd5c0d8ba63cc/download",
+                        "type": "netcdf",
+                        "metadata": {
+                            "generate": [
+                                {
+                                    "name": "PminusE_Amon_CESM2_ssp126_r4i1p1f1_2015-2055",
+                                    "x_variable": "lon",
+                                    "y_variable": "lat",
+                                    "variable": "P_minus_E",
+                                    "sliding_variable": "time",
+                                    "color_map": "turbo"
+                                }
+                            ],
+                            "tags": {
+                                "filters": {
+                                    "Variable": "PminusE",
+                                    "Model": "CESM2",
+                                    "Scenario": "ssp126",
+                                    "Ensemble": "r4i1p1f1",
+                                    "Grid": null,
+                                    "Time Range": "2015-2055",
+                                    "Input/Output": "Output"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "PminusE_Amon_CESM2_ssp245_r10i1p1f1_2015-2055",
+                        "path": "./data/DIVERS-H/Output/PminusE_Amon_CESM2_ssp245_r10i1p1f1_2015-2055.nc",
+                        "url": "https://data.kitware.com/api/v1/item/67bdd073de1cd5c0d8ba63cf/download",
+                        "type": "netcdf",
+                        "metadata": {
+                            "generate": [
+                                {
+                                    "name": "PminusE_Amon_CESM2_ssp245_r10i1p1f1_2015-2055",
+                                    "x_variable": "lon",
+                                    "y_variable": "lat",
+                                    "variable": "P_minus_E",
+                                    "sliding_variable": "time",
+                                    "color_map": "turbo"
+                                }
+                            ],
+                            "tags": {
+                                "filters": {
+                                    "Variable": "PminusE",
+                                    "Model": "CESM2",
+                                    "Scenario": "ssp245",
+                                    "Ensemble": "r10i1p1f1",
+                                    "Grid": null,
+                                    "Time Range": "2015-2055",
+                                    "Input/Output": "Output"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "PminusE_Amon_CESM2_ssp245_r11i1p1f1_2015-2055",
+                        "path": "./data/DIVERS-H/Output/PminusE_Amon_CESM2_ssp245_r11i1p1f1_2015-2055.nc",
+                        "url": "https://data.kitware.com/api/v1/item/67bdd076de1cd5c0d8ba63d2/download",
+                        "type": "netcdf",
+                        "metadata": {
+                            "generate": [
+                                {
+                                    "name": "PminusE_Amon_CESM2_ssp245_r11i1p1f1_2015-2055",
+                                    "x_variable": "lon",
+                                    "y_variable": "lat",
+                                    "variable": "P_minus_E",
+                                    "sliding_variable": "time",
+                                    "color_map": "turbo"
+                                }
+                            ],
+                            "tags": {
+                                "filters": {
+                                    "Variable": "PminusE",
+                                    "Model": "CESM2",
+                                    "Scenario": "ssp245",
+                                    "Ensemble": "r11i1p1f1",
+                                    "Grid": null,
+                                    "Time Range": "2015-2055",
+                                    "Input/Output": "Output"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "PminusE_Amon_CESM2_ssp245_r4i1p1f1_2015-2055",
+                        "path": "./data/DIVERS-H/Output/PminusE_Amon_CESM2_ssp245_r4i1p1f1_2015-2055.nc",
+                        "url": "https://data.kitware.com/api/v1/item/67bdd079de1cd5c0d8ba63d5/download",
+                        "type": "netcdf",
+                        "metadata": {
+                            "generate": [
+                                {
+                                    "name": "PminusE_Amon_CESM2_ssp245_r4i1p1f1_2015-2055",
+                                    "x_variable": "lon",
+                                    "y_variable": "lat",
+                                    "variable": "P_minus_E",
+                                    "sliding_variable": "time",
+                                    "color_map": "turbo"
+                                }
+                            ],
+                            "tags": {
+                                "filters": {
+                                    "Variable": "PminusE",
+                                    "Model": "CESM2",
+                                    "Scenario": "ssp245",
+                                    "Ensemble": "r4i1p1f1",
+                                    "Grid": null,
+                                    "Time Range": "2015-2055",
+                                    "Input/Output": "Output"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "PminusE_Amon_CESM2_ssp585_r10i1p1f1_2015-2055",
+                        "path": "./data/DIVERS-H/Output/PminusE_Amon_CESM2_ssp585_r10i1p1f1_2015-2055.nc",
+                        "url": "https://data.kitware.com/api/v1/item/67bdd07ade1cd5c0d8ba63d8/download",
+                        "type": "netcdf",
+                        "metadata": {
+                            "generate": [
+                                {
+                                    "name": "PminusE_Amon_CESM2_ssp585_r10i1p1f1_2015-2055",
+                                    "x_variable": "lon",
+                                    "y_variable": "lat",
+                                    "variable": "P_minus_E",
+                                    "sliding_variable": "time",
+                                    "color_map": "turbo"
+                                }
+                            ],
+                            "tags": {
+                                "filters": {
+                                    "Variable": "PminusE",
+                                    "Model": "CESM2",
+                                    "Scenario": "ssp585",
+                                    "Ensemble": "r10i1p1f1",
+                                    "Grid": null,
+                                    "Time Range": "2015-2055",
+                                    "Input/Output": "Output"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "PminusE_Amon_CESM2_ssp585_r11i1p1f1_2015-2055",
+                        "path": "./data/DIVERS-H/Output/PminusE_Amon_CESM2_ssp585_r11i1p1f1_2015-2055.nc",
+                        "url": "https://data.kitware.com/api/v1/item/67bdd07cde1cd5c0d8ba63db/download",
+                        "type": "netcdf",
+                        "metadata": {
+                            "generate": [
+                                {
+                                    "name": "PminusE_Amon_CESM2_ssp585_r11i1p1f1_2015-2055",
+                                    "x_variable": "lon",
+                                    "y_variable": "lat",
+                                    "variable": "P_minus_E",
+                                    "sliding_variable": "time",
+                                    "color_map": "turbo"
+                                }
+                            ],
+                            "tags": {
+                                "filters": {
+                                    "Variable": "PminusE",
+                                    "Model": "CESM2",
+                                    "Scenario": "ssp585",
+                                    "Ensemble": "r11i1p1f1",
+                                    "Grid": null,
+                                    "Time Range": "2015-2055",
+                                    "Input/Output": "Output"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "PminusE_Amon_CESM2_ssp585_r4i1p1f1_2015-2055",
+                        "path": "./data/DIVERS-H/Output/PminusE_Amon_CESM2_ssp585_r4i1p1f1_2015-2055.nc",
+                        "url": "https://data.kitware.com/api/v1/item/67bdd07fde1cd5c0d8ba63de/download",
+                        "type": "netcdf",
+                        "metadata": {
+                            "generate": [
+                                {
+                                    "name": "PminusE_Amon_CESM2_ssp585_r4i1p1f1_2015-2055",
+                                    "x_variable": "lon",
+                                    "y_variable": "lat",
+                                    "variable": "P_minus_E",
+                                    "sliding_variable": "time",
+                                    "color_map": "turbo"
+                                }
+                            ],
+                            "tags": {
+                                "filters": {
+                                    "Variable": "PminusE",
+                                    "Model": "CESM2",
+                                    "Scenario": "ssp585",
+                                    "Ensemble": "r4i1p1f1",
+                                    "Grid": null,
+                                    "Time Range": "2015-2055",
+                                    "Input/Output": "Output"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "PminusE_Amon_CNRM-CM6_1_ssp126_r4i1p1f2_2015-2055",
+                        "path": "./data/DIVERS-H/Output/PminusE_Amon_CNRM-CM6_1_ssp126_r4i1p1f2_2015-2055.nc",
+                        "url": "https://data.kitware.com/api/v1/item/67bdd080de1cd5c0d8ba63e1/download",
+                        "type": "netcdf",
+                        "metadata": {
+                            "generate": [
+                                {
+                                    "name": "PminusE_Amon_CNRM-CM6_1_ssp126_r4i1p1f2_2015-2055",
+                                    "x_variable": "lon",
+                                    "y_variable": "lat",
+                                    "variable": "P_minus_E",
+                                    "sliding_variable": "time",
+                                    "color_map": "turbo"
+                                }
+                            ],
+                            "tags": {
+                                "filters": {
+                                    "Variable": "PminusE",
+                                    "Model": "CNRM-CM6_1",
+                                    "Scenario": "ssp126",
+                                    "Ensemble": "r4i1p1f2",
+                                    "Grid": null,
+                                    "Time Range": "2015-2055",
+                                    "Input/Output": "Output"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "PminusE_Amon_CNRM-CM6_1_ssp126_r5i1p1f2_2015-2055",
+                        "path": "./data/DIVERS-H/Output/PminusE_Amon_CNRM-CM6_1_ssp126_r5i1p1f2_2015-2055.nc",
+                        "url": "https://data.kitware.com/api/v1/item/67bdd082de1cd5c0d8ba63e4/download",
+                        "type": "netcdf",
+                        "metadata": {
+                            "generate": [
+                                {
+                                    "name": "PminusE_Amon_CNRM-CM6_1_ssp126_r5i1p1f2_2015-2055",
+                                    "x_variable": "lon",
+                                    "y_variable": "lat",
+                                    "variable": "P_minus_E",
+                                    "sliding_variable": "time",
+                                    "color_map": "turbo"
+                                }
+                            ],
+                            "tags": {
+                                "filters": {
+                                    "Variable": "PminusE",
+                                    "Model": "CNRM-CM6_1",
+                                    "Scenario": "ssp126",
+                                    "Ensemble": "r5i1p1f2",
+                                    "Grid": null,
+                                    "Time Range": "2015-2055",
+                                    "Input/Output": "Output"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "PminusE_Amon_CNRM-CM6_1_ssp126_r6i1p1f2_2015-2055",
+                        "path": "./data/DIVERS-H/Output/PminusE_Amon_CNRM-CM6_1_ssp126_r6i1p1f2_2015-2055.nc",
+                        "url": "https://data.kitware.com/api/v1/item/67bdd085de1cd5c0d8ba63e7/download",
+                        "type": "netcdf",
+                        "metadata": {
+                            "generate": [
+                                {
+                                    "name": "PminusE_Amon_CNRM-CM6_1_ssp126_r6i1p1f2_2015-2055",
+                                    "x_variable": "lon",
+                                    "y_variable": "lat",
+                                    "variable": "P_minus_E",
+                                    "sliding_variable": "time",
+                                    "color_map": "turbo"
+                                }
+                            ],
+                            "tags": {
+                                "filters": {
+                                    "Variable": "PminusE",
+                                    "Model": "CNRM-CM6_1",
+                                    "Scenario": "ssp126",
+                                    "Ensemble": "r6i1p1f2",
+                                    "Grid": null,
+                                    "Time Range": "2015-2055",
+                                    "Input/Output": "Output"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "PminusE_Amon_CNRM-CM6_1_ssp245_r4i1p1f2_2015-2055",
+                        "path": "./data/DIVERS-H/Output/PminusE_Amon_CNRM-CM6_1_ssp245_r4i1p1f2_2015-2055.nc",
+                        "url": "https://data.kitware.com/api/v1/item/67bdd088de1cd5c0d8ba63ea/download",
+                        "type": "netcdf",
+                        "metadata": {
+                            "generate": [
+                                {
+                                    "name": "PminusE_Amon_CNRM-CM6_1_ssp245_r4i1p1f2_2015-2055",
+                                    "x_variable": "lon",
+                                    "y_variable": "lat",
+                                    "variable": "P_minus_E",
+                                    "sliding_variable": "time",
+                                    "color_map": "turbo"
+                                }
+                            ],
+                            "tags": {
+                                "filters": {
+                                    "Variable": "PminusE",
+                                    "Model": "CNRM-CM6_1",
+                                    "Scenario": "ssp245",
+                                    "Ensemble": "r4i1p1f2",
+                                    "Grid": null,
+                                    "Time Range": "2015-2055",
+                                    "Input/Output": "Output"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "PminusE_Amon_CNRM-CM6_1_ssp245_r5i1p1f2_2015-2055",
+                        "path": "./data/DIVERS-H/Output/PminusE_Amon_CNRM-CM6_1_ssp245_r5i1p1f2_2015-2055.nc",
+                        "url": "https://data.kitware.com/api/v1/item/67bdd08bde1cd5c0d8ba63ed/download",
+                        "type": "netcdf",
+                        "metadata": {
+                            "generate": [
+                                {
+                                    "name": "PminusE_Amon_CNRM-CM6_1_ssp245_r5i1p1f2_2015-2055",
+                                    "x_variable": "lon",
+                                    "y_variable": "lat",
+                                    "variable": "P_minus_E",
+                                    "sliding_variable": "time",
+                                    "color_map": "turbo"
+                                }
+                            ],
+                            "tags": {
+                                "filters": {
+                                    "Variable": "PminusE",
+                                    "Model": "CNRM-CM6_1",
+                                    "Scenario": "ssp245",
+                                    "Ensemble": "r5i1p1f2",
+                                    "Grid": null,
+                                    "Time Range": "2015-2055",
+                                    "Input/Output": "Output"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "PminusE_Amon_CNRM-CM6_1_ssp245_r6i1p1f2_2015-2055",
+                        "path": "./data/DIVERS-H/Output/PminusE_Amon_CNRM-CM6_1_ssp245_r6i1p1f2_2015-2055.nc",
+                        "url": "https://data.kitware.com/api/v1/item/67bdd08dde1cd5c0d8ba63f0/download",
+                        "type": "netcdf",
+                        "metadata": {
+                            "generate": [
+                                {
+                                    "name": "PminusE_Amon_CNRM-CM6_1_ssp245_r6i1p1f2_2015-2055",
+                                    "x_variable": "lon",
+                                    "y_variable": "lat",
+                                    "variable": "P_minus_E",
+                                    "sliding_variable": "time",
+                                    "color_map": "turbo"
+                                }
+                            ],
+                            "tags": {
+                                "filters": {
+                                    "Variable": "PminusE",
+                                    "Model": "CNRM-CM6_1",
+                                    "Scenario": "ssp245",
+                                    "Ensemble": "r6i1p1f2",
+                                    "Grid": null,
+                                    "Time Range": "2015-2055",
+                                    "Input/Output": "Output"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "PminusE_Amon_CNRM-CM6_1_ssp585_r4i1p1f2_2015-2055",
+                        "path": "./data/DIVERS-H/Output/PminusE_Amon_CNRM-CM6_1_ssp585_r4i1p1f2_2015-2055.nc",
+                        "url": "https://data.kitware.com/api/v1/item/67bdd090de1cd5c0d8ba63f3/download",
+                        "type": "netcdf",
+                        "metadata": {
+                            "generate": [
+                                {
+                                    "name": "PminusE_Amon_CNRM-CM6_1_ssp585_r4i1p1f2_2015-2055",
+                                    "x_variable": "lon",
+                                    "y_variable": "lat",
+                                    "variable": "P_minus_E",
+                                    "sliding_variable": "time",
+                                    "color_map": "turbo"
+                                }
+                            ],
+                            "tags": {
+                                "filters": {
+                                    "Variable": "PminusE",
+                                    "Model": "CNRM-CM6_1",
+                                    "Scenario": "ssp585",
+                                    "Ensemble": "r4i1p1f2",
+                                    "Grid": null,
+                                    "Time Range": "2015-2055",
+                                    "Input/Output": "Output"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "PminusE_Amon_CNRM-CM6_1_ssp585_r5i1p1f2_2015-2055",
+                        "path": "./data/DIVERS-H/Output/PminusE_Amon_CNRM-CM6_1_ssp585_r5i1p1f2_2015-2055.nc",
+                        "url": "https://data.kitware.com/api/v1/item/67bdd093de1cd5c0d8ba63f6/download",
+                        "type": "netcdf",
+                        "metadata": {
+                            "generate": [
+                                {
+                                    "name": "PminusE_Amon_CNRM-CM6_1_ssp585_r5i1p1f2_2015-2055",
+                                    "x_variable": "lon",
+                                    "y_variable": "lat",
+                                    "variable": "P_minus_E",
+                                    "sliding_variable": "time",
+                                    "color_map": "turbo"
+                                }
+                            ],
+                            "tags": {
+                                "filters": {
+                                    "Variable": "PminusE",
+                                    "Model": "CNRM-CM6_1",
+                                    "Scenario": "ssp585",
+                                    "Ensemble": "r5i1p1f2",
+                                    "Grid": null,
+                                    "Time Range": "2015-2055",
+                                    "Input/Output": "Output"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "PminusE_Amon_CNRM-CM6_1_ssp585_r6i1p1f2_2015-2055",
+                        "path": "./data/DIVERS-H/Output/PminusE_Amon_CNRM-CM6_1_ssp585_r6i1p1f2_2015-2055.nc",
+                        "url": "https://data.kitware.com/api/v1/item/67bdd096de1cd5c0d8ba63f9/download",
+                        "type": "netcdf",
+                        "metadata": {
+                            "generate": [
+                                {
+                                    "name": "PminusE_Amon_CNRM-CM6_1_ssp585_r6i1p1f2_2015-2055",
+                                    "x_variable": "lon",
+                                    "y_variable": "lat",
+                                    "variable": "P_minus_E",
+                                    "sliding_variable": "time",
+                                    "color_map": "turbo"
+                                }
+                            ],
+                            "tags": {
+                                "filters": {
+                                    "Variable": "PminusE",
+                                    "Model": "CNRM-CM6_1",
+                                    "Scenario": "ssp585",
+                                    "Ensemble": "r6i1p1f2",
+                                    "Grid": null,
+                                    "Time Range": "2015-2055",
+                                    "Input/Output": "Output"
+                                }
+                            }
+                        }
+                    }
+                ]
+            }
+        ]
+    }
+]
