@@ -1,14 +1,14 @@
 <script lang="ts">
 import { computed, defineComponent } from 'vue';
-import MapStore from '../MapStore';
-import { updateLayerFilter } from '../map/mapVectorLayers';
+import MapStore from '../../MapStore';
+import { updateLayerFilter } from '../../map/mapVectorLayers';
 import {
   AvailablePropertyDisplay,
   Filter,
   VectorMapLayer,
-} from '../types'; // Import your defined types
-import { getLayerAvailableProperties } from '../utils';
-import FilteringInteraction from './Filtering/FilteringInteraction.vue';
+} from '../../types'; // Import your defined types
+import { getLayerAvailableProperties } from '../../utils';
+import FilteringInteraction from '../Filtering/FilteringInteraction.vue';
 
 export default defineComponent({
   name: 'FilterKey',

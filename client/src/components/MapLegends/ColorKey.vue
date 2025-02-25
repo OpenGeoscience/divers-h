@@ -1,6 +1,7 @@
+<!-- eslint-disable vue/max-len -->
 <script lang="ts">
 import {
-  computed, defineComponent, nextTick, watch,
+  Ref, computed, defineComponent, nextTick, ref, watch,
 } from 'vue';
 import * as d3 from 'd3';
 import {
@@ -12,11 +13,13 @@ import {
   KeyProcessedLayer,
   KeyProcessedType,
   NetCDFLayer,
+  RasterMapLayer,
   VectorLayerDisplay,
   VectorLayerDisplayConfig,
   VectorMapLayer,
-} from '../types'; // Import your defined types
-import { createColorNumberPairs, formatNumPrecision, getLayerAvailableProperties } from '../utils';
+} from '../../types'; // Import your defined types
+import { createColorNumberPairs, formatNumPrecision, getLayerAvailableProperties } from '../../utils';
+import MapStore from '../../MapStore';
 
 export default defineComponent({
   name: 'ColorKey',
@@ -29,9 +32,22 @@ export default defineComponent({
       type: Array as () => NetCDFLayer[],
       required: true,
     },
+    rasterLayers: {
+      type: Array as () => RasterMapLayer[],
+      required: true,
+    },
   },
   setup(props) {
     // Process the layers and colors
+
+    const iconMapper: Ref<Record<string, string>> = ref({
+      line: 'mdi-vector-line',
+      fill: 'mdi-pentagon',
+      circle: 'mdi-circle-outline',
+      'fill-extrusion': 'mdi-domain',
+      text: 'mdi-format-title',
+      heatmap: 'mdi-heat-wave',
+    });
     const attributeValues = computed(() => {
       const attributeMapping: Record<number, Record<string, AvailablePropertyDisplay>> = {};
       props.vectorLayers.forEach((layer) => {
@@ -52,6 +68,7 @@ export default defineComponent({
       props.vectorLayers.forEach((layer) => {
         const tempProcessLayer: KeyProcessedLayer = {
           id: layer.id,
+          type: layer.type,
           name: layer.name,
           keyTypes: [],
         };
@@ -71,7 +88,7 @@ export default defineComponent({
           };
           const layerDisplayConfig = layerDisplay as VectorLayerDisplayConfig;
 
-          if (layerDisplayConfig?.color && layerDisplayConfig.enabled) {
+          if (layerDisplayConfig?.color && layerDisplayConfig.enabled && layerDisplayConfig.legend) {
             if (type !== 'heatmap') {
               if (typeof layerDisplayConfig.color === 'string') {
                 keyType.colors.push({
@@ -130,6 +147,7 @@ export default defineComponent({
       props.netcdfLayers.forEach((layer) => {
         const tempProcessLayer: KeyProcessedLayer = {
           id: layer.id,
+          type: layer.type,
           name: layer.name,
           keyTypes: [],
         };
@@ -152,19 +170,69 @@ export default defineComponent({
         });
         tempProcessLayers.push(tempProcessLayer);
       });
+
+      // Raster Layer Computed:
+      props.rasterLayers.forEach((layer) => {
+        const bands = layer.default_style?.largeImageStyle?.bands || [];
+        const minMaxMapper = layer.default_style?.largeImageStyle?.minMaxMapper || {};
+        const tempProcessLayer: KeyProcessedLayer = {
+          id: layer.id,
+          type: layer.type,
+          name: layer.name,
+          keyTypes: [],
+        };
+        bands.forEach((band, bandIndex) => {
+          if (band.enabled && Array.isArray(band.palette) && band.palette.length) {
+            const bandMinMax = minMaxMapper[bandIndex + 1] || { min: 0, max: 1 };
+            const { min, max } = bandMinMax;
+            const bandPaletteLength = Array.isArray(band.palette) ? band.palette.length : 1;
+            const colorType = band.scheme === 'linear' || band.scheme === undefined ? 'linear-raster' : 'categorical-raster';
+            if (colorType === 'linear-raster') {
+              tempProcessLayer.keyTypes.push({
+                type: `raster-band-${bandIndex + 1}`,
+                colors: [{
+                  type: colorType,
+                  colors: band.palette.map((item, index) => ({ value: min + index * ((max - min) / bandPaletteLength), color: item })),
+                  name: `gradientImage-${layer.id}-raster-band-${bandIndex + 1}`,
+                  min,
+                  max,
+                  value: `Band ${bandIndex}`,
+                } as { type: 'linear-raster'; colors: ColorLinearNumber['numberColorPairs'], name: string, min: number, max: number, value: string }],
+              });
+            } else if (colorType === 'categorical-raster') {
+              tempProcessLayer.keyTypes.push({
+                type: 'raster-band',
+                colors: [{
+                  type: colorType,
+                  pairs: band.palette.map((item, index) => ({ value: min + index * ((max - min) / bandPaletteLength), color: item })),
+                  value: `Band ${bandIndex}`,
+                } as { name: string, type: 'categorical-raster'; pairs: { value: number | string; color: string }[], value:string }],
+              });
+            }
+          }
+        });
+        tempProcessLayers.push(tempProcessLayer);
+      });
+      // Sort the layers in the based on the layer order
+      const orderMap = new Map(MapStore.selectedMapLayers.value.map((item, index) => [item.id, index]));
+      tempProcessLayers.sort((a, b) => {
+        const indexA = orderMap.get(a.id) ?? Infinity;
+        const indexB = orderMap.get(b.id) ?? Infinity;
+        return indexA - indexB;
+      });
       return tempProcessLayers;
     });
 
     const linearGradients = computed(() => {
       const linearGradientsList: {
-        type: 'linear' | 'heatmap' | 'linearNetCDF';
+        type: 'linear' | 'heatmap' | 'linearNetCDF' | 'linear-raster';
         colors: ColorLinearNumber['numberColorPairs'];
         name: string;
       }[] = [];
       processedLayers.value.forEach((processedLayer) => {
         processedLayer.keyTypes.forEach((keyType) => {
           keyType.colors.forEach((color) => {
-            if (color.type === 'linear' || color.type === 'heatmap' || color.type === 'linearNetCDF') {
+            if (color.type === 'linear' || color.type === 'heatmap' || color.type === 'linearNetCDF' || color.type === 'linear-raster') {
               linearGradientsList.push(color);
             }
           });
@@ -233,7 +301,17 @@ export default defineComponent({
     };
 
     const capitalize = (s: string) => (s.length > 0 ? `${s[0].toLocaleUpperCase()}${s.slice(1)}` : s);
-
+    const expandedPanels: Ref<number[]> = ref([]);
+    watch(processedLayers, () => {
+      const opened: number[] = [];
+      processedLayers.value.forEach((item, index) => {
+        if (item.keyTypes.length === 1) {
+          opened.push(index);
+        }
+      });
+      expandedPanels.value = opened;
+      setTimeout(() => drawGradients(), 100);
+    }, { immediate: true });
     return {
       capitalize,
       processedLayers,
@@ -241,6 +319,8 @@ export default defineComponent({
       drawGradients,
       formatNumPrecision,
       drawDelay,
+      iconMapper,
+      expandedPanels,
     };
   },
 });
@@ -248,7 +328,9 @@ export default defineComponent({
 
 <template>
   <v-expansion-panels
-    :model-value="[0]"
+    v-model="expandedPanels"
+    multiple
+    @update:model-value="drawDelay()"
   >
     <v-expansion-panel
       v-for="layer in processedLayers"
@@ -285,6 +367,114 @@ export default defineComponent({
               />
             </v-col>
           </v-row>
+          <div v-else-if="layer.keyTypes.length === 1">
+            <span
+              v-for="(colorConfig, index) in keyType.colors"
+              :key="`${layer.id}_${keyType.type}_${index}`"
+            >
+              <v-row class="pb-2">
+                <v-spacer />
+                <b v-if="colorConfig.type === 'linearNetCDF'">{{ capitalize(colorConfig.value) }}</b>
+                <b v-else-if="['categorical', 'linear'].includes(colorConfig.type)">
+                  {{ attributeValues[layer.id][colorConfig.attribute].displayName }}
+                </b>
+                <v-spacer />
+              </v-row>
+              <div v-if="colorConfig.type === 'categorical'">
+                <v-row
+                  v-for="pair in colorConfig.pairs"
+                  :key="pair.value"
+                  dense
+                  no-gutters
+                  class="py-1"
+                  align="center"
+                  justify="center"
+                >
+                  <v-col>
+                    <span>{{ pair.value }}: </span>
+                  </v-col>
+                  <v-col cols="1">
+                    <div
+                      class="color-icon"
+                      :style="{ backgroundColor: pair.color }"
+                    />
+                  </v-col>
+                </v-row>
+              </div>
+              <div v-else-if="colorConfig.type === 'linear'">
+                <v-row
+                  dense
+                  no-gutters
+                  class="py-1"
+                  align="center"
+                  justify="center"
+                >
+                  <v-col cols="3">
+                    <span>{{ formatNumPrecision((attributeValues[layer.id][colorConfig.attribute].min || 0)) }}</span>
+                  </v-col>
+                  <v-col
+                    class="d-flex justify-center align-center"
+                  >
+                    <svg
+                      :id="`gradientImage-${layer.id}-${keyType.type}`"
+                      width="125"
+                      height="20"
+                    />
+                  </v-col>
+                  <v-col cols="3">
+                    <span>{{ formatNumPrecision((attributeValues[layer.id][colorConfig.attribute].max || 100)) }}</span>
+                  </v-col>
+                </v-row>
+              </div>
+              <div v-else-if="colorConfig.type === 'heatmap'">
+                <v-row
+                  dense
+                  no-gutters
+                  class="py-1"
+                  align="center"
+                  justify="center"
+                >
+                  <v-spacer />
+                  <v-col
+                    class="d-flex justify-center align-center"
+                  >
+                    <svg
+                      :id="`gradientImage-${layer.id}-${keyType.type}`"
+                      width="125"
+                      height="20"
+                    />
+                  </v-col>
+                  <v-spacer />
+                </v-row>
+              </div>
+              <div v-else-if="colorConfig.type === 'linearNetCDF' || colorConfig.type === 'linear-raster'">
+                <v-row
+                  dense
+                  no-gutters
+                  class="py-1"
+                  align="center"
+                  justify="center"
+                >
+                  <v-col cols="3">
+                    <span>{{ formatNumPrecision((colorConfig.min || 0)) }}</span>
+                  </v-col>
+                  <v-col
+                    align
+                    class="d-flex justify-center align-center"
+                  >
+                    <svg
+                      :id="`gradientImage-${layer.id}-${keyType.type}`"
+                      width="125"
+                      height="20"
+                    />
+                  </v-col>
+                  <v-col cols="3">
+                    <span>{{ formatNumPrecision((colorConfig.max || 100)) }}</span>
+                  </v-col>
+                </v-row>
+              </div>
+            </span>
+          </div>
           <div v-else>
             <v-expansion-panels
               @update:model-value="drawDelay()"
@@ -294,7 +484,7 @@ export default defineComponent({
                 :key="`${layer.id}_${keyType.type}_${index}`"
               >
                 <v-expansion-panel-title style="font-size:0.75em">
-                  <span v-if="keyType.type !== 'netCDF'">{{ capitalize(keyType.type) }}</span>
+                  <span v-if="!['netCDF', 'raster'].includes(keyType.type)"><v-icon v-if="iconMapper[keyType.type]" class="pr-2"> {{ iconMapper[keyType.type] }}</v-icon>{{ capitalize(keyType.type) }}</span>
                   <span v-else-if="colorConfig.type === 'linearNetCDF'">{{ capitalize(colorConfig.value) }}</span>
                   <span v-if="['categorical', 'linear'].includes(colorConfig.type)">:
                     {{ attributeValues[layer.id][colorConfig.attribute].displayName }}
@@ -338,7 +528,9 @@ export default defineComponent({
                       <v-col cols="2">
                         <span>{{ formatNumPrecision((attributeValues[layer.id][colorConfig.attribute].min || 0)) }}</span>
                       </v-col>
-                      <v-col>
+                      <v-col
+                        class="d-flex justify-center align-center"
+                      >
                         <svg
                           :id="`gradientImage-${layer.id}-${keyType.type}`"
                           width="125"
@@ -359,7 +551,9 @@ export default defineComponent({
                       justify="center"
                     >
                       <v-spacer />
-                      <v-col>
+                      <v-col
+                        class="d-flex justify-center align-center"
+                      >
                         <svg
                           :id="`gradientImage-${layer.id}-${keyType.type}`"
                           width="125"
@@ -369,7 +563,7 @@ export default defineComponent({
                       <v-spacer />
                     </v-row>
                   </div>
-                  <div v-else-if="colorConfig.type === 'linearNetCDF'">
+                  <div v-else-if="colorConfig.type === 'linearNetCDF' || colorConfig.type === 'linear-raster'">
                     <v-row
                       dense
                       no-gutters

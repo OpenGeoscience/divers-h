@@ -54,11 +54,12 @@ export default defineComponent({
       return enabled;
     });
 
-    type LayerActionItems = 'enabled' | 'selectable' | 'hoverable' | 'opacity' | 'zoomMinMax' | 'selectColor' | 'defaultSize' | 'color' | 'text' | 'heatmapControls';
+    type LayerActionItems = 'enabled' | 'selectable' | 'hoverable' | 'opacity' | 'zoomMinMax' | 'selectColor' | 'defaultSize' | 'legend' | 'color' | 'text' | 'heatmapControls';
     const layerActionItemsMap: Record<LayerActionItems, AnnotationTypes[]> = {
       enabled: ['line', 'fill', 'circle', 'fill-extrusion', 'text', 'heatmap'],
       selectable: ['line', 'fill', 'circle', 'fill-extrusion'],
       hoverable: ['line', 'fill', 'circle', 'fill-extrusion'],
+      legend: ['line', 'fill', 'circle', 'fill-extrusion', 'heatmap'],
       opacity: ['line', 'fill', 'circle', 'fill-extrusion', 'text', 'heatmap'],
       zoomMinMax: ['line', 'fill', 'circle', 'fill-extrusion', 'text', 'heatmap'],
       selectColor: ['line', 'fill', 'circle', 'fill-extrusion'],
@@ -70,7 +71,7 @@ export default defineComponent({
 
     const actionItemVisible = computed(() => {
       const enabledItems = new Set<LayerActionItems>();
-      const itemList: LayerActionItems[] = ['enabled', 'selectable', 'hoverable', 'opacity', 'zoomMinMax', 'selectColor', 'defaultSize', 'color', 'text', 'heatmapControls'];
+      const itemList: LayerActionItems[] = ['enabled', 'selectable', 'hoverable', 'legend', 'opacity', 'zoomMinMax', 'selectColor', 'defaultSize', 'color', 'text', 'heatmapControls'];
       itemList.forEach((key) => {
         if (layerActionItemsMap[key].includes(props.layerType)) {
           enabledItems.add(key);
@@ -97,6 +98,9 @@ export default defineComponent({
         }
         if (field === 'hoverable') {
           displayConfig.hoverable = val;
+        }
+        if (field === 'legend') {
+          displayConfig.legend = val;
         }
         if (field === 'opacity') {
           if (val) {
@@ -232,6 +236,11 @@ export default defineComponent({
           const foundColorIndex = found.default_style.savedColors.findIndex((item) => item.name === name);
           if (foundColorIndex !== -1) {
             currentLayerType.value.color = found.default_style.savedColors[foundColorIndex].color;
+            if (typeof (currentLayerType.value.color) !== 'string' && currentLayerType.value.color?.type) {
+              updateLayerTypeField('legend', true);
+            } else {
+              updateLayerTypeField('legend', true);
+            }
             updateLayer(found);
           }
           colorSaveChooser.value = false;
@@ -239,6 +248,36 @@ export default defineComponent({
         }
       }
     };
+
+    // Static color setting:
+    const getLayerConfigColor = () => {
+      const found = MapStore.selectedVectorMapLayers.value.find((item: VectorMapLayer) => item.id === props.layerId);
+      if (found?.default_style?.layers) {
+        const layerTypeVal = found?.default_style?.layers[props.layerType];
+        if (layerTypeVal !== false && layerTypeVal !== true) {
+          if (layerTypeVal.color === undefined) {
+            layerTypeVal.color = '#00FF00';
+          }
+          return layerTypeVal.color;
+        }
+      }
+      return '#00FF00';
+    };
+    const baseColorConfig = computed(() => getLayerConfigColor());
+
+    const updateStaticColor = (color: string) => {
+      const { layer } = getVectorLayerDisplayConfig(props.layerId, props.layerType);
+      if (layer?.default_style?.layers && layer.default_style.layers[props.layerType]) {
+        if (
+          layer.default_style.layers[props.layerType] !== false
+          && layer.default_style.layers[props.layerType] !== true
+        ) {
+          (layer.default_style.layers[props.layerType] as VectorLayerDisplayConfig).color = color;
+          updateLayer(layer);
+        }
+      }
+    };
+
     return {
       currentLayerType,
       colorPickerVisible,
@@ -259,6 +298,8 @@ export default defineComponent({
       updateOpacity,
       updateZoom,
       actionItemVisible,
+      baseColorConfig,
+      updateStaticColor,
     };
   },
 });
@@ -292,6 +333,43 @@ export default defineComponent({
           : 'mdi-checkbox-blank-outline' }}
       </v-icon>
       <span class="pl-2">Enabled</span>
+    </v-col>
+  </v-row>
+  <v-row
+    v-if="actionItemVisible.has('opacity')"
+    dense
+    align="center"
+    justify="center"
+  >
+    <v-col cols="2">
+      <v-tooltip text="Opacity">
+        <template #activator="{ props }">
+          <v-icon
+            class="pl-3"
+            v-bind="props"
+          >
+            mdi-square-opacity
+          </v-icon>
+        </template>
+      </v-tooltip>
+    </v-col>
+    <v-col :cols="!valueDisplayCheckbox('opacity') ? '' : 3">
+      <v-icon @click="updateLayerTypeField('opacity', !valueDisplayCheckbox('opacity'))">
+        {{
+          valueDisplayCheckbox('opacity') ? 'mdi-checkbox-marked' : 'mdi-checkbox-blank-outline' }}
+      </v-icon>
+      <span v-if="!valueDisplayCheckbox('opacity')" class="pl-2">Opacity</span>
+      <span v-else class="pl-2" style="font-size:0.85em">{{ currentLayerType.opacity.toFixed(2) }}</span>
+    </v-col>
+    <v-col v-if="valueDisplayCheckbox('opacity') && currentLayerType && currentLayerType.opacity !== undefined">
+      <v-slider
+        density="compact"
+        class="opacity-slider"
+        min="0"
+        max="1.0"
+        :model-value="currentLayerType.opacity"
+        @update:model-value="updateOpacity($event)"
+      />
     </v-col>
   </v-row>
   <v-row
@@ -345,7 +423,7 @@ export default defineComponent({
         </template>
       </v-tooltip>
     </v-col>
-    <v-col cols="8">
+    <v-col>
       <v-icon @click="updateLayerTypeField('selectColor', !valueDisplayCheckbox('selectColor'))">
         {{
           valueDisplayCheckbox('selectColor') ? 'mdi-checkbox-marked' : 'mdi-checkbox-blank-outline' }}
@@ -401,43 +479,6 @@ export default defineComponent({
     </v-col>
   </v-row>
   <v-row
-    v-if="actionItemVisible.has('opacity')"
-    dense
-    align="center"
-    justify="center"
-  >
-    <v-col cols="2">
-      <v-tooltip text="Opacity">
-        <template #activator="{ props }">
-          <v-icon
-            class="pl-3"
-            v-bind="props"
-          >
-            mdi-square-opacity
-          </v-icon>
-        </template>
-      </v-tooltip>
-    </v-col>
-    <v-col :cols="!valueDisplayCheckbox('opacity') ? '' : 3">
-      <v-icon @click="updateLayerTypeField('opacity', !valueDisplayCheckbox('opacity'))">
-        {{
-          valueDisplayCheckbox('opacity') ? 'mdi-checkbox-marked' : 'mdi-checkbox-blank-outline' }}
-      </v-icon>
-      <span v-if="!valueDisplayCheckbox('opacity')" class="pl-2">Opacity</span>
-      <span v-else class="pl-2" style="font-size:0.85em">{{ currentLayerType.opacity.toFixed(2) }}</span>
-    </v-col>
-    <v-col v-if="valueDisplayCheckbox('opacity') && currentLayerType && currentLayerType.opacity !== undefined">
-      <v-slider
-        density="compact"
-        class="opacity-slider"
-        min="0"
-        max="1.0"
-        :model-value="currentLayerType.opacity"
-        @update:model-value="updateOpacity($event)"
-      />
-    </v-col>
-  </v-row>
-  <v-row
     v-if="actionItemVisible.has('zoomMinMax')"
     dense
     align="center"
@@ -477,6 +518,32 @@ export default defineComponent({
     </v-col>
   </v-row>
   <v-row
+    v-if="actionItemVisible.has('legend')"
+    dense
+    align="center"
+    justify="center"
+  >
+    <v-col cols="2">
+      <v-tooltip text="Display Legend">
+        <template #activator="{ props }">
+          <v-icon
+            class="pl-3"
+            v-bind="props"
+          >
+            mdi-map-legend
+          </v-icon>
+        </template>
+      </v-tooltip>
+    </v-col>
+    <v-col>
+      <v-icon @click="updateLayerTypeField('legend', !valueDisplayCheckbox('legend'))">
+        {{
+          valueDisplayCheckbox('legend') ? 'mdi-checkbox-marked' : 'mdi-checkbox-blank-outline' }}
+      </v-icon>
+      <span class="pl-2">Legend</span>
+    </v-col>
+  </v-row>
+  <v-row
     v-if="actionItemVisible.has('color')"
     dense
     align="center"
@@ -508,7 +575,28 @@ export default defineComponent({
       </v-tooltip>
     </v-col>
     <v-col cols="6">
-      <span style="font-size: 0.75em"> {{ getColorType() }}</span>
+      <v-row dense>
+        <span style="font-size: 0.75em"> {{ getColorType() }}</span>
+        <span v-if="getColorType() === 'Static Color'" class="ml-2">
+          <v-menu
+            :close-on-content-click="false"
+            offset-y
+          >
+            <template #activator="{ props }">
+              <div
+                class="color-square"
+                :style="{ backgroundColor: baseColorConfig }"
+                v-bind="props"
+              />
+            </template>
+            <v-color-picker
+              mode="hex"
+              :model-value="baseColorConfig"
+              @update:model-value="updateStaticColor($event)"
+            />
+          </v-menu>
+        </span>
+      </v-row>
     </v-col>
     <v-col>
       <v-tooltip text="Edit Color Display">

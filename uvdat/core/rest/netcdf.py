@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from rest_framework import mixins, status
 from rest_framework.decorators import action, permission_classes
 from rest_framework.exceptions import PermissionDenied
@@ -83,11 +85,22 @@ class NetCDFDataView(GenericViewSet, mixins.ListModelMixin, mixins.CreateModelMi
             sliding_dim = netcdf_layer.parameters.get('sliding_dimension', None)
             step_count = netcdf_layer.parameters.get('stepCount', None)
             if sliding_dim and step_count:
-                sliding_data = {
-                    'min': sliding_dim.get('min', 0),
-                    'max': sliding_dim.get('max', step_count),
-                    'variable': sliding_dim.get('variable', 'time'),
-                }
+                if sliding_dim.get('startDate', False) and sliding_dim.get('endDate', False):
+                    start_date = sliding_dim.get('startDate')
+                    end_date = sliding_dim.get('endDate')
+                    min = datetime.fromisoformat(start_date[:26]).timestamp()
+                    max = datetime.fromisoformat(end_date[:26]).timestamp()
+                    sliding_data = {
+                        'min': min,
+                        'max': max,
+                        'variable': sliding_dim.get('variable', 'time'),
+                    }
+                else:
+                    sliding_data = {
+                        'min': sliding_dim.get('min', 0),
+                        'max': sliding_dim.get('max', step_count),
+                        'variable': sliding_dim.get('variable', 'time'),
+                    }
                 sliding_data['step'] = (sliding_data['max'] - sliding_data['min']) / (
                     step_count - 1
                 )

@@ -283,6 +283,7 @@ export interface VectorLayerDisplayConfig {
   selectable?: boolean | 'singleSelect';
   selectColor?: ColorSolid;
   hoverable?: boolean;
+  legend?: boolean;
   opacity?: number;
   size?: SizeTypes;
   text?: TextConfig;
@@ -446,6 +447,8 @@ export interface NetCDFImages {
   sliding: { min: number, max: number; step: number, variable: string };
 }
 
+// Working type for setting index/opacity
+export type NetCDFImageWorking = NetCDFImages & { currentIndex: number, opacity: number, name: string };
 export interface NetCDFVariable {
   max: number;
   min: number;
@@ -550,6 +553,7 @@ export interface SimulationResult {
 export interface KeyProcessedLayer {
   id: number;
   name: string;
+  type: AbstractMapLayer['type'];
   keyTypes: KeyProcessedType[];
 }
 
@@ -563,6 +567,11 @@ export type KeyColorConfig =
   | { type: 'solid'; color: string }
   | { attribute: string, type: 'categorical'; pairs: { value: number | string; color: string }[] }
   | { attribute: string, type: 'linear'; colors: ColorLinearNumber['numberColorPairs'], name: string }
+  | { name: string, type: 'categorical-raster'; pairs: { value: number | string; color: string }[], value:string }
+  | {
+    type: 'linear-raster';
+    colors: ColorLinearNumber['numberColorPairs'];
+    name: string; min: number, max: number, value: string }
   | { type: 'linearNetCDF'; colors: ColorLinearNumber['numberColorPairs'], name: string, min: number, max: number, value: string }
   | { type: 'heatmap'; colors: ColorLinearNumber['numberColorPairs'], name: string };
 
@@ -627,6 +636,7 @@ export interface MapRasterParams {
   style?: { // JSON-encoded string or object
     bands?: Array<StyleBandEdit>;
     dtype?: 'uint16' | 'float' | 'source';
+    minMaxMapper: Record<string, { min: number; max: number }>;
     axis?: number;
     icc?: boolean | string;
     function?: FunctionDefinition | FunctionDefinition[];

@@ -196,7 +196,7 @@ const setPopupEvents = (localMap: Map) => {
       const configDisplay = layer.default_style;
       let clickFunc = click;
       if (configDisplay) {
-        if (configDisplay.selectable) {
+        if (configDisplay.selectable && configDisplay.enabled) {
           clickFunc = configDisplay.selectable === 'singleSelect' ? singleClick : click;
           localMap.on('click', `Layer_${id}_raster`, clickFunc);
         }
@@ -222,13 +222,13 @@ const setPopupEvents = (localMap: Map) => {
       const layer = MapStore.selectedVectorMapLayers.value[i];
       const { id } = layer;
       const configDisplay = layer.default_style?.layers;
+      let clickFunc = click;
       if (configDisplay) {
         // Other layers select and hover is used based on config
         annotationTypes.forEach((annotationType) => {
           if (configDisplay && annotationType !== 'raster' && configDisplay[annotationType]) {
             const annotationDisplayType = configDisplay[annotationType];
             if (typeof annotationDisplayType === 'object') {
-              let clickFunc = click;
               if (annotationDisplayType.selectable) {
                 clickFunc = annotationDisplayType.selectable === 'singleSelect' ? singleClick : click;
                 localMap.on('click', `Layer_${id}_${annotationType}`, clickFunc);
@@ -253,7 +253,7 @@ const setPopupEvents = (localMap: Map) => {
         id,
         mouseenter,
         mouseleave,
-        click,
+        click: clickFunc,
       });
     }
   }

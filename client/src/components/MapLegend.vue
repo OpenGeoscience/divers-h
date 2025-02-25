@@ -3,18 +3,31 @@ import {
   Ref, computed, defineComponent, ref,
 } from 'vue';
 import MapStore from '../MapStore';
-import ColorKey from './ColorKey.vue';
-import FilterKey from './FilterKey.vue';
+import ColorKey from './MapLegends/ColorKey.vue';
+import FilterKey from './MapLegends/FilterKey.vue';
+import OpacityFilter from './MapLegends/ControlsKey.vue';
 
 export default defineComponent({
   components: {
     ColorKey,
     FilterKey,
+    OpacityFilter,
   },
   props: {
   },
   setup() {
-    const selectedNetCDFMapLayers = computed(() => MapStore.selectedNetCDFMapLayers.value);
+    const selectedNetCDFMapLayers = computed(
+      () => MapStore.selectedNetCDFMapLayers.value.filter(
+        (layer) => MapStore.visibleMapLayers.value.has(`${layer.type}_${layer.id}`),
+      ),
+    );
+
+    const selectedRasterMapLayers = computed(
+      () => MapStore.selectedRasterMapLayers.value.filter(
+        (layer) => MapStore.visibleMapLayers.value.has(`${layer.type}_${layer.id}`),
+      ),
+    );
+
     const selectedVectorMapLayers = computed(
       () => MapStore.selectedVectorMapLayers.value.filter(
         (layer) => MapStore.visibleMapLayers.value.has(`${layer.type}_${layer.id}`),
@@ -29,10 +42,11 @@ export default defineComponent({
       });
       return exists;
     });
-    const tab: Ref<'colors' | 'filters'> = ref('colors');
+    const tab: Ref<'colors' | 'opacity' | 'filters'> = ref('opacity');
     return {
       selectedVectorMapLayers,
       selectedNetCDFMapLayers,
+      selectedRasterMapLayers,
       tab,
       hasFilters,
     };
@@ -42,8 +56,8 @@ export default defineComponent({
 
 <template>
   <v-card
-    v-if="selectedVectorMapLayers.length || selectedNetCDFMapLayers.length"
-    width="350"
+    v-if="selectedVectorMapLayers.length || selectedNetCDFMapLayers.length || selectedRasterMapLayers.length"
+    width="375"
   >
     <v-card-title>
       <v-row class="pb-2">
@@ -52,6 +66,9 @@ export default defineComponent({
           v-model="tab"
           density="compact"
         >
+          <v-tab value="opacity">
+            Controls
+          </v-tab>
           <v-tab value="colors">
             Colors
           </v-tab>
@@ -67,6 +84,13 @@ export default defineComponent({
         v-if="tab === 'colors'"
         :vector-layers="selectedVectorMapLayers"
         :netcdf-layers="selectedNetCDFMapLayers"
+        :raster-layers="selectedRasterMapLayers"
+      />
+      <OpacityFilter
+        v-if="tab === 'opacity'"
+        :vector-layers="selectedVectorMapLayers"
+        :netcdf-layers="selectedNetCDFMapLayers"
+        :raster-layers="selectedRasterMapLayers"
       />
       <filter-key
         v-if="tab === 'filters'"

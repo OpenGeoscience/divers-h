@@ -104,6 +104,7 @@ export default defineComponent({
           displayConfig.largeImageStyle = {};
         }
         displayConfig.largeImageStyle.bands = bands.value;
+        displayConfig.largeImageStyle.minMaxMapper = minMaxMap.value;
         updateLayer(layer);
       }
     };
