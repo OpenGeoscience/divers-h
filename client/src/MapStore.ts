@@ -26,7 +26,7 @@ async function isVectorBaseMapAvailable(vectorMapUrl: string) {
 type SideBarCard = 'indicators' | 'charts';
 
 export default class MapStore {
-  public static osmBaseMap = ref<'none' | 'osm-raster' | 'osm-vector'>('osm-vector');
+  public static osmBaseMap = ref<'none' | 'osm-raster' | 'osm-vector'>('osm-raster');
 
   public static userIsStaff = computed(() => !!UVdatApi.user?.is_staff);
 
