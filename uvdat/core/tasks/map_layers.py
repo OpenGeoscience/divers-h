@@ -372,6 +372,22 @@ def convert_zip_to_geojson(file_item):
         with zipfile.ZipFile(archive_path) as zip_archive:
             filenames = zip_archive.namelist()
 
+            for filename in filenames:
+                if filename.endswith(('.geojson', '.json')):
+                    try:
+                        logger.info(f'Processing GeoJSON file: {filename}')
+                        with zip_archive.open(filename) as geojson_file:
+                            source_data = json.load(geojson_file)
+                            source_projection = source_data.get('crs', {}).get('properties', {}).get('name')
+                            geojson_data = geopandas.GeoDataFrame.from_features(source_data.get('features'))
+                            if source_projection:
+                                geojson_data = geojson_data.set_crs(source_projection, allow_override=True)
+                                geojson_data = geojson_data.to_crs(4326)
+                            geodata_list.append({'geojson': geojson_data, 'name': Path(filename).stem})
+                    except Exception as e:
+                        logger.error(f'Error processing GeoJSON file {filename}: {e}')
+
+
             # Group shapefile components by basename
             shapefile_groups = defaultdict(list)
             for filename in filenames:

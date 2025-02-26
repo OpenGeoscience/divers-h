@@ -14,6 +14,8 @@ import SizingSelector from './Sizing/SizingSelector.vue';
 import TextDisplayConfig from './Text/TextDisplayConfig.vue';
 import { getLayerAvailableProperties, getVectorLayerDisplayConfig } from '../utils';
 import HeatmapLayerControls from './Heatmap/HeatmapLayerControls.vue';
+import { updateFilters } from '../map/mapFilters';
+import { updateLayerFilter } from '../map/mapVectorLayers';
 
 export default defineComponent({
   components: {
@@ -54,7 +56,7 @@ export default defineComponent({
       return enabled;
     });
 
-    type LayerActionItems = 'enabled' | 'selectable' | 'hoverable' | 'opacity' | 'zoomMinMax' | 'selectColor' | 'defaultSize' | 'legend' | 'color' | 'text' | 'heatmapControls';
+    type LayerActionItems = 'enabled' | 'selectable' | 'hoverable' | 'opacity' | 'zoomMinMax' | 'selectColor' | 'defaultSize' | 'legend' | 'color' | 'text' | 'heatmapControls' | 'drawPoints';
     const layerActionItemsMap: Record<LayerActionItems, AnnotationTypes[]> = {
       enabled: ['line', 'fill', 'circle', 'fill-extrusion', 'text', 'heatmap'],
       selectable: ['line', 'fill', 'circle', 'fill-extrusion'],
@@ -67,11 +69,12 @@ export default defineComponent({
       color: ['line', 'fill', 'circle', 'fill-extrusion', 'text'],
       text: ['text'],
       heatmapControls: ['heatmap'],
+      drawPoints: ['line'],
     };
 
     const actionItemVisible = computed(() => {
       const enabledItems = new Set<LayerActionItems>();
-      const itemList: LayerActionItems[] = ['enabled', 'selectable', 'hoverable', 'legend', 'opacity', 'zoomMinMax', 'selectColor', 'defaultSize', 'color', 'text', 'heatmapControls'];
+      const itemList: LayerActionItems[] = ['enabled', 'selectable', 'hoverable', 'legend', 'opacity', 'zoomMinMax', 'selectColor', 'defaultSize', 'color', 'text', 'heatmapControls', 'drawPoints'];
       itemList.forEach((key) => {
         if (layerActionItemsMap[key].includes(props.layerType)) {
           enabledItems.add(key);
@@ -102,6 +105,10 @@ export default defineComponent({
         if (field === 'legend') {
           displayConfig.legend = val;
         }
+        if (field === 'drawPoints') {
+          displayConfig.drawPoints = val;
+        }
+
         if (field === 'opacity') {
           if (val) {
             displayConfig.opacity = 0.75;
@@ -681,6 +688,32 @@ export default defineComponent({
           </v-icon>
         </template>
       </v-tooltip>
+    </v-col>
+  </v-row>
+  <v-row
+    v-if="actionItemVisible.has('drawPoints')"
+    dense
+    align="center"
+    justify="center"
+  >
+    <v-col cols="2">
+      <v-tooltip text="Draw Points">
+        <template #activator="{ props }">
+          <v-icon
+            class="pl-3"
+            v-bind="props"
+          >
+            mdi-circle-outline
+          </v-icon>
+        </template>
+      </v-tooltip>
+    </v-col>
+    <v-col>
+      <v-icon @click="updateLayerTypeField('drawPoints', !valueDisplayCheckbox('drawPoints'))">
+        {{
+          valueDisplayCheckbox('drawPoints') ? 'mdi-checkbox-marked' : 'mdi-checkbox-blank-outline' }}
+      </v-icon>
+      <span class="pl-2">Draw Points</span>
     </v-col>
   </v-row>
   <div v-if="actionItemVisible.has('heatmapControls')">

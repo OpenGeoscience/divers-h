@@ -96,14 +96,18 @@ const updateFilters = (map: maplibregl.Map, layer: VectorMapLayer) => {
         if (!(layer.default_style.layers[key] as VectorLayerDisplayConfig).enabled) {
           return;
         }
+        const layerConfig = (layer.default_style.layers[key] as VectorLayerDisplayConfig);
         const layerName = `Layer_${layer.id}_${key}`;
         const typeFilters = annotationFilters[key];
-        if (typeFilters.length === 0) {
+        if (typeFilters.length === 0 && !layerConfig.drawPoints) {
           return;
         }
         const lineFilter = [];
         if (['fill', 'fill-extrusion'].includes(key)) {
           lineFilter.push(['==', ['geometry-type'], 'Polygon'] as FilterSpecification);
+        }
+        if (!layerConfig.drawPoints && ['circle'].includes(key)) {
+          lineFilter.push(['==', ['geometry-type'], 'Point'] as FilterSpecification);
         }
         if (typeFilters.length) {
           const filterSpecification = typeFilters.length > 0 ? ['all'] : [];

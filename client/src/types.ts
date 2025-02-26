@@ -292,6 +292,7 @@ export interface VectorLayerDisplayConfig {
     max?: number;
   },
   heatmap?: HeatMapConfig;
+  drawPoints?: boolean;
 }
 
 export interface HeatMapConfig {
