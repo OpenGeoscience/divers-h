@@ -96,7 +96,7 @@ const updateSelected = (map: maplibregl.Map) => {
   });
 };
 
-const getLayerFilter = (type: AnnotationTypes, layer?: VectorMapLayer) => {
+const getLayerDefaultFilter = (type: AnnotationTypes, layer?: VectorMapLayer) => {
   let drawPoints = false;
   if (type === 'circle' && layer?.default_style.layers && layer.default_style.layers.line) {
     if (layer.default_style.layers.line !== true) {
@@ -204,7 +204,7 @@ const toggleVectorMapLayers = (map: maplibregl.Map) => {
       type: 'circle',
       source: `VectorTile_${layer.id}`,
       'source-layer': 'default',
-      filter: getLayerFilter('circle', layer),
+      filter: getLayerDefaultFilter('circle', layer),
       paint: {
         'circle-color': getSelected(),
         'circle-radius': getCircleRadius(),
@@ -218,7 +218,7 @@ const toggleVectorMapLayers = (map: maplibregl.Map) => {
       type: 'line',
       source: `VectorTile_${layer.id}`,
       'source-layer': 'default',
-      filter: getLayerFilter('line'),
+      filter: getLayerDefaultFilter('line'),
       layout: {
         'line-join': 'round',
         'line-cap': 'round',
@@ -232,7 +232,7 @@ const toggleVectorMapLayers = (map: maplibregl.Map) => {
       type: 'fill',
       source: `VectorTile_${layer.id}`,
       'source-layer': 'default',
-      filter: getLayerFilter('fill'),
+      filter: getLayerDefaultFilter('fill'),
       paint: {
         // "fill-color": getAnnotationColor(),
         'fill-color': 'blue',
@@ -245,7 +245,7 @@ const toggleVectorMapLayers = (map: maplibregl.Map) => {
       source: `VectorTile_${layer.id}`,
       'source-layer': 'default',
       type: 'fill-extrusion',
-      filter: getLayerFilter('fill-extrusion'),
+      filter: getLayerDefaultFilter('fill-extrusion'),
       paint: {
         // "fill-extrusion-color": getAnnotationColor(),
         'fill-extrusion-color': '#888888',
@@ -411,4 +411,5 @@ export {
   updateVectorLayer,
   updateLayerFilter,
   centerAndZoom,
+  getLayerDefaultFilter,
 };
