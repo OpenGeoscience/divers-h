@@ -1,3 +1,4 @@
+<!-- eslint-disable vuejs-accessibility/click-events-have-key-events -->
 <!-- eslint-disable vue/max-len -->
 <script lang="ts">
 import {
@@ -20,6 +21,7 @@ import {
 } from '../../types'; // Import your defined types
 import { createColorNumberPairs, formatNumPrecision, getLayerAvailableProperties } from '../../utils';
 import MapStore from '../../MapStore';
+import { updateLayerFilter } from '../../map/mapVectorLayers';
 
 export default defineComponent({
   name: 'ColorKey',
@@ -98,13 +100,20 @@ export default defineComponent({
               } else if (
                 layerDisplayConfig.color.type === 'ColorCategoricalString'
               ) {
+                const found = MapStore.vectorColorFilters.value.find((item) => item.layerId === layer.id && item.layerType === 'all' && item.key === (layerDisplayConfig.color as ColorCategoricalString).attribute);
                 keyType.colors.push({
                   type: 'categorical',
                   attribute: (layerDisplayConfig.color as ColorCategoricalString).attribute,
                   pairs: Object.entries(
                     (layerDisplayConfig.color as ColorCategoricalString)
                       .colorPairs,
-                  ).map(([key, value]) => ({ value: key, color: value })),
+                  ).map(([key, value]) => {
+                    let disabled;
+                    if (found && found.values.has(key)) {
+                      disabled = true;
+                    }
+                    return { value: key, color: value, disabled };
+                  }),
                 });
               } else if (
                 layerDisplayConfig.color.type === 'ColorCategoricalNumber'
@@ -312,6 +321,14 @@ export default defineComponent({
       expandedPanels.value = opened;
       setTimeout(() => drawGradients(), 100);
     }, { immediate: true });
+
+    const toggleBoxColorFilter = (layerId: number, layerType: AnnotationTypes | 'all', key: string, value: string) => {
+      MapStore.toggleColorFilter(layerId, layerType, key, value);
+      const foundVectorLayer = MapStore.selectedVectorMapLayers.value.find((item) => item.id === layerId);
+      if (foundVectorLayer) {
+        updateLayerFilter(foundVectorLayer);
+      }
+    };
     return {
       capitalize,
       processedLayers,
@@ -321,6 +338,7 @@ export default defineComponent({
       drawDelay,
       iconMapper,
       expandedPanels,
+      toggleBoxColorFilter,
     };
   },
 });
@@ -391,12 +409,20 @@ export default defineComponent({
                   justify="center"
                 >
                   <v-col>
-                    <span>{{ pair.value }}: </span>
+                    <span>{{ pair.value }}:</span>
                   </v-col>
                   <v-col cols="1">
                     <div
+                      v-if="!pair.disabled"
                       class="color-icon"
                       :style="{ backgroundColor: pair.color }"
+                      @click="toggleBoxColorFilter(layer.id, 'all', colorConfig.attribute, pair.value)"
+                    />
+                    <div
+                      v-else
+                      class="color-icon"
+                      :style="`border: 3px solid ${pair.color}`"
+                      @click="toggleBoxColorFilter(layer.id, 'all', colorConfig.attribute, pair.value)"
                     />
                   </v-col>
                 </v-row>
@@ -484,7 +510,11 @@ export default defineComponent({
                 :key="`${layer.id}_${keyType.type}_${index}`"
               >
                 <v-expansion-panel-title style="font-size:0.75em">
-                  <span v-if="!['netCDF', 'raster'].includes(keyType.type)"><v-icon v-if="iconMapper[keyType.type]" class="pr-2"> {{ iconMapper[keyType.type] }}</v-icon>{{ capitalize(keyType.type) }}</span>
+                  <span v-if="!['netCDF', 'raster'].includes(keyType.type)">
+                    <v-icon v-if="iconMapper[keyType.type]" class="pr-2">
+                      {{ iconMapper[keyType.type] }}
+                    </v-icon>{{ capitalize(keyType.type) }}
+                  </span>
                   <span v-else-if="colorConfig.type === 'linearNetCDF'">{{ capitalize(colorConfig.value) }}</span>
                   <span v-if="['categorical', 'linear'].includes(colorConfig.type)">:
                     {{ attributeValues[layer.id][colorConfig.attribute].displayName }}
@@ -511,8 +541,16 @@ export default defineComponent({
                       </v-col>
                       <v-col cols="1">
                         <div
+                          v-if="!pair.disabled"
                           class="color-icon"
                           :style="{ backgroundColor: pair.color }"
+                          @click.stop="toggleBoxColorFilter(layer.id, 'all', colorConfig.attribute, pair.value)"
+                        />
+                        <div
+                          v-else
+                          class="color-icon"
+                          :style="`border: 3px solid ${pair.color}`"
+                          @click.stop="toggleBoxColorFilter(layer.id, 'all', colorConfig.attribute, pair.value)"
                         />
                       </v-col>
                     </v-row>
@@ -602,4 +640,8 @@ export default defineComponent({
   height: 15px;
   border: 1px solid gray;
 }
+.color-icon:hover {
+  cursor: pointer;
+}
+
 </style>

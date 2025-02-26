@@ -47,7 +47,10 @@ def convert_dataset(
 
             # Handle Vector files
             vector_map_layers = create_vector_map_layer(
-                file_to_convert, style_options=style_options, name=file_to_convert.name
+                file_to_convert,
+                style_options=style_options,
+                name=file_to_convert.name,
+                metadata=file_metadata.get('tags', {}),
             )
             for vector_map_layer in vector_map_layers:
                 if network_options:

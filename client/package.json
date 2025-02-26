@@ -79,6 +79,7 @@
           "code": 130
         }
       ],
+      "vuejs-accessibility/click-events-have-key-events": "off",
       "vue/no-setup-props-destructure": 0,
       "sort-imports": [
         "error",

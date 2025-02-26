@@ -2,7 +2,9 @@ import {
   Ref, computed, reactive, ref,
 } from 'vue';
 import {
+  AnnotationTypes,
   ClickedProps,
+  ColorFilters,
   Context,
   Dataset,
   LayerCollection,
@@ -24,7 +26,7 @@ async function isVectorBaseMapAvailable(vectorMapUrl: string) {
 type SideBarCard = 'indicators' | 'charts';
 
 export default class MapStore {
-  public static osmBaseMap = ref<'none' | 'osm-raster' | 'osm-vector'>('osm-vector');
+  public static osmBaseMap = ref<'none' | 'osm-raster' | 'osm-vector'>('osm-raster');
 
   public static userIsStaff = computed(() => !!UVdatApi.user?.is_staff);
 
@@ -253,5 +255,32 @@ export default class MapStore {
     Object.keys(MapStore.sideBarCardSettings.value).forEach((key) => {
       MapStore.sideBarCardSettings.value[key as SideBarCard].enabled = false;
     });
+  };
+
+  public static vectorColorFilters: Ref<ColorFilters[]> = ref([]);
+
+  public static toggleColorFilter = (layerId: number, layerType: (AnnotationTypes | 'all'), key: string, value: string) => {
+    const foundIndex = MapStore.vectorColorFilters.value.findIndex(
+      (item) => item.layerId === layerId && layerType === item.layerType && key === item.key,
+    );
+    if (foundIndex === -1) {
+      MapStore.vectorColorFilters.value.push({
+        layerId,
+        layerType,
+        type: 'not in',
+        key,
+        values: new Set<string>([value]),
+      });
+    } else {
+      const found = MapStore.vectorColorFilters.value[foundIndex];
+      if (found.values.has(value)) {
+        found.values.delete(value);
+        if (found.values.size === 0) {
+          MapStore.vectorColorFilters.value.splice(foundIndex, 1);
+        }
+      } else {
+        found.values.add(value);
+      }
+    }
   };
 }

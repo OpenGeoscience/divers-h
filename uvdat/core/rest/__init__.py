@@ -2,6 +2,7 @@ from .chart import ChartViewSet
 from .context import ContextViewSet
 from .dataset import DatasetViewSet
 from .file_item import FileItemViewSet
+from .filter_metadata import MetadataFilterViewSet
 from .layer_collection import LayerCollectionViewSet
 from .layer_representation import LayerRepresentationViewSet
 from .map_layers import MapLayerViewSet, RasterMapLayerViewSet, VectorMapLayerViewSet
@@ -36,4 +37,5 @@ __all__ = [
     UserViewSet,
     VectorFeatureTableDataViewSet,
     TasksAPIView,
+    MetadataFilterViewSet,
 ]

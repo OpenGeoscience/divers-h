@@ -1,0 +1,103 @@
+[{
+    "type": "Context",
+    "name": "Input/Outputs",
+    "default_map_center": [
+        34.8019,
+        -86.1794
+    ],
+    "default_map_zoom": 6,
+    "datasets": [
+        {
+            "name": "Input/Outputs",
+            "description": "DIVERS-H Input/Outputs",
+            "category": "raster",
+            "metadata": {},
+            "files": [
+                {
+                    "path": "./data/tva/evaporation_CONUS.nc",
+                    "url": "https://data.kitware.com/api/v1/file/67b4ccbf146ff7c60286eaa5/download",
+                    "name": "Evaporation CONUS 2015-2063",
+                    "type": "netcdf",
+                    "metadata": {
+                        "generate": [
+                            {
+                                "name": "Evaporation Layer",
+                                "variable": "evspsbl",
+                                "color_map": "OrRd",
+                                "sliding_variable": "time",
+                                "x_variable": "lon",
+                                "y_variable": "lat"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "path": "./data/tva/precipitation_CONUS.nc",
+                    "url": "https://data.kitware.com/api/v1/file/67b4cc60146ff7c60286ea9d/download",
+                    "name": "Precipitation CONUS 2015-2063",
+                    "type": "netcdf",
+                    "metadata": {
+                        "generate": [
+                            {
+                                "name": "Precipitation Layer",
+                                "variable": "pr",
+                                "color_map": "GnBu",
+                                "sliding_variable": "time",
+                                "x_variable": "lon",
+                                "y_variable": "lat"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "path": "./data/tva/surfaceairtemp_CONUS.nc",
+                    "url": "https://data.kitware.com/api/v1/file/67b4cc8c146ff7c60286eaa1/download",
+                    "name": "Surface Air Temperature CONUS 2015-2063",
+                    "type": "netcdf",
+                    "metadata": {
+                        "generate": [
+                            {
+                                "name": "Surface Air Temperature",
+                                "variable": "tas",
+                                "sliding_variable": "time",
+                                "x_variable": "lon",
+                                "color_map": "Blues",
+                                "y_variable": "lat"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "PminusE_Amon_CNRM-CM6_1_ssp585_r6i1p1f2_2015-2055",
+                    "path": "./data/DIVERS-H/Output/PminusE_Amon_CNRM-CM6_1_ssp585_r6i1p1f2_2015-2055.nc",
+                    "url": "https://data.kitware.com/api/v1/item/67bdd096de1cd5c0d8ba63f9/download",
+                    "type": "netcdf",
+                    "action": "replace",
+                    "metadata": {
+                        "generate": [
+                            {
+                                "name": "PminusE_Amon_CNRM-CM6_1_ssp585_r6i1p1f2_2015-2055",
+                                "x_variable": "lon",
+                                "y_variable": "lat",
+                                "variable": "P_minus_E",
+                                "sliding_variable": "time",
+                                "color_map": "turbo"
+                            }
+                        ],
+                        "tags": {
+                            "filters": {
+                                "Variable": "PminusE",
+                                "Model": "CNRM-CM6_1",
+                                "Scenario": "ssp585",
+                                "Ensemble": "r6i1p1f2",
+                                "Grid": null,
+                                "Time Range": "2015-2055",
+                                "Input/Output": "Output"
+                            }
+                        }
+                    }
+                }
+            ]
+        }
+    ]
+}]

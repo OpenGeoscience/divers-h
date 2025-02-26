@@ -14,6 +14,7 @@ from uvdat.core.rest import (
     LayerCollectionViewSet,
     LayerRepresentationViewSet,
     MapLayerViewSet,
+    MetadataFilterViewSet,
     NetCDFDataView,
     NetworkEdgeViewSet,
     NetworkNodeViewSet,
@@ -60,6 +61,7 @@ router.register(r'netcdf', NetCDFDataView, basename='netcdf')
 router.register(r'processing-tasks', ProcessingTaskView, basename='processing-tasks')
 router.register(r'users', UserViewSet, basename='users')
 router.register(r'tasks', TasksAPIView, basename='tasks')
+router.register(r'metadata-filters', MetadataFilterViewSet, basename='metadata-filters')
 
 urlpatterns = [
     path('accounts/', include('allauth.urls')),

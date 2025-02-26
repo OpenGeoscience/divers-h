@@ -538,4 +538,27 @@ export default class UVdatApi {
     });
     return response.data;
   }
+
+  public static async getMetadataFilters(): Promise<Record<string, string[]>> {
+    return (await UVdatApi.apiClient.get('/metadata-filters/get_filters/')).data;
+  }
+
+  public static async filterOnMetadata(
+    metdataFilters: Record<string, string[]>,
+    search?: string,
+  ): Promise<{ id: number, type: AbstractMapLayer['type'], matches: string[], name: string }[]> {
+    return (await UVdatApi.apiClient.post('metadata-filters/filter_layers/', { filters: metdataFilters, search })).data;
+  }
+
+  public static async getMapLayerList(
+    layerIds: number[],
+    layerTypes : AbstractMapLayer['type'][],
+  ): Promise<(VectorMapLayer | RasterMapLayer | NetCDFLayer)[]> {
+    const params = new URLSearchParams();
+
+    layerIds.forEach((id) => params.append('mapLayerIds', id.toString()));
+    layerTypes.forEach((id) => params.append('mapLayerTypes', id.toString()));
+
+    return (await UVdatApi.apiClient.get('/map-layers/', { params })).data;
+  }
 }

@@ -58,7 +58,7 @@ export default defineComponent({
       return mapSlicer;
     });
     const updateIndex = () => {
-      updateNetCDFLayer(props.layer.id, currentIndex.value);
+      updateNetCDFLayer(props.layer.id, { index: currentIndex.value });
     };
     const throttledUpdateLayerFilter = throttle(updateIndex, 50);
 
@@ -66,7 +66,7 @@ export default defineComponent({
       throttledUpdateLayerFilter();
     });
     watch([layerOpacity], () => {
-      updateNetCDFLayer(props.layer.id, undefined, layerOpacity.value);
+      updateNetCDFLayer(props.layer.id, { opacity: layerOpacity.value });
     });
 
     return {

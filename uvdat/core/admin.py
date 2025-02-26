@@ -147,6 +147,7 @@ class NetCDFLayerAdmin(admin.ModelAdmin):
         'netcdf_data',
         'name',
         'parameters',
+        'metadata',
         'description',
         'color_scheme',
         'bounds',

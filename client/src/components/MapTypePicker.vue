@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted } from 'vue';
+import { onMounted, onUnmounted, ref } from 'vue';
 import MapStore from '../MapStore';
 
 const mapType = defineModel<string>({ required: true });
 
 const { vectorBaseMapAvailable } = MapStore;
 let cancel: (() => void) | undefined;
-
+const disableOSMVector = ref(true);
 onMounted(() => {
   ({ cancel } = MapStore.pollForVectorBasemap());
 });
@@ -25,7 +25,7 @@ onUnmounted(() => {
       <v-list-item>
         <v-radio label="OSM Raster Map" value="osm-raster" />
       </v-list-item>
-      <v-list-item>
+      <v-list-item v-if="!disableOSMVector">
         <div class="d-flex flex-row align-center">
           <v-radio label="OSM Vector Map" value="osm-vector" :disabled="!vectorBaseMapAvailable" />
           <v-tooltip v-if="!vectorBaseMapAvailable" location="bottom">

@@ -73,7 +73,6 @@
                 "description": "TVA Power Plants",
                 "category": "vector",
                 "metadata": {},
-                "action": "replace",
                 "files": [
                     {
                         "path": "./data/tva/hydrostations.geojson",
@@ -389,7 +388,6 @@
                 "description": "DIVERS-H Input/Outputs",
                 "category": "raster",
                 "metadata": {},
-                "action": "replace",
                 "files": [
                     {
                         "path": "./data/tva/evaporation_CONUS.nc",
@@ -439,7 +437,7 @@
                                     "variable": "tas",
                                     "sliding_variable": "time",
                                     "x_variable": "lon",
-                                    "color_map": "turbo",
+                                    "color_map": "Blues",
                                     "y_variable": "lat"
                                 }
                             ]
