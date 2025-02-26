@@ -72,7 +72,7 @@ export default defineComponent({
       });
       // Compute NetCDF Layer Keys
       const stepIndexMap: Record<string, { length: number, currentIndex: number }> = {};
-      const resamplingMap: Record<string, 'linear' | 'nearest'> = {}
+      const resamplingMap: Record<string, 'linear' | 'nearest'> = {};
       visibleNetCDFLayers.value.forEach((item) => {
         const found = props.netcdfLayers.find((layer) => layer.id === item.netCDFLayer);
         if (found) {

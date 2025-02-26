@@ -15,6 +15,8 @@ export default defineComponent({
     const selectedFilters = ref<Record<string, string[]>>({});
     const filteredLayers = ref<{ id: number; type: string; matches: string[]; name: string }[]>([]);
     const colorScale = d3.scaleOrdinal(d3.schemeCategory10);
+    const search = ref('');
+    const showFilters = ref(false); // Toggle filter visibility
 
     onMounted(async () => {
       metadataFilters.value = await UVdatApi.getMetadataFilters();
@@ -24,9 +26,9 @@ export default defineComponent({
     });
 
     watch(
-      selectedFilters,
+      [selectedFilters, search],
       async () => {
-        const result = await UVdatApi.filterOnMetadata(selectedFilters.value);
+        const result = await UVdatApi.filterOnMetadata(selectedFilters.value, search.value);
         filteredLayers.value = result;
       },
       { deep: true },
@@ -44,6 +46,7 @@ export default defineComponent({
           return 'mdi-map-marker-outline';
       }
     }
+
     const toggleFilterLayerSelection = async (layerId: number, layerType: AbstractMapLayer['type'], val: boolean) => {
       if (!val) {
         const found = MapStore.selectedMapLayers.value.find((item) => item.id === layerId && layerType === item.type);
@@ -57,6 +60,7 @@ export default defineComponent({
         }
       }
     };
+
     return {
       selectedLayers: MapStore.selectedMapLayers,
       getIcon,
@@ -65,6 +69,8 @@ export default defineComponent({
       filteredLayers,
       metadataFilters,
       toggleFilterLayerSelection,
+      search,
+      showFilters,
     };
   },
 });
@@ -72,28 +78,64 @@ export default defineComponent({
 
 <template>
   <v-container>
-    <v-row v-for="(options, key) in metadataFilters" :key="key">
-      <v-combobox
-        v-model="selectedFilters[key]"
-        :items="options"
-        :label="key"
+    <!-- Search Bar and Filter Toggle -->
+    <v-row class="mb-2 align-center">
+      <v-text-field
+        v-model="search"
+        label="Search layers..."
+        dense
         hide-details
-        multiple
-        chips
-      >
-        <template #chip="{ item }">
-          <v-chip size="x-small" :color="colorScale(item.value)">
-            {{ item.title }}
-          </v-chip>
-        </template>
-      </v-combobox>
+        clearable
+        prepend-inner-icon="mdi-magnify"
+      />
+      <v-icon icon :color="showFilters ? 'primary' : ''" @click="showFilters = !showFilters">
+        {{ showFilters ? 'mdi-filter' : 'mdi-filter' }}
+      </v-icon>
     </v-row>
 
+    <!-- Selected Filters as Chips (Shown when filters are hidden) -->
+    <v-row v-if="!showFilters && Object.values(selectedFilters).some(arr => arr.length)">
+      <span v-for="(options, key) in metadataFilters" :key="key">
+
+        <v-chip
+          v-for="item in selectedFilters[key]"
+          :key="item"
+          :color="colorScale(item)"
+          size="x-small"
+          class="mr-1 mb-1"
+        >
+          {{ item }}
+        </v-chip>
+      </span>
+    </v-row>
+
+    <!-- Filters (Toggles Visibility) -->
+    <v-expand-transition class="pt-2">
+      <div v-if="showFilters">
+        <v-row v-for="(options, key) in metadataFilters" :key="key">
+          <v-combobox
+            v-model="selectedFilters[key]"
+            :items="options"
+            :label="key"
+            dense
+            hide-details
+            multiple
+            chips
+            clearable
+          >
+            <template #chip="{ item }">
+              <v-chip size="x-small" :color="colorScale(item.value)">
+                {{ item.title }}
+              </v-chip>
+            </template>
+          </v-combobox>
+        </v-row>
+      </div>
+    </v-expand-transition>
+
+    <!-- Filtered Layers -->
     <v-list>
-      <v-list-item
-        v-for="layer in filteredLayers"
-        :key="layer.id"
-      >
+      <v-list-item v-for="layer in filteredLayers" :key="layer.id">
         <v-checkbox
           :model-value="!!selectedLayers.find((item) => (item.id === layer.id))"
           class="layer-checkbox"
@@ -105,7 +147,6 @@ export default defineComponent({
             <v-icon v-tooltip="layer.type === 'raster' ? 'Raster Layer' : 'Vector Layer'">
               {{ getIcon(layer.type) }}
             </v-icon>
-
             <span class="layer-checkbox-label">
               {{ layer.name }}
               <v-tooltip

@@ -449,7 +449,8 @@ export interface NetCDFImages {
 }
 
 // Working type for setting index/opacity
-export type NetCDFImageWorking = NetCDFImages & { currentIndex: number; opacity: number; resampling: 'linear' | 'nearest'; name: string };
+export type NetCDFImageWorking = NetCDFImages
+& { currentIndex: number; opacity: number; resampling: 'linear' | 'nearest'; name: string };
 export interface NetCDFVariable {
   max: number;
   min: number;

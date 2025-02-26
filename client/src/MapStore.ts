@@ -1,7 +1,6 @@
 import {
   Ref, computed, reactive, ref,
 } from 'vue';
-import { values } from 'lodash';
 import {
   AnnotationTypes,
   ClickedProps,
@@ -261,7 +260,9 @@ export default class MapStore {
   public static vectorColorFilters: Ref<ColorFilters[]> = ref([]);
 
   public static toggleColorFilter = (layerId: number, layerType: (AnnotationTypes | 'all'), key: string, value: string) => {
-    const foundIndex = MapStore.vectorColorFilters.value.findIndex((item) => item.layerId === layerId && layerType === item.layerType && key === item.key);
+    const foundIndex = MapStore.vectorColorFilters.value.findIndex(
+      (item) => item.layerId === layerId && layerType === item.layerType && key === item.key,
+    );
     if (foundIndex === -1) {
       MapStore.vectorColorFilters.value.push({
         layerId,

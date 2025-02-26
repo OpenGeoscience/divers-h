@@ -543,8 +543,11 @@ export default class UVdatApi {
     return (await UVdatApi.apiClient.get('/metadata-filters/get_filters/')).data;
   }
 
-  public static async filterOnMetadata(metdataFilters: Record<string, string[]>): Promise<{id: number, type: AbstractMapLayer['type'], matches: string[], name: string}[]> {
-    return (await UVdatApi.apiClient.post('metadata-filters/filter_layers/', metdataFilters)).data;
+  public static async filterOnMetadata(
+    metdataFilters: Record<string, string[]>,
+    search?: string,
+  ): Promise<{ id: number, type: AbstractMapLayer['type'], matches: string[], name: string }[]> {
+    return (await UVdatApi.apiClient.post('metadata-filters/filter_layers/', { filters: metdataFilters, search })).data;
   }
 
   public static async getMapLayerList(

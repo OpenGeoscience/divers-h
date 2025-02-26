@@ -15,7 +15,23 @@ import {
   VectorMapLayer,
 } from '../types';
 import MapStore from '../MapStore';
-import { getLayerDefaultFilter } from './mapVectorLayers';
+
+const getLayerDefaultFilter = (type: AnnotationTypes, layer?: VectorMapLayer) => {
+  let drawPoints = false;
+  if (type === 'circle' && layer?.default_style.layers && layer.default_style.layers.line) {
+    if (layer.default_style.layers.line !== true) {
+      drawPoints = !!layer.default_style.layers.line.drawPoints;
+    }
+  }
+  if (['fill', 'fill-extrusion'].includes(type)) {
+    return ['==', ['geometry-type'], 'Polygon'] as FilterSpecification;
+  }
+  if (!drawPoints && ['circle'].includes(type)) {
+    return ['==', ['geometry-type'], 'Point'] as FilterSpecification;
+  }
+
+  return true as FilterSpecification;
+};
 
 function filterToMapLibreExpression(filter: Filter): any[] {
   switch (filter.type) {
@@ -80,6 +96,7 @@ const updateFilters = (map: maplibregl.Map, layer: VectorMapLayer) => {
       circle: [],
       'fill-extrusion': [],
       text: [],
+      heatmap: [],
     };
     if (layer.default_style?.filters) {
       for (let i = 0; i < layer.default_style.filters.length; i += 1) {
@@ -157,4 +174,4 @@ const updateFilters = (map: maplibregl.Map, layer: VectorMapLayer) => {
     });
   }
 };
-export { filterToMapLibreExpression, updateFilters };
+export { filterToMapLibreExpression, updateFilters, getLayerDefaultFilter };

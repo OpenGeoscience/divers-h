@@ -510,7 +510,11 @@ export default defineComponent({
                 :key="`${layer.id}_${keyType.type}_${index}`"
               >
                 <v-expansion-panel-title style="font-size:0.75em">
-                  <span v-if="!['netCDF', 'raster'].includes(keyType.type)"><v-icon v-if="iconMapper[keyType.type]" class="pr-2"> {{ iconMapper[keyType.type] }}</v-icon>{{ capitalize(keyType.type) }}</span>
+                  <span v-if="!['netCDF', 'raster'].includes(keyType.type)">
+                    <v-icon v-if="iconMapper[keyType.type]" class="pr-2">
+                      {{ iconMapper[keyType.type] }}
+                    </v-icon>{{ capitalize(keyType.type) }}
+                  </span>
                   <span v-else-if="colorConfig.type === 'linearNetCDF'">{{ capitalize(colorConfig.value) }}</span>
                   <span v-if="['categorical', 'linear'].includes(colorConfig.type)">:
                     {{ attributeValues[layer.id][colorConfig.attribute].displayName }}

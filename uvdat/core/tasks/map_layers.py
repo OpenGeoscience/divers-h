@@ -376,12 +376,12 @@ def convert_zip_to_geojson(file_item):
 
             for filename in filenames:
                 if filename.endswith(('.geojson', '.json')):
-                    if filename.startswith("__MACOSX/") or Path(filename).name.startswith("._"):
-                        logger.info(f"Skipping macOS metadata file: {filename}")
+                    if filename.startswith('__MACOSX/') or Path(filename).name.startswith('._'):
+                        logger.info(f'Skipping macOS metadata file: {filename}')
                         continue
 
                     logger.info(f'Processing GeoJSON file: {filename}')
-                    
+
                     with zip_archive.open(filename) as geojson_file:
                         raw_content = geojson_file.read()
 
@@ -391,25 +391,35 @@ def convert_zip_to_geojson(file_item):
                                 content = raw_content.decode(encoding).strip()
                                 break  # Stop at the first successful decode
                             except UnicodeDecodeError:
-                                logger.warning(f"Failed to decode {filename} with {encoding}, trying next.")
+                                logger.warning(
+                                    f'Failed to decode {filename} with {encoding}, trying next.'
+                                )
                         else:
-                            logger.error(f"Could not decode {filename} with any common encoding, skipping.")
+                            logger.error(
+                                f'Could not decode {filename} with any common encoding, skipping.'
+                            )
                             continue  # Skip the file if all decoding attempts fail
-                        
+
                         if not content:
                             logger.error(f'File {filename} is empty!')
                             continue  # Skip empty files
-                        
+
                         try:
                             source_data = json.loads(content)
                         except json.JSONDecodeError as e:
                             logger.error(f'Error decoding JSON in {filename}: {e}')
                             continue  # Skip invalid JSON files
-                        
-                        source_projection = source_data.get('crs', {}).get('properties', {}).get('name')
-                        geojson_data = geopandas.GeoDataFrame.from_features(source_data.get('features'))
+
+                        source_projection = (
+                            source_data.get('crs', {}).get('properties', {}).get('name')
+                        )
+                        geojson_data = geopandas.GeoDataFrame.from_features(
+                            source_data.get('features')
+                        )
                         if source_projection:
-                            geojson_data = geojson_data.set_crs(source_projection, allow_override=True)
+                            geojson_data = geojson_data.set_crs(
+                                source_projection, allow_override=True
+                            )
                             geojson_data = geojson_data.to_crs(4326)
                         geodata_list.append({'geojson': geojson_data, 'name': Path(filename).stem})
 
@@ -531,7 +541,6 @@ def save_vector_features(vector_map_layer: VectorMapLayer):
         )
 
     created = VectorFeature.objects.bulk_create(vector_features)
-    logger.info('\t', f'{len(created)} vector features created.')
 
     return created
 

@@ -7,7 +7,7 @@ import { AnnotationTypes, VectorMapLayer } from '../types';
 import MapStore from '../MapStore';
 import { calculateColors } from './mapColors';
 import { updateProps } from './mapProperties';
-import { updateFilters } from './mapFilters';
+import { getLayerDefaultFilter, updateFilters } from './mapFilters';
 import { subLayerMapping, updateHeatmap } from './mapHeatmap';
 
 const addedLayers: Ref<VectorMapLayer[]> = ref([]);
@@ -96,23 +96,6 @@ const updateSelected = (map: maplibregl.Map) => {
   });
 };
 
-const getLayerDefaultFilter = (type: AnnotationTypes, layer?: VectorMapLayer) => {
-  let drawPoints = false;
-  if (type === 'circle' && layer?.default_style.layers && layer.default_style.layers.line) {
-    if (layer.default_style.layers.line !== true) {
-      drawPoints = !!layer.default_style.layers.line.drawPoints;
-    }
-  }
-  if (['fill', 'fill-extrusion'].includes(type)) {
-    return ['==', ['geometry-type'], 'Polygon'] as FilterSpecification;
-  }
-  if (!drawPoints && ['circle'].includes(type)) {
-    return ['==', ['geometry-type'], 'Point'] as FilterSpecification;
-  }
-
-  return true as FilterSpecification;
-};
-
 const baseVectorSource = new URL(
   (import.meta.env.VUE_APP_API_ROOT as string || 'http://localhost:8000/api/v1'),
   window.location.origin,
@@ -158,7 +141,6 @@ const setLayerProperty = (
     if (property === 'zoom') map.setLayerZoomRange(layerName, val as number, (val2 as number) || 24);
   }
 };
-
 
 const toggleVectorMapLayers = (map: maplibregl.Map) => {
   const addLayers: VectorMapLayer[] = [];
@@ -372,7 +354,11 @@ const updateVectorLayer = (layer: VectorMapLayer) => {
             }
           }
           if (!layerDisplayConfig.drawPoints && layerType === 'line' && !layer.default_style.filters?.length) {
-            setLayerFilter(internalMap.value as maplibregl.Map, `Layer_${layer.id}_circle`, ['==', ['geometry-type'], 'Point'] as FilterSpecification);
+            setLayerFilter(
+              internalMap.value as maplibregl.Map,
+              `Layer_${layer.id}_circle`,
+              ['==', ['geometry-type'], 'Point'] as FilterSpecification,
+            );
           } else if (layerType === 'line') {
             setLayerFilter(internalMap.value as maplibregl.Map, `Layer_${layer.id}_circle`, true as FilterSpecification);
           }
@@ -411,5 +397,4 @@ export {
   updateVectorLayer,
   updateLayerFilter,
   centerAndZoom,
-  getLayerDefaultFilter,
 };

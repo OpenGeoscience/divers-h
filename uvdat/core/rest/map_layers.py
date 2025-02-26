@@ -525,8 +525,10 @@ class MapLayerViewSet(GenericViewSet):
             # Serialize layer data
             serializer = serializer_class(map_layer)
             layer_response = serializer.data
-            layer_response['type'] = 'raster' if isinstance(map_layer, RasterMapLayer) else (
-                'vector' if isinstance(map_layer, VectorMapLayer) else 'netcdf'
+            layer_response['type'] = (
+                'raster'
+                if isinstance(map_layer, RasterMapLayer)
+                else ('vector' if isinstance(map_layer, VectorMapLayer) else 'netcdf')
             )
 
             # Check for LayerRepresentation if provided
@@ -536,7 +538,9 @@ class MapLayerViewSet(GenericViewSet):
 
             if layer_representation and layer_representation.exists():
                 layer_rep_obj = layer_representation.first()
-                layer_response['default_style'] = layer_rep_obj.default_style or layer_response.get('default_style')
+                layer_response['default_style'] = layer_rep_obj.default_style or layer_response.get(
+                    'default_style'
+                )
                 layer_response['layerRepresentationId'] = layer_rep_obj.id
 
             response_data.append(layer_response)
