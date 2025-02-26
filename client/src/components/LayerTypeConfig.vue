@@ -14,8 +14,6 @@ import SizingSelector from './Sizing/SizingSelector.vue';
 import TextDisplayConfig from './Text/TextDisplayConfig.vue';
 import { getLayerAvailableProperties, getVectorLayerDisplayConfig } from '../utils';
 import HeatmapLayerControls from './Heatmap/HeatmapLayerControls.vue';
-import { updateFilters } from '../map/mapFilters';
-import { updateLayerFilter } from '../map/mapVectorLayers';
 
 export default defineComponent({
   components: {
