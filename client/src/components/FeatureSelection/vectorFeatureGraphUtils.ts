@@ -61,7 +61,7 @@ const renderVectorFeatureGraph = (
 
   y.domain(d3.extent(allYValues) as [number, number]);
 
-  const maxYValue = Math.max(...allYValues);
+  const maxYValue = Math.max(allYValues);
   const maxYLabel = maxYValue.toFixed(2); // Format to 2 decimal places
   const maxCharacters = maxYLabel.length;
 

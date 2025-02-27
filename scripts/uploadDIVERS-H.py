@@ -6,7 +6,7 @@ import xarray as xr
 from girder_client import GirderClient
 import matplotlib.pyplot as plt
 
-baseApiKey = 'GET API KEY HERE'
+baseApiKey = 'GIRDER API KEY HERE'
 
 
 def authenticate(client: GirderClient):
@@ -168,8 +168,9 @@ def upload_tabular_files(client: GirderClient, local_folder, remote_folder_id, b
     file_metadata = []
     existing_power_plantitem = list(client.listItem(remote_folder_id, name=powerplant_geojson))
     powerplant_url = ''
+    base_default_style_dict= {}
     with open(base_default_style, "r") as f:
-        default_style = json.load(f)  # data is now a Python dictionary
+        base_default_style_dict = json.load(f)  # data is now a Python dictionary
 
     if len(existing_power_plantitem) > 0:
         powerplant_id = existing_power_plantitem[0]['_id']
@@ -194,24 +195,44 @@ def upload_tabular_files(client: GirderClient, local_folder, remote_folder_id, b
                 file_url = f'https://data.kitware.com/api/v1/file/{item["_id"]}/download'
             
             parsed = parse_geojson_filename(file)
-            print(file)
-            print(parsed)
+
             # now we open the file and check for the table name
             with open(local_file_path, "r") as f:
                 tabular_data = json.load(f)  # data is now a Python dictionary
             table_name  = ''
+            headers = []
             for key in tabular_data.keys():
                 tab_data = tabular_data[key][0]
                 table_name = tab_data['type']
+                headers = tab_data['header']
                 break
-            print(f'TABLENAME {table_name}')
-            print(default_style['vectorFeatureTableGraphs'])
-            for index, item in enumerate(default_style['vectorFeatureTableGraphs']):
-                print(f'Updating vectorFeatureTableGraphs defaultStyle: {table_name}')
-                default_style['vectorFeatureTableGraphs'][index]['type'] = table_name
-            for index, item in enumerate(default_style['mapLayerFeatureTableGraphs']):
-                print(f'Updating mapLayerFeatureTableGraphs defaultStyle: {table_name}')
-                default_style['mapLayerFeatureTableGraphs'][index]['type'] = table_name
+            vectorFeatureTableGraphs = []
+            mapLayerFeatureTableGraphs = []
+            for item in headers:
+                if item != 'unix_time':
+                    vectorFeatureTableGraphs.append({
+                        "name": item,
+                        "type": table_name,
+                        "xAxis": "unix_time",
+                        "yAxis": item,
+                        "xAxisLabel": "Date",
+                        "yAxisLabel": item
+                    })
+                    mapLayerFeatureTableGraphs.append({
+                        "name": item,
+                        "type": table_name,
+                        "xAxis": "unix_time",
+                        "yAxis": item,
+                        "indexer": "Plant_Name",
+                        "xAxisLabel": "Date",
+                        "yAxisLabel": item
+                    })
+            default_style = base_default_style_dict.copy()
+            default_style['vectorFeatureTableGraphs'] = vectorFeatureTableGraphs
+            default_style['mapLayerFeatureTableGraphs'] = mapLayerFeatureTableGraphs
+            print(file)
+            print(table_name)
+            print(default_style['mapLayerFeatureTableGraphs'])
             main_tag = 'Ouput'
             parsed['Input/Output'] = main_tag
             file_metadata.append({

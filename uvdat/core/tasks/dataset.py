@@ -46,11 +46,15 @@ def convert_dataset(
                 continue
 
             # Handle Vector files
+            tags = file_metadata.get('tags', False)
+            metadata_modified = {} 
+            if tags:
+                metadata_modified = { 'tags': tags }
             vector_map_layers = create_vector_map_layer(
                 file_to_convert,
                 style_options=style_options,
                 name=file_to_convert.name,
-                metadata=file_metadata.get('tags', {}),
+                metadata=metadata_modified,
             )
             for vector_map_layer in vector_map_layers:
                 if network_options:
