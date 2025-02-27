@@ -1,3 +1,5 @@
+import os
+import re
 import click
 import xarray as xr
 import geopandas as gpd
@@ -6,6 +8,85 @@ import numpy as np
 import pandas as pd
 from datetime import datetime
 import cftime
+# Global flag to skip uploading
+skip_upload = False
+
+def parse_filename(filename):
+    pattern = (
+        r'(?P<variable>\w+)_Amon_(?P<model>[\w\-]+)_ssp(?P<scenario>\d+)_'
+        r'(?P<ensemble>r\d+i\d+p\d+f?\d*)_?(?P<grid>\w+)?_(?P<time_range>\d{4,6}-\d{4,6})\.nc'
+    )
+    match = re.match(pattern, filename)
+    if match:
+        return {
+            'Variable': match.group('variable'),
+            'Model': match.group('model'),
+            'Scenario': f'ssp{match.group("scenario")}',
+            'Ensemble': match.group('ensemble'),
+            'Grid': match.group('grid'),
+            'Time Range': match.group('time_range')
+        }
+    else:
+        return {'Filename': filename}
+
+
+def extract_netcdf_metadata(file_path, variable_name=None):
+    ds = xr.open_dataset(file_path)
+
+    # Select variable with at least 3 dimensions if variable_name is not provided or doesn't match
+    if variable_name not in ds.variables:
+        var = next((v for v in ds.data_vars.values() if len(v.dims) >= 3), None)
+    else:
+        var = ds[variable_name]
+
+    if var is None:
+        raise ValueError("No suitable variable with at least 3 dimensions found.")
+
+    dimensions = list(var.dims)
+    x_dim = next((dim for dim in dimensions if 'lon' in dim.lower() or 'longitude' in dim.lower()), None)
+    y_dim = next((dim for dim in dimensions if 'lat' in dim.lower() or 'latitude' in dim.lower()), None)
+    time_dim = next((dim for dim in dimensions if 'time' in dim.lower()), None)
+
+    # Extract long_name or standard_name
+    long_name = var.attrs.get('long_name', None)
+    standard_name = var.attrs.get('standard_name', None)
+
+    ds.close()
+
+    return {
+        'x_dim': x_dim,
+        'y_dim': y_dim,
+        'time_dim': time_dim,
+        'variable_name': var.name,
+        'long_name': long_name if long_name else standard_name
+    }
+
+def generate_model_scenario_ensemble_listing(input_folder, output_folder):
+    model_scenario_ensemble_files = {}
+
+    # Process Input files
+    for root, _, files in os.walk(input_folder):
+        for file in files:
+            local_file_path = os.path.join(root, file)
+            parsed = parse_filename(file)
+            model_scenario_ensemble = f"{parsed['Model']}_{parsed['Scenario']}_{parsed['Ensemble']}"
+
+            if model_scenario_ensemble not in model_scenario_ensemble_files:
+                model_scenario_ensemble_files[model_scenario_ensemble] = []
+            model_scenario_ensemble_files[model_scenario_ensemble].append(local_file_path)
+
+    # Process Output files
+    for root, _, files in os.walk(output_folder):
+        for file in files:
+            local_file_path = os.path.join(root, file)
+            parsed = parse_filename(file)
+            model_scenario_ensemble = f"{parsed['Model']}_{parsed['Scenario']}_{parsed['Ensemble']}"
+
+            if model_scenario_ensemble not in model_scenario_ensemble_files:
+                model_scenario_ensemble_files[model_scenario_ensemble] = []
+            model_scenario_ensemble_files[model_scenario_ensemble].append(local_file_path)
+
+    return model_scenario_ensemble_files
 
 def convert_time(obj, output='compact'):
     if isinstance(obj, str):  # Handle ctime (string)
@@ -54,14 +135,8 @@ def convert_longitude(lon):
     lon[lon > 180] -= 360  # If lon > 180, convert it to the -180 to 180 range.
     return lon
 
-@click.command()
-@click.argument('geojson_file', type=click.Path(exists=True))
-@click.argument('netcdf_files', nargs=-1, type=click.Path(exists=True))
-@click.option('--sliding-variable', default='time', show_default=True, help="The variable representing time or another sliding dimension.")
-@click.option('--x-variable', default='lon', show_default=True, help="The variable representing longitude.")
-@click.option('--y-variable', default='lat', show_default=True, help="The variable representing latitude.")
-@click.option('--output-json', default='mergednetcdf.json', show_default=True, help="Output JSON file name.")
-def extract_netcdf_data(geojson_file, netcdf_files, sliding_variable, x_variable, y_variable, output_json):
+def extract_netcdf_data(geojson_file='input.geojson', netcdf_files=['input.nc'], sliding_variable='time', 
+                        x_variable='lon', y_variable='lat', output_json='mergednetcdf.json'):
     """Extracts NetCDF data for each feature in the GEOJSON file and merges multiple NetCDF files by time index."""
 
     # Load GeoJSON
@@ -139,7 +214,7 @@ def extract_netcdf_data(geojson_file, netcdf_files, sliding_variable, x_variable
         summary = {}
         for column_name, values in zip(data_obj["header"], zip(*data_obj["rows"])):
             values = np.array(values, dtype=object)
-            if np.issubdtype(values.dtype, np.number) and not np.isnan(values).all():
+            if isinstance(values[0], (int, float)) or np.issubdtype(values.dtype, np.number) and not np.isnan(values).all():
                 summary[column_name] = {
                     "type": "number",
                     "min": float(np.nanmin(values)),
@@ -162,7 +237,28 @@ def extract_netcdf_data(geojson_file, netcdf_files, sliding_variable, x_variable
     with open(output_json, 'w') as f:
         json.dump(output_data, f, indent=2)
     
-    click.echo(f"Extraction complete. Output saved to {output_json}")
+    print(f"Extraction complete. Output saved to {output_json}")
+
+@click.command()
+@click.argument('input_folder', type=click.Path(exists=True))
+@click.argument('output_folder', type=click.Path(exists=True))
+@click.argument('geojson_matcher', default="TVAPowerPlants.geojson", type=click.Path(exists=True))
+@click.option('--output-file', default='model_scenario_ensemble_listing.json', help='Output file to save the listing of model, scenario, and ensemble.')
+def main(input_folder, output_folder, geojson_matcher, output_file):
+    # Generate the listing of Model, Scenario, and Ensemble from input and output folders
+    model_scenario_ensemble_files = generate_model_scenario_ensemble_listing(input_folder, output_folder)
+
+    # Save the listing to a JSON file
+    with open(output_file, 'w') as f:
+        json.dump(model_scenario_ensemble_files, f, indent=4)
+    
+    total = len(model_scenario_ensemble_files.keys())
+    count = 0
+    for item in model_scenario_ensemble_files.keys():
+        output_name = f'{output_folder}/PowerPlant_{item}_tabular.json'
+        print(f'Processing: {item} - {count} of {total}')
+        extract_netcdf_data(geojson_matcher, netcdf_files=model_scenario_ensemble_files[item], output_json=output_name)
+        count += 1
 
 if __name__ == '__main__':
-    extract_netcdf_data()
+    main()

@@ -321,7 +321,7 @@ def create_vector_map_layer(file_item, style_options, name='', index=None, metad
         if len(geojson_array) > 1:
             layer_name = data['name']
         new_map_layer = create_vector_map_from_json(
-            file_item, geojson, style_options, layer_name, index
+            file_item, geojson, style_options, layer_name, index, metadata
         )
         new_map_layers.append(new_map_layer)
 
