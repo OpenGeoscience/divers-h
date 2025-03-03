@@ -4,9 +4,11 @@ import logging
 from django.contrib.gis.geos import Polygon
 from django.db import connection
 from django.http import HttpResponse
+import numpy as np
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
+import scipy.stats as stats
 
 from uvdat.core.models import VectorFeature, VectorFeatureRowData, VectorFeatureTableData
 from uvdat.core.rest.serializers import VectorFeatureTableDataSerializer
@@ -102,26 +104,26 @@ class VectorFeatureTableDataViewSet(
             table_count_map[table_type] += 1
 
             # Aggregate summary statistics per column
-            for column, stats in table_summary.items():
+            for column, stats_col in table_summary.items():
                 if 'type' not in column_summaries[table_type][column]:
                     column_summaries[table_type][column]['type'] = stats.get('type')
 
-                if stats.get('type') == 'number':
+                if stats_col.get('type') == 'number':
                     column_summaries[table_type][column]['min'] = min(
                         column_summaries[table_type][column].get('min', float('inf')),
-                        stats.get('min', float('inf')),
+                        stats_col.get('min', float('inf')),
                     )
                     column_summaries[table_type][column]['max'] = max(
                         column_summaries[table_type][column].get('max', float('-inf')),
-                        stats.get('max', float('-inf')),
+                        stats_col.get('max', float('-inf')),
                     )
                     column_summaries[table_type][column]['value_count'] = column_summaries[
                         table_type
-                    ][column].get('value_count', 0) + stats.get('value_count', 0)
+                    ][column].get('value_count', 0) + stats_col.get('value_count', 0)
 
-                elif stats.get('type') == 'string':
+                elif stats_col.get('type') == 'string':
                     existing_values = set(column_summaries[table_type][column].get('values', []))
-                    new_values = set(stats.get('values', []))
+                    new_values = set(stats_col.get('values', []))
                     column_summaries[table_type][column]['values'] = list(
                         existing_values.union(new_values)
                     )
@@ -129,7 +131,7 @@ class VectorFeatureTableDataViewSet(
                         table_type
                     ][column].get('value_count', 0) + stats.get('value_count', 0)
 
-                if stats.get('description', None):
+                if stats_col.get('description', None):
                     column_summaries[table_type][column]['description'] = stats.get(
                         'description', 'Unknown'
                     )
@@ -145,40 +147,126 @@ class VectorFeatureTableDataViewSet(
 
         return Response(output, status=status.HTTP_200_OK)
 
-    def get_graphs(self, table_type, vector_ids, x_axis, y_axis, indexer='vectorFeatureId'):
+    def get_graphs(
+        self,
+        table_type,
+        vector_ids,
+        x_axis,
+        y_axis,
+        indexer='vectorFeatureId',
+        moving_avg_window=None,
+        confidence_level=95,
+        data_types=None,
+        aggregate_all=False,
+    ):
+        if data_types is None:
+            data_types = ['data', 'trendLine']  # Default to base data and trendline
+
         tables = VectorFeatureTableData.objects.filter(
             type=table_type, vector_feature__in=vector_ids
         )
-        if tables.count() == 0:
+        if not tables.exists():
             return {
                 'error': f'No tables found for the given vector features {table_type} - {vector_ids}'
             }
+
         table_data = {'tableName': tables.first().name, 'graphs': {}}
+        all_x_vals, all_y_vals = [], []
+
         for table in tables:
             if y_axis not in table.columns or x_axis not in table.columns:
                 logger.warning(
                     f'Columns {x_axis} and {y_axis} not found in table {table.name} with id: {table.pk}'
                 )
                 continue
+
             x_axis_index = table.columns.index(x_axis)
             y_axis_index = table.columns.index(y_axis)
             vector_feature_id = table.vector_feature.pk
-            if indexer == 'vectorFeatureId':
-                index_val = vector_feature_id
-            else:
-                index_val = table.vector_feature.properties.get(indexer)
-            table_data['graphs'][vector_feature_id] = {
-                'indexer': index_val,
-                'vectorFeatureId': vector_feature_id,
-                'data': [],
-            }
+            index_val = table.vector_feature.properties.get(indexer, vector_feature_id)
+
             rows = VectorFeatureRowData.objects.filter(vector_feature_table=table)
-            for row in rows:
-                row_data = row.row_data
-                x_val = row_data[x_axis_index]
-                y_val = row_data[y_axis_index]
-                if y_val is not None:
-                    table_data['graphs'][vector_feature_id]['data'].append([x_val, y_val])
+            data = [
+                (row.row_data[x_axis_index], row.row_data[y_axis_index])
+                for row in rows
+                if row.row_data[y_axis_index] is not None
+            ]
+
+            if not data:
+                continue
+
+            data.sort()  # Ensure data is sorted by x-axis
+            x_vals, y_vals = zip(*data)
+            all_x_vals.extend(x_vals)
+            all_y_vals.extend(y_vals)
+
+            moving_avg_val = None
+            if moving_avg_window:
+                moving_avg_val = int(moving_avg_window)
+
+            result = {'indexer': index_val, 'vectorFeatureId': vector_feature_id}
+            if aggregate_all:
+                break
+            if 'data' in data_types:
+                result['data'] = data
+
+            if 'trendLine' in data_types:
+                slope, intercept, _, _, _ = stats.linregress(x_vals, y_vals)
+                result['trendLine'] = [(x, slope * x + intercept) for x in x_vals]
+
+            if 'confidenceInterval' in data_types:
+                confidence_val = int(confidence_level)
+                alpha = 1 - (confidence_val / 100)
+                z_score = stats.norm.ppf(1 - alpha / 2)
+                y_pred = np.array([slope * x + intercept for x in x_vals])
+                residuals = np.array(y_vals) - y_pred
+                std_dev = np.std(residuals)
+                result['confidenceIntervals'] = [
+                    (x, y_pred[i] - z_score * std_dev, y_pred[i] + z_score * std_dev)
+                    for i, x in enumerate(x_vals)
+                ]
+
+            if 'movingAverage' in data_types and moving_avg_val is not None and moving_avg_val > 1:
+                moving_avg = np.convolve(
+                    y_vals, np.ones(moving_avg_val) / moving_avg_val, mode='valid'
+                )
+                moving_avg_x = x_vals[moving_avg_val - 1 :]
+                result['movingAverage'] = list(zip(moving_avg_x, moving_avg))
+
+            table_data['graphs'][vector_feature_id] = result
+
+        if aggregate_all and all_x_vals:
+            all_x_vals, all_y_vals = zip(*sorted(zip(all_x_vals, all_y_vals)))
+            aggregate_result = {'indexer': 'all', 'vectorFeatureId': 'all'}
+
+            if 'data' in data_types:
+                aggregate_result['data'] = list(zip(all_x_vals, all_y_vals))
+
+            if 'trendLine' in data_types:
+                slope, intercept, _, _, _ = stats.linregress(all_x_vals, all_y_vals)
+                aggregate_result['trendLine'] = [(x, slope * x + intercept) for x in all_x_vals]
+
+            if 'confidenceInterval' in data_types:
+                confidence_val = int(confidence_level)
+                alpha = 1 - (confidence_val / 100)
+                z_score = stats.norm.ppf(1 - alpha / 2)
+                y_pred = np.array([slope * x + intercept for x in all_x_vals])
+                residuals = np.array(all_y_vals) - y_pred
+                std_dev = np.std(residuals)
+                aggregate_result['confidenceIntervals'] = [
+                    (x, y_pred[i] - z_score * std_dev, y_pred[i] + z_score * std_dev)
+                    for i, x in enumerate(all_x_vals)
+                ]
+
+            if 'movingAverage' in data_types and moving_avg_val is not None and moving_avg_val > 1:
+                moving_avg = np.convolve(
+                    all_y_vals, np.ones(moving_avg_val) / moving_avg_val, mode='valid'
+                )
+                moving_avg_x = all_x_vals[moving_avg_val - 1 :]
+                aggregate_result['movingAverage'] = list(zip(moving_avg_x, moving_avg))
+
+            table_data['graphs'][-1] = aggregate_result
+
         return table_data
 
     @action(detail=False, methods=['get'], url_path='feature-graph')
@@ -188,10 +276,22 @@ class VectorFeatureTableDataViewSet(
         x_axis = request.query_params.get('xAxis', 'index')
         y_axis = request.query_params.get('yAxis', '00060')
         indexer = request.query_params.get('indexer', 'vectorFeatureId')
+        moving_average_window = request.query_params.get('movingAverage', None)
+        confidence_interval = request.query_params.get('confidenceLevel', 95)
+        display = request.query_params.getlist('display', ['data'])
         if not table_type:
             return Response({'error': 'tableType is required'}, status=status.HTTP_400_BAD_REQUEST)
 
-        graphs = self.get_graphs(table_type, [vector_feature], x_axis, y_axis, indexer)
+        graphs = self.get_graphs(
+            table_type,
+            [vector_feature],
+            x_axis,
+            y_axis,
+            indexer,
+            moving_average_window,
+            confidence_interval,
+            display,
+        )
         return Response(graphs, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=['get'], url_path='map-layer-feature-graph')
@@ -202,6 +302,10 @@ class VectorFeatureTableDataViewSet(
         y_axis = request.query_params.get('yAxis', 'mean_va')
         indexer = request.query_params.get('indexer', 'vectorFeatureId')
         bbox = request.query_params.get('bbox', None)  # Optional: [min_x, min_y, max_x, max_y]
+        moving_average_window = request.query_params.get('movingAverage', None)
+        confidence_interval = request.query_params.get('confidenceLevel', 95)
+        display = request.query_params.getlist('display', ['data'])
+        aggregate_all = request.query_params.get('aggregateAll', False)
 
         if not bbox:
             return Response({'error': 'bbox parameter is required'}, status=400)
@@ -221,7 +325,17 @@ class VectorFeatureTableDataViewSet(
         if not table_type:
             return Response({'error': 'tableType is required'}, status=status.HTTP_400_BAD_REQUEST)
 
-        graphs = self.get_graphs(table_type, vector_features, x_axis, y_axis, indexer)
+        graphs = self.get_graphs(
+            table_type,
+            vector_features,
+            x_axis,
+            y_axis,
+            indexer,
+            moving_average_window,
+            confidence_interval,
+            display,
+            aggregate_all == 'true',
+        )
         return Response(graphs, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=['post'], url_path='generate-layer')

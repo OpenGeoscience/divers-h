@@ -506,15 +506,25 @@ export default class UVdatApi {
     vectorFeatureId: number,
     xAxis: string = 'index',
     yAxis: string = 'mean_va',
+    display: ('data' | 'trendLine' | 'confidenceInterval' | 'movingAverage')[] = ['data', 'trendLine'],
+    confidenceLevel = 95,
+    aggregate = false,
+    movingAverage?: number,
   ): Promise<FeatureGraphData> {
-    const response = await UVdatApi.apiClient.get('/vectorfeature/tabledata/feature-graph/', {
-      params: {
-        tableType,
-        vectorFeatureId,
-        xAxis,
-        yAxis,
-      },
-    });
+    const params = new URLSearchParams();
+
+    display.forEach((item) => params.append('display', item.toString()));
+    params.append('tableType', tableType);
+    params.append('vectorFeatureId', vectorFeatureId.toString());
+    params.append('xAxis', xAxis);
+    params.append('yAxis', yAxis);
+    params.append('confidenceLevel', confidenceLevel.toString());
+    params.append('aggregate', aggregate.toString());
+    if (movingAverage) {
+      params.append('movingAverage', movingAverage.toString());
+    }
+
+    const response = await UVdatApi.apiClient.get('/vectorfeature/tabledata/feature-graph/', { params });
     return response.data;
   }
 
@@ -525,17 +535,29 @@ export default class UVdatApi {
     yAxis: string = 'mean_va',
     indexer: string = 'vectorFeatureId',
     bbox?: string,
+    display: ('data' | 'trendLine' | 'confidenceInterval' | 'movingAverage')[] = ['data', 'trendLine'],
+    confidenceLevel = 95,
+    aggregate = false,
+    movingAverage?: number,
   ): Promise<FeatureGraphData> {
-    const response = await UVdatApi.apiClient.get('/vectorfeature/tabledata/map-layer-feature-graph/', {
-      params: {
-        tableType,
-        mapLayerId,
-        xAxis,
-        yAxis,
-        indexer,
-        bbox,
-      },
-    });
+    const params = new URLSearchParams();
+
+    display.forEach((item) => params.append('display', item.toString()));
+    params.append('tableType', tableType);
+    params.append('mapLayerId', mapLayerId.toString());
+    params.append('indexer', indexer.toString());
+    params.append('xAxis', xAxis);
+    params.append('yAxis', yAxis);
+    if (bbox) {
+      params.append('bbox', bbox.toString());
+    }
+    params.append('confidenceLevel', confidenceLevel.toString());
+    params.append('aggregateAll', aggregate.toString());
+    if (movingAverage) {
+      params.append('movingAverage', movingAverage.toString());
+    }
+
+    const response = await UVdatApi.apiClient.get('/vectorfeature/tabledata/map-layer-feature-graph/', { params });
     return response.data;
   }
 

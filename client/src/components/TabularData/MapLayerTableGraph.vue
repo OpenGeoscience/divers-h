@@ -8,6 +8,7 @@ import {
   ref,
   watch,
 } from 'vue';
+import { throttle } from 'lodash';
 import UVdatApi from '../../api/UVDATApi';
 import { FeatureGraphData } from '../../types';
 import { getStringBBox } from '../../map/mapLayers';
@@ -22,7 +23,13 @@ export default defineComponent({
     const graphContainer = ref<SVGSVGElement | null>(null);
     const graphData = ref<FeatureGraphData | null>(null);
     const loading = ref<boolean>(false);
-
+    const hideBaseData = ref(false);
+    const trendLine = ref(false);
+    const confidenceIntervalEnabled = ref(false);
+    const confidenceLevel = ref(95);
+    const aggregate = ref(true);
+    const movingAverageEnabled = ref(false);
+    const movingAverageValue = ref(12);
     // eslint-disable-next-line vue/max-len
     const availableLayers = computed(() => MapStore.mapLayerFeatureGraphs.value.map((item) => ({ title: item.name, value: item.id })));
 
@@ -63,6 +70,21 @@ export default defineComponent({
 
       if (!graph) return;
 
+      const display: ('data' | 'trendLine' | 'confidenceInterval' | 'movingAverage')[] = ['data'];
+      if (aggregate.value) {
+        if (trendLine.value) {
+          display.push('trendLine');
+        }
+        if (confidenceIntervalEnabled.value) {
+          display.push('confidenceInterval');
+        }
+        if (movingAverageEnabled.value) {
+          display.push('movingAverage');
+        }
+      } else {
+        hideBaseData.value = false;
+      }
+
       try {
         loading.value = true;
         const data = await UVdatApi.getMapLayerFeatureGraphData(
@@ -72,6 +94,10 @@ export default defineComponent({
           graph.yAxis,
           graph.indexer,
           bbox,
+          display,
+          confidenceLevel.value,
+          aggregate.value,
+          movingAverageValue.value,
         );
         graphData.value = data;
 
@@ -85,6 +111,10 @@ export default defineComponent({
               onLineExit,
               xAxisLabel: graph.xAxisLabel,
               yAxisLabel: graph.yAxisLabel,
+              hideBaseData: hideBaseData.value,
+              showTrendline: trendLine.value,
+              showConfidenceInterval: confidenceIntervalEnabled.value,
+              showMovingAverage: movingAverageEnabled.value,
             },
             300,
           );
@@ -133,6 +163,10 @@ export default defineComponent({
       MapStore.mapLayerFeatureColorMapping.value = {};
       MapStore.clearHoveredFeatures();
     });
+
+    const throttledUpateGraph = throttle(fetchMapLayerFeatureGraphData, 500);
+    watch([aggregate, hideBaseData, trendLine, confidenceIntervalEnabled, confidenceLevel, movingAverageEnabled, movingAverageValue], throttledUpateGraph);
+
     return {
       selectedLayer,
       selectedChart,
@@ -142,6 +176,13 @@ export default defineComponent({
       fetchMapLayerFeatureGraphData,
       loading,
       enabledColorMapping: MapStore.enabledMapLayerFeatureColorMapping,
+      hideBaseData,
+      trendLine,
+      confidenceIntervalEnabled,
+      confidenceLevel,
+      movingAverageEnabled,
+      movingAverageValue,
+      aggregate,
     };
   },
 });
@@ -151,7 +192,7 @@ export default defineComponent({
   <v-card class="full-width-card">
     <v-card-text class="pa-0">
       <v-container fluid class="pa-0">
-        <v-row no-gutters align="center">
+        <v-row no-gutters dense align="center">
           <v-col cols="3">
             <v-select
               v-model="selectedLayer"
@@ -160,6 +201,7 @@ export default defineComponent({
               item-text="title"
               item-value="value"
               label="Select Layer"
+              hide-details
               dense
               outlined
             />
@@ -174,6 +216,7 @@ export default defineComponent({
               item-text="title"
               item-value="value"
               label="Select Chart"
+              hide-details
               dense
               outlined
             />
@@ -191,6 +234,20 @@ export default defineComponent({
               </v-icon>
             </template>
           </v-tooltip>
+          <v-tooltip text="Average all Values">
+            <template #activator="{ props }">
+              <v-icon
+                v-bind="props"
+                :color="aggregate ? 'primary' : 'light-gray'"
+                size="x-large"
+                class="pb-4"
+                @click="aggregate = !aggregate"
+              >
+                mdi-set-all
+              </v-icon>
+            </template>
+          </v-tooltip>
+
           <v-tooltip
             v-if="selectedChart !== null"
             text="Reload graph data based on current Map View"
@@ -208,6 +265,22 @@ export default defineComponent({
             </template>
           </v-tooltip>
         </v-row>
+        <v-row v-if="aggregate" dense>
+          <v-col>
+            <v-checkbox v-model="hideBaseData" density="compact" hide-details label="Hide Data" />
+          </v-col>
+          <v-col>
+            <v-checkbox v-model="trendLine" density="compact" hide-details label="TrendLine" />
+          </v-col>
+          <v-col>
+            <v-checkbox v-model="confidenceIntervalEnabled" density="compact" hide-details label="Confidence" />
+            <v-slider v-if="confidenceIntervalEnabled" v-model="confidenceLevel" :min="50" step="1" :max="99" :label="`${confidenceLevel.toFixed(1)}%`" hide-details />
+          </v-col>
+          <v-col>
+            <v-checkbox v-model="movingAverageEnabled" density="compact" hide-details label="Moving Average" />
+            <v-slider v-if="movingAverageEnabled" v-model="movingAverageValue" :min="2" step="1" :max="50" :label="movingAverageValue.toFixed(0)" hide-details />
+          </v-col>
+        </v-row>
 
         <v-row no-gutters justify="center">
           <v-col cols="12" class="text-center">
@@ -215,14 +288,15 @@ export default defineComponent({
               v-if="loading"
               indeterminate
               color="primary"
-              size="32"
+              size="256"
+              width="32"
             />
           </v-col>
         </v-row>
 
         <v-row no-gutters>
           <v-col>
-            <svg ref="graphContainer" height="300px" class="selectedFeatureSVG" />
+            <svg ref="graphContainer" :height=" !loading ? '300px' : '0px'" class="selectedFeatureSVG" />
           </v-col>
         </v-row>
       </v-container>
