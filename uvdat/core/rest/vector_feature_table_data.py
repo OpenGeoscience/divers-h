@@ -171,7 +171,7 @@ class VectorFeatureTableDataViewSet(
             }
 
         table_data = {'tableName': tables.first().name, 'graphs': {}}
-        all_x_vals, all_y_vals = [], []
+        all_x_vals = {}
 
         for table in tables:
             if y_axis not in table.columns or x_axis not in table.columns:
@@ -186,20 +186,29 @@ class VectorFeatureTableDataViewSet(
             index_val = table.vector_feature.properties.get(indexer, vector_feature_id)
 
             rows = VectorFeatureRowData.objects.filter(vector_feature_table=table)
-            data = [
-                (row.row_data[x_axis_index], row.row_data[y_axis_index])
-                for row in rows
-                if row.row_data[y_axis_index] is not None
-            ]
+            data = {}
+
+            for row in rows:
+                x_val = row.row_data[x_axis_index]
+                y_val = row.row_data[y_axis_index]
+                if y_val is None:
+                    continue
+                
+                if x_val not in data:
+                    data[x_val] = []
+                data[x_val].append(y_val)
 
             if not data:
                 continue
 
-            data.sort()  # Ensure data is sorted by x-axis
-            x_vals, y_vals = zip(*data)
-            all_x_vals.extend(x_vals)
-            all_y_vals.extend(y_vals)
+            sorted_x_vals = sorted(data.keys())
+            x_vals = sorted_x_vals
+            y_vals = [np.mean(data[x]) for x in sorted_x_vals]
 
+            for x, y in zip(x_vals, y_vals):
+                if x not in all_x_vals:
+                    all_x_vals[x] = []
+                all_x_vals[x].append(y)
             moving_avg_val = None
             if moving_avg_window:
                 moving_avg_val = int(moving_avg_window)
@@ -208,7 +217,8 @@ class VectorFeatureTableDataViewSet(
             if aggregate_all:
                 break
             if 'data' in data_types:
-                result['data'] = data
+                y_output_vals = [data[x] for x in sorted_x_vals]
+                result['data'] = list(zip(sorted_x_vals, y_output_vals))
 
             if 'trendLine' in data_types:
                 slope, intercept, _, _, _ = stats.linregress(x_vals, y_vals)
@@ -236,33 +246,34 @@ class VectorFeatureTableDataViewSet(
             table_data['graphs'][vector_feature_id] = result
 
         if aggregate_all and all_x_vals:
-            all_x_vals, all_y_vals = zip(*sorted(zip(all_x_vals, all_y_vals)))
+            sorted_x_vals = sorted(all_x_vals.keys())
+            avg_y_vals = [np.mean(all_x_vals[x]) for x in sorted_x_vals]
             aggregate_result = {'indexer': 'all', 'vectorFeatureId': 'all'}
 
             if 'data' in data_types:
-                aggregate_result['data'] = list(zip(all_x_vals, all_y_vals))
+                aggregate_result['data'] = list(zip(sorted_x_vals, avg_y_vals))
 
             if 'trendLine' in data_types:
-                slope, intercept, _, _, _ = stats.linregress(all_x_vals, all_y_vals)
-                aggregate_result['trendLine'] = [(x, slope * x + intercept) for x in all_x_vals]
+                slope, intercept, _, _, _ = stats.linregress(sorted_x_vals, avg_y_vals)
+                aggregate_result['trendLine'] = [(x, slope * x + intercept) for x in sorted_x_vals]
 
             if 'confidenceInterval' in data_types:
                 confidence_val = int(confidence_level)
                 alpha = 1 - (confidence_val / 100)
                 z_score = stats.norm.ppf(1 - alpha / 2)
-                y_pred = np.array([slope * x + intercept for x in all_x_vals])
-                residuals = np.array(all_y_vals) - y_pred
+                y_pred = np.array([slope * x + intercept for x in sorted_x_vals])
+                residuals = np.array(avg_y_vals) - y_pred
                 std_dev = np.std(residuals)
                 aggregate_result['confidenceIntervals'] = [
                     (x, y_pred[i] - z_score * std_dev, y_pred[i] + z_score * std_dev)
-                    for i, x in enumerate(all_x_vals)
+                    for i, x in enumerate(sorted_x_vals)
                 ]
 
             if 'movingAverage' in data_types and moving_avg_val is not None and moving_avg_val > 1:
                 moving_avg = np.convolve(
-                    all_y_vals, np.ones(moving_avg_val) / moving_avg_val, mode='valid'
+                    avg_y_vals, np.ones(moving_avg_val) / moving_avg_val, mode='valid'
                 )
-                moving_avg_x = all_x_vals[moving_avg_val - 1 :]
+                moving_avg_x = sorted_x_vals[moving_avg_val - 1 :]
                 aggregate_result['movingAverage'] = list(zip(moving_avg_x, moving_avg))
 
             table_data['graphs'][-1] = aggregate_result
@@ -321,7 +332,6 @@ class VectorFeatureTableDataViewSet(
         vector_features = VectorFeature.objects.filter(
             geometry__intersects=bbox_polygon, map_layer=map_layer_id
         ).values_list('id', flat=True)
-        logger.warning(f'Vector Features: {vector_features}')
         if not table_type:
             return Response({'error': 'tableType is required'}, status=status.HTTP_400_BAD_REQUEST)
 
