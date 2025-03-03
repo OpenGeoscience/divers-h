@@ -228,6 +228,7 @@ export default defineComponent({
                 :color="enabledColorMapping ? 'primary' : 'light-gray'"
                 size="x-large"
                 class="pb-4"
+                :disabled="aggregate"
                 @click="enabledColorMapping = !enabledColorMapping"
               >
                 mdi-palette
