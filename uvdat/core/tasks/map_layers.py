@@ -297,7 +297,7 @@ def create_raster_map_layer_from_file(file_item, file_path, style_options, name=
     return new_map_layer
 
 
-def create_vector_map_layer(file_item, style_options, name='', index=None):
+def create_vector_map_layer(file_item, style_options, name='', index=None, metadata=None):
     """Save a VectorMapLayer from a FileItem's contents."""
     geojson_array = []
     if file_item.file_type == 'zip':
@@ -321,14 +321,16 @@ def create_vector_map_layer(file_item, style_options, name='', index=None):
         if len(geojson_array) > 1:
             layer_name = data['name']
         new_map_layer = create_vector_map_from_json(
-            file_item, geojson, style_options, layer_name, index
+            file_item, geojson, style_options, layer_name, index, metadata
         )
         new_map_layers.append(new_map_layer)
 
     return new_map_layers
 
 
-def create_vector_map_from_json(file_item, geojson_data, style_options, name='', index=None):
+def create_vector_map_from_json(
+    file_item, geojson_data, style_options, name='', index=None, metadata=None
+):
     updated_style_options = calculate_styling(geojson_data, style_options)
     layer_index = file_item.index
     if index is not None:
@@ -336,13 +338,15 @@ def create_vector_map_from_json(file_item, geojson_data, style_options, name='',
     new_map_layer = VectorMapLayer.objects.create(
         dataset=file_item.dataset,
         name=name,
-        metadata={},
+        metadata=metadata,
         default_style=updated_style_options,
         index=layer_index,
     )
     print('\t', f'VectorMapLayer {new_map_layer.id} created with name: {name}')
     new_map_layer.write_geojson_data(geojson_data.to_json())
     new_map_layer.save()
+    print('\t', 'Done Writing GeoJSON file to Map Layer')
+
     return new_map_layer
 
 
@@ -369,6 +373,55 @@ def convert_zip_to_geojson(file_item):
 
         with zipfile.ZipFile(archive_path) as zip_archive:
             filenames = zip_archive.namelist()
+
+            for filename in filenames:
+                if filename.endswith(('.geojson', '.json')):
+                    if filename.startswith('__MACOSX/') or Path(filename).name.startswith('._'):
+                        logger.info(f'Skipping macOS metadata file: {filename}')
+                        continue
+
+                    logger.info(f'Processing GeoJSON file: {filename}')
+
+                    with zip_archive.open(filename) as geojson_file:
+                        raw_content = geojson_file.read()
+
+                        # Try decoding with UTF-8 first
+                        for encoding in ('utf-8', 'iso-8859-1', 'windows-1252'):
+                            try:
+                                content = raw_content.decode(encoding).strip()
+                                break  # Stop at the first successful decode
+                            except UnicodeDecodeError:
+                                logger.warning(
+                                    f'Failed to decode {filename} with {encoding}, trying next.'
+                                )
+                        else:
+                            logger.error(
+                                f'Could not decode {filename} with any common encoding, skipping.'
+                            )
+                            continue  # Skip the file if all decoding attempts fail
+
+                        if not content:
+                            logger.error(f'File {filename} is empty!')
+                            continue  # Skip empty files
+
+                        try:
+                            source_data = json.loads(content)
+                        except json.JSONDecodeError as e:
+                            logger.error(f'Error decoding JSON in {filename}: {e}')
+                            continue  # Skip invalid JSON files
+
+                        source_projection = (
+                            source_data.get('crs', {}).get('properties', {}).get('name')
+                        )
+                        geojson_data = geopandas.GeoDataFrame.from_features(
+                            source_data.get('features')
+                        )
+                        if source_projection:
+                            geojson_data = geojson_data.set_crs(
+                                source_projection, allow_override=True
+                            )
+                            geojson_data = geojson_data.to_crs(4326)
+                        geodata_list.append({'geojson': geojson_data, 'name': Path(filename).stem})
 
             # Group shapefile components by basename
             shapefile_groups = defaultdict(list)
@@ -488,7 +541,6 @@ def save_vector_features(vector_map_layer: VectorMapLayer):
         )
 
     created = VectorFeature.objects.bulk_create(vector_features)
-    print('\t', f'{len(created)} vector features created.')
 
     return created
 

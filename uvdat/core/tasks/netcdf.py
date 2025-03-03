@@ -12,6 +12,7 @@ import cftime
 from django.contrib.gis.geos import Polygon
 from django.contrib.gis.geos.error import GEOSException
 from django.core.files.base import ContentFile
+from django.db import transaction
 from matplotlib import cm
 import numpy as np
 import pandas as pd
@@ -27,6 +28,8 @@ def convert_time(obj, output='compact'):
         dt_obj = datetime.strptime(obj, '%a %b %d %H:%M:%S %Y')
     elif isinstance(obj, np.datetime64):  # Handle datetime64
         dt_obj = pd.Timestamp(obj).to_pydatetime()
+    elif isinstance(obj, pd.Timestamp):  # Handle pandas Timestamp explicitly
+        dt_obj = obj.to_pydatetime()
     elif isinstance(obj, datetime):  # Handle Python datetime objects
         dt_obj = obj
     elif isinstance(
@@ -40,7 +43,9 @@ def convert_time(obj, output='compact'):
     ):
         dt_obj = datetime(obj.year, obj.month, obj.day, obj.hour, obj.minute, obj.second)
     elif isinstance(obj, (int, float)):
-        if obj > 1e10:  # Assume milliseconds timestamp
+        if obj > 1e18:  # Assume nanoseconds timestamp
+            dt_obj = datetime.fromtimestamp(obj / 1e9)
+        elif obj > 1e10:  # Assume milliseconds timestamp
             dt_obj = datetime.fromtimestamp(obj / 1000)
         else:  # Assume seconds timestamp
             dt_obj = datetime.fromtimestamp(obj)
@@ -138,9 +143,6 @@ def create_netcdf_data_layer(file_item, metadata):
                 try:
                     var_min = float(variable.min().values) if variable.size > 0 else None
                     var_max = float(variable.max().values) if variable.size > 0 else None
-                    if 'datetime' in str(variable.dtype):
-                        var_info['startDate'] = str(variable.min().values)
-                        var_info['endDate'] = str(variable.max().values)
                     if 'time' in var_name:
                         var_info['min'] = convert_time(var_min, 'unix')
                         var_info['max'] = convert_time(var_max, 'unix')
@@ -148,6 +150,9 @@ def create_netcdf_data_layer(file_item, metadata):
                         var_info['endDate'] = convert_time(var_max, 'iso')
 
                         var_info['timeType'] = 'unix'
+                    elif 'datetime' in str(variable.dtype):
+                        var_info['startDate'] = str(variable.min().values)
+                        var_info['endDate'] = str(variable.max().values)
                     else:
                         var_info['min'] = var_min
                         var_info['max'] = var_max
@@ -163,12 +168,16 @@ def create_netcdf_data_layer(file_item, metadata):
                     elif re.search(r'\blat\b|\blatitude\b', var_name, re.IGNORECASE):
                         if -90 <= var_min <= 90 and -90 <= var_max <= 90:
                             var_info['geospatial'] = 'latitude'
-                except Exception:
+                except Exception as e:
                     var_info['min'] = 0
                     var_info['max'] = variable.size
                     var_info['steps'] = variable.size
+                    logger.warning(f'Variable Min/Max Exception {var_name}: {e}')
+                    logger.warning(f'Variable info {var_info}')
 
             description['variables'][var_name] = var_info
+            if metadata.get('tags', False):
+                description['tags'] = metadata.get('tags')
 
         # Create the NetCDF Layer Item
         created_netcdf = NetCDFData.objects.create(
@@ -450,8 +459,6 @@ def create_netcdf_slices(
             == 'longitude360'
         )
         # Handle the case of being 360 degrees and having no x_range
-        if longitude360 and x_range is None:
-            x_range = [ds[x_variable].values.min() - 180, ds[x_variable].values.max() - 180]
 
         degrees_east = (
             netcdf_data.metadata.get('variables', {})
@@ -460,6 +467,15 @@ def create_netcdf_slices(
             .get('units', '')
             == 'degrees_east'
         )
+
+        if longitude360 and x_range is None and degrees_east is False:
+            x_range = [ds[x_variable].values.min() - 180, ds[x_variable].values.max() - 180]
+        elif longitude360 and x_range is None and degrees_east:
+            x_range = [
+                360 - (ds[x_variable].values.min() + 180),
+                360 - (ds[x_variable].values.max() + 180),
+            ]
+
         x_range_updated = x_range
         # This is a little complicated but we have latitude of -180 to 180 where 0 is greenwich
         # then there is the data in the system where it is 0 to 360 where 0 is greenwich
@@ -486,7 +502,7 @@ def create_netcdf_slices(
             x_min, x_max = ds[x_variable].values.min(), ds[x_variable].values.max()
             if not (x_min <= x_range_updated[0] <= x_max and x_min <= x_range_updated[1] <= x_max):
                 raise ValueError(
-                    f'x_range {x_range_updated} is outside the bounds of {x_min} to {x_max}.'
+                    f'x_range {x_range_updated} and {x_range} is outside the bounds of {x_min} to {x_max}.'
                 )
             # if we cross the 0 boundary we need to keep the filtering but use an OR
             # this is to get the values about the 180 range and the values below
@@ -536,10 +552,15 @@ def create_netcdf_slices(
                     ds[sliding_variable].values.min(),
                     ds[sliding_variable].values.max(),
                 )
-
                 if np.issubdtype(ds[sliding_variable].dtype, np.datetime64):
                     # Convert slicer_range to datetime64 if sliding_variable is a datetime
-                    slicer_range = [np.datetime64(int(ts), 'ms') for ts in slicer_range]
+                    temp_time = int(slicer_range[0])
+                    if temp_time > 1e18:
+                        slicer_range = [np.datetime64(int(ts), 'ns') for ts in slicer_range]
+                    elif temp_time > 1e10:
+                        slicer_range = [np.datetime64(int(ts), 'ms') for ts in slicer_range]
+                    elif temp_time:
+                        slicer_range = [np.datetime64(int(ts), 's') for ts in slicer_range]
 
                 # Check if slicer_range is a valid range of integers
                 is_range_of_integers = (
@@ -548,7 +569,9 @@ def create_netcdf_slices(
                     and all(isinstance(x, int) for x in slicer_range)
                 )
 
-                if is_range_of_integers:
+                if is_range_of_integers and not (
+                    np.issubdtype(ds[sliding_variable].dtype, np.datetime64)
+                ):
                     # Check if range is within the number of layers
                     num_layers = len(ds[sliding_variable])
                     if not (
@@ -587,7 +610,7 @@ def create_netcdf_slices(
         ds = ds.sortby(ds[y_variable], ascending=False)
         data_var = ds.get(variable)
         variables_data = data_var.dims
-        dim_size = ds.dims.get(sliding_variable)
+        dim_size = ds.sizes.get(sliding_variable)
         end = dim_size if end is None else end
 
         base_variables = (x_variable, y_variable, sliding_variable)
@@ -673,7 +696,6 @@ def create_netcdf_slices(
                     if degrees_east:
                         x_bbox_range = [-(x + 180) for x in x_bbox_range]
                         x_bbox_range.sort()
-                logger.info(f'XBOXRANGE: {x_bbox_range}')
                 bounds = Polygon.from_bbox((x_bbox_range[0], y_min, x_bbox_range[1], y_max))
             except GEOSException as geos_err:
                 error = f'Error constructing polygon bounds: {geos_err}'
@@ -730,25 +752,38 @@ def create_netcdf_slices(
         if start_date and end_date:
             parameters['sliding_dimension']['startDate'] = start_date
             parameters['sliding_dimension']['endDate'] = end_date
+        metadata = None
+        if netcdf_data.metadata.get('tags', False):
+            metadata = {'tags': netcdf_data.metadata.get('tags')}
         netcdf_layer = NetCDFLayer.objects.create(
             netcdf_data=netcdf_data,
             name=name,
+            metadata=metadata,
             color_scheme=color_map,
             description=description,
             parameters=parameters,
             bounds=bounds,
         )
         # Iterate through the dimension to create slices and save images
+
+        # Precompute the global min/max for the data
+        slice_min = np.nanmin(data_var.values)
+        slice_max = np.nanmax(data_var.values)
+
+        # Collect all the images to be created
+        image_objects = []
+
         for i in range(start, end):
-            # Extract a slice along the specified dimension
+            logger.info(f'Creating image: {i} of {end}')
             indexers = {sliding_variable: i}
             for item in extra_variables:
                 indexers[item['variable']] = item['index']
             slice_data = data_var.isel(indexers).values
 
             # Normalize data to 0-1 for colormap application
-            slice_min = np.nanmin(slice_data)
-            slice_max = np.nanmax(slice_data)
+            # Uncomment for per-image normalization
+            # slice_min = np.nanmin(slice_data)
+            # slice_max = np.nanmax(slice_data)
             normalized_data = (slice_data - slice_min) / (slice_max - slice_min)
 
             # Apply the colormap
@@ -765,13 +800,20 @@ def create_netcdf_slices(
             image_name = f'{variable}_{sliding_variable}_{i}.png'
             image_content = ContentFile(image_buffer.getvalue(), name=image_name)
 
-            # Create the NetCDFImage object
-            NetCDFImage.objects.create(
-                netcdf_layer=netcdf_layer,
-                image=image_content,  # Save the image to the S3 field
-                slider_index=i,
-                bounds=bounds,  # Reuse the bounds calculated earlier
+            # Collect the NetCDFImage objects for bulk creation later
+            image_objects.append(
+                NetCDFImage(
+                    netcdf_layer=netcdf_layer,
+                    image=image_content,  # Save the image to the S3 field
+                    slider_index=i,
+                    bounds=bounds,  # Reuse the bounds calculated earlier
+                )
             )
+
+        # Bulk create the NetCDFImage objects in a single database transaction
+        logger.info('Creating Image Objects')
+        with transaction.atomic():
+            NetCDFImage.objects.bulk_create(image_objects)
         if processing_task:
             processing_task.update(
                 status=ProcessingTask.Status.COMPLETE,

@@ -4,8 +4,12 @@ import geopandas as gpd
 import json
 import numpy as np
 import pandas as pd
+import re
 from datetime import datetime
 import cftime
+
+# Global flag to skip uploading
+skip_upload = False
 
 def convert_time(obj, output='compact'):
     if isinstance(obj, str):  # Handle ctime (string)
@@ -54,6 +58,24 @@ def convert_longitude(lon):
     lon[lon > 180] -= 360  # If lon > 180, convert it to the -180 to 180 range.
     return lon
 
+def parse_filename(filename):
+    pattern = (
+        r'(?P<variable>\w+)_Amon_(?P<model>[\w\-]+)_ssp(?P<scenario>\d+)_'
+        r'(?P<ensemble>r\d+i\d+p\d+f?\d*)_?(?P<grid>\w+)?_(?P<time_range>\d{4,6}-\d{4,6})\.nc'
+    )
+    match = re.match(pattern, filename)
+    if match:
+        return {
+            'Variable': match.group('variable'),
+            'Model': match.group('model'),
+            'Scenario': f'ssp{match.group("scenario")}',
+            'Ensemble': match.group('ensemble'),
+            'Grid': match.group('grid'),
+            'Time Range': match.group('time_range')
+        }
+    else:
+        return {'Filename': filename}
+
 @click.command()
 @click.argument('geojson_file', type=click.Path(exists=True))
 @click.argument('netcdf_files', nargs=-1, type=click.Path(exists=True))
@@ -67,63 +89,78 @@ def extract_netcdf_data(geojson_file, netcdf_files, sliding_variable, x_variable
     # Load GeoJSON
     gdf = gpd.read_file(geojson_file)
 
+    # Generate the listing of Model, Scenario, Ensemble from NetCDF files
+    model_scenario_ensemble_files = {}
+
+    for netcdf_file in netcdf_files:
+        print(netcdf_file)
+        parsed = parse_filename(netcdf_file)
+        model_scenario_ensemble = f"{parsed['Model']}_{parsed['Scenario']}_{parsed['Ensemble']}"
+
+        if model_scenario_ensemble not in model_scenario_ensemble_files:
+            model_scenario_ensemble_files[model_scenario_ensemble] = []
+        model_scenario_ensemble_files[model_scenario_ensemble].append(netcdf_file)
+
     output_data = {}
 
-    for _, feature in gdf.iterrows():
-        feature_id = str(feature.get("Plant_Code", feature.get("id", _)))  # Ensure feature_id is a string
-        x, y = feature.geometry.centroid.x, feature.geometry.centroid.y
-        
-        # Convert longitude if necessary (0-360 to -180 to 180)
-        x = convert_longitude(x)
-        
-        # Storage for merged data
+    for model_scenario_ensemble, netcdf_group in model_scenario_ensemble_files.items():
+        # Storage for merged data for this group
         merged_data = {"time": []}
         variable_descriptions = {}
         variable_names = []
-        for netcdf_file in netcdf_files:
+
+        for netcdf_file in netcdf_group:
             ds = xr.open_dataset(netcdf_file)
             
             # Ensure necessary variables exist
             if sliding_variable not in ds or x_variable not in ds or y_variable not in ds:
                 raise ValueError(f"One or more specified variables not found in {netcdf_file}.")
 
-            # Find nearest grid cell
-            x_idx = np.abs(ds[x_variable] - x).argmin().item()
-            y_idx = np.abs(ds[y_variable] - y).argmin().item()
-            
-            for var in ds.data_vars:
-                if sliding_variable in ds[var].dims:
-                    df = ds[var].isel({x_variable: x_idx, y_variable: y_idx}).to_pandas()
-                    
-                    # Check if the variable is a DataFrame
-                    if isinstance(df, pd.DataFrame) and sliding_variable in df.columns:
-                        # Convert time to UNIX time (seconds) and update the header
-                        df[sliding_variable] = df[sliding_variable].apply(lambda t: convert_time(t, 'unix'))
-                        df.rename(columns={sliding_variable: 'unix_time'}, inplace=True)
-                    elif isinstance(df, pd.Series) and sliding_variable in df.index:
-                        # Convert time in Series if present
-                        df = df.apply(lambda t: convert_time(t, 'unix'))
-                        df.name = 'unix_time'
-                    
-                    var_name = f"{var}"  # Append filename to differentiate variables
-                    variable_names.append(var_name)
-                    # Extract description from NetCDF metadata
-                    description = ds[var].attrs.get("long_name") or ds[var].attrs.get("standard_name") or "No description available"
-                    variable_descriptions[var_name] = description
+            # Process each feature in the GeoJSON
+            for _, feature in gdf.iterrows():
+                feature_id = str(feature.get("Plant_Code", feature.get("id", _)))  # Ensure feature_id is a string
+                x, y = feature.geometry.centroid.x, feature.geometry.centroid.y
+                
+                # Convert longitude if necessary (0-360 to -180 to 180)
+                x = convert_longitude(x)
+                
+                # Find nearest grid cell
+                x_idx = np.abs(ds[x_variable] - x).argmin().item()
+                y_idx = np.abs(ds[y_variable] - y).argmin().item()
+                
+                for var in ds.data_vars:
+                    if sliding_variable in ds[var].dims:
+                        df = ds[var].isel({x_variable: x_idx, y_variable: y_idx}).to_pandas()
+                        
+                        # Check if the variable is a DataFrame
+                        if isinstance(df, pd.DataFrame) and sliding_variable in df.columns:
+                            # Convert time to UNIX time (seconds) and update the header
+                            df[sliding_variable] = df[sliding_variable].apply(lambda t: convert_time(t, 'unix'))
+                            df.rename(columns={sliding_variable: 'unix_time'}, inplace=True)
+                        elif isinstance(df, pd.Series) and sliding_variable in df.index:
+                            # Convert time in Series if present
+                            df = df.apply(lambda t: convert_time(t, 'unix'))
+                            df.name = 'unix_time'
+                        
+                        var_name = f"{var}"  # Append filename to differentiate variables
+                        variable_names.append(var_name)
+                        # Extract description from NetCDF metadata
+                        description = ds[var].attrs.get("long_name") or ds[var].attrs.get("standard_name") or "No description available"
+                        variable_descriptions[var_name] = description
 
-                    # Merge time index
-                    if not merged_data["time"]:
-                        merged_data["time"] = sorted(df.index)
-                    
-                    # Use 'unix_time' as the index for reindexing
-                    merged_data[var_name] = df.reindex(merged_data["time"]).dropna().tolist()
+                        # Merge time index
+                        if not merged_data["time"]:
+                            merged_data["time"] = sorted(df.index)
+                        
+                        # Use 'unix_time' as the index for reindexing
+                        merged_data[var_name] = df.reindex(merged_data["time"]).dropna().tolist()
 
         # Convert to structured format
         headers = list(merged_data.keys())
         headers[headers.index("time")] = "unix_time"
 
         data_obj = {
-            "name": f"merged_data_{feature_id}",
+            "name": f"merged_data_{model_scenario_ensemble}",
             "description": "Merged NetCDF data from multiple sources",
             "type": "_".join(variable_names),
             "header": headers,
@@ -156,7 +193,7 @@ def extract_netcdf_data(geojson_file, netcdf_files, sliding_variable, x_variable
                     summary[column_name]["unique_values"] = list(unique_values)
 
         data_obj["summary"] = summary
-        output_data[feature_id] = [data_obj]
+        output_data[model_scenario_ensemble] = [data_obj]
 
     # Save output to JSON file
     with open(output_json, 'w') as f:

@@ -72,10 +72,12 @@ export default defineComponent({
       });
       // Compute NetCDF Layer Keys
       const stepIndexMap: Record<string, { length: number, currentIndex: number }> = {};
+      const resamplingMap: Record<string, 'linear' | 'nearest'> = {};
       visibleNetCDFLayers.value.forEach((item) => {
         const found = props.netcdfLayers.find((layer) => layer.id === item.netCDFLayer);
         if (found) {
           const { opacity } = item;
+          resamplingMap[`netcdf_${found.id}`] = item.resampling === 'nearest' ? 'nearest' : 'linear';
           mapLayerOpacityMap[`netcdf_${found.id}`] = opacity !== undefined ? opacity : 1.0;
           stepIndexMap[`netcdf_${found.id}`] = {
             length: item.images.length,
@@ -87,7 +89,7 @@ export default defineComponent({
       props.rasterLayers.forEach((layer) => {
         mapLayerOpacityMap[`raster_${layer.id}`] = layer?.default_style?.opacity !== undefined ? layer.default_style.opacity : 1.0;
       });
-      const order: { id: number, opacity: number, name: string, type: 'netcdf' | 'vector' | 'raster', length?: number, currentIndex?: number } [] = [];
+      const order: { id: number, opacity: number, name: string, type: 'netcdf' | 'vector' | 'raster', length?: number, currentIndex?: number, resampling?: 'linear' | 'nearest' } [] = [];
       MapStore.selectedMapLayers.value.forEach((layer) => {
         if (layer.type === 'netcdf') {
           if (mapLayerOpacityMap[`netcdf_${layer.id}`] !== undefined) {
@@ -99,7 +101,7 @@ export default defineComponent({
               currentIndex = data.currentIndex;
             }
             order.push({
-              id: layer.id, opacity: mapLayerOpacityMap[`netcdf_${layer.id}`], name: layer.name, type: layer.type, length, currentIndex,
+              id: layer.id, opacity: mapLayerOpacityMap[`netcdf_${layer.id}`], name: layer.name, type: layer.type, length, currentIndex, resampling: resamplingMap[`netcdf_${layer.id}`],
             });
           }
         } else if (layer.type === 'raster') {
@@ -155,7 +157,7 @@ export default defineComponent({
     });
 
     const updateIndex = (layerId: number, currentIndex: number) => {
-      updateNetCDFLayer(layerId, currentIndex);
+      updateNetCDFLayer(layerId, { index: currentIndex });
     };
     const throttledUpdateNetCDFLayer = throttle(updateIndex, 50);
 
@@ -175,7 +177,7 @@ export default defineComponent({
         const found = visibleNetCDFLayers.value.find((layer) => item.id === layer.netCDFLayer);
         if (found) {
           found.opacity = val;
-          updateNetCDFLayer(item.id, undefined, val);
+          updateNetCDFLayer(item.id, { opacity: val });
         }
       }
       if (item.type === 'raster') {
@@ -190,12 +192,22 @@ export default defineComponent({
         }
       }
     };
+
+    const toggleResampling = (id: number) => {
+      const found = visibleNetCDFLayers.value.find((layer) => id === layer.netCDFLayer);
+      if (found) {
+        const val = found.resampling === 'linear' ? 'nearest' : 'linear';
+        found.resampling = val;
+        updateNetCDFLayer(id, { resampling: val });
+      }
+    };
     return {
       processedLayers,
       iconMapper,
       updateOpacity,
       throttledUpdateNetCDFLayer,
       stepMapping,
+      toggleResampling,
     };
   },
 });
@@ -211,7 +223,14 @@ export default defineComponent({
   >
     <v-card-text class="py-1 px-2">
       <span class="py-1 px-2 d-flex align-center">
-        <v-icon size="16" class="mr-1" color="primary">
+        <v-tooltip v-if="item.type === 'netcdf'" text="Image Scaling (Nearest vs Linear)">
+          <template #activator="{ props }">
+            <v-icon size="16" v-bind="props" class="mr-1" color="primary" @click="toggleResampling(item.id)">
+              {{ item.resampling === 'nearest' ? ' mdi-view-grid' : 'mdi-grid' }}
+            </v-icon>
+          </template>
+        </v-tooltip>
+        <v-icon v-else size="16" class="mr-1" color="primary">
           {{ iconMapper[item.type] }}
         </v-icon>
         <span class="text-sm">{{ item.name }}</span>

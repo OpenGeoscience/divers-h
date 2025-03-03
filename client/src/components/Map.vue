@@ -5,7 +5,7 @@ import { Protocol as PMTilesProtocol } from 'pmtiles';
 import {
   Ref, defineComponent, onMounted, ref, watch,
 } from 'vue';
-import MapStore, { VECTOR_PMTILES_URL } from '../MapStore';
+import MapStore from '../MapStore';
 import {
   updateSelected,
 } from '../map/mapVectorLayers';
@@ -81,10 +81,6 @@ export default defineComponent({
                 tileSize: 256,
                 attribution: '© OpenStreetMap contributors',
               },
-              [OSM_VECTOR_ID]: {
-                type: 'vector',
-                url: `pmtiles://${VECTOR_PMTILES_URL}`,
-              },
               'tva-region': {
                 type: 'geojson',
                 data: TVA_GEOJSON,
@@ -125,7 +121,6 @@ export default defineComponent({
                 minzoom: 0,
                 maxzoom: 19,
               },
-              ...VECTOR_LAYERS,
               {
                 id: 'naip-imagery-tiles',
                 type: 'raster',

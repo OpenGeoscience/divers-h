@@ -7,7 +7,7 @@ import { AnnotationTypes, VectorMapLayer } from '../types';
 import MapStore from '../MapStore';
 import { calculateColors } from './mapColors';
 import { updateProps } from './mapProperties';
-import { updateFilters } from './mapFilters';
+import { getLayerDefaultFilter, updateFilters } from './mapFilters';
 import { subLayerMapping, updateHeatmap } from './mapHeatmap';
 
 const addedLayers: Ref<VectorMapLayer[]> = ref([]);
@@ -94,14 +94,6 @@ const updateSelected = (map: maplibregl.Map) => {
   MapStore.selectedVectorMapLayers.value.forEach((layer) => {
     calculateColors(map, layer);
   });
-};
-
-const getLayerFilter = (type: AnnotationTypes) => {
-  if (['fill', 'fill-extrusion'].includes(type)) {
-    return ['==', ['geometry-type'], 'Polygon'] as FilterSpecification;
-  }
-
-  return true as FilterSpecification;
 };
 
 const baseVectorSource = new URL(
@@ -194,7 +186,7 @@ const toggleVectorMapLayers = (map: maplibregl.Map) => {
       type: 'circle',
       source: `VectorTile_${layer.id}`,
       'source-layer': 'default',
-      filter: getLayerFilter('circle'),
+      filter: getLayerDefaultFilter('circle', layer),
       paint: {
         'circle-color': getSelected(),
         'circle-radius': getCircleRadius(),
@@ -208,7 +200,7 @@ const toggleVectorMapLayers = (map: maplibregl.Map) => {
       type: 'line',
       source: `VectorTile_${layer.id}`,
       'source-layer': 'default',
-      filter: getLayerFilter('line'),
+      filter: getLayerDefaultFilter('line'),
       layout: {
         'line-join': 'round',
         'line-cap': 'round',
@@ -222,7 +214,7 @@ const toggleVectorMapLayers = (map: maplibregl.Map) => {
       type: 'fill',
       source: `VectorTile_${layer.id}`,
       'source-layer': 'default',
-      filter: getLayerFilter('fill'),
+      filter: getLayerDefaultFilter('fill'),
       paint: {
         // "fill-color": getAnnotationColor(),
         'fill-color': 'blue',
@@ -235,7 +227,7 @@ const toggleVectorMapLayers = (map: maplibregl.Map) => {
       source: `VectorTile_${layer.id}`,
       'source-layer': 'default',
       type: 'fill-extrusion',
-      filter: getLayerFilter('fill-extrusion'),
+      filter: getLayerDefaultFilter('fill-extrusion'),
       paint: {
         // "fill-extrusion-color": getAnnotationColor(),
         'fill-extrusion-color': '#888888',
@@ -360,6 +352,15 @@ const updateVectorLayer = (layer: VectorMapLayer) => {
                 layerDisplayConfig.zoom.max || 0,
               );
             }
+          }
+          if (!layerDisplayConfig.drawPoints && layerType === 'line' && !layer.default_style.filters?.length) {
+            setLayerFilter(
+              internalMap.value as maplibregl.Map,
+              `Layer_${layer.id}_circle`,
+              ['==', ['geometry-type'], 'Point'] as FilterSpecification,
+            );
+          } else if (layerType === 'line') {
+            setLayerFilter(internalMap.value as maplibregl.Map, `Layer_${layer.id}_circle`, true as FilterSpecification);
           }
         } else {
           toggleLayerTypeVisibility(internalMap.value as maplibregl.Map, layer.id, layerType, false);

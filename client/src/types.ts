@@ -292,6 +292,7 @@ export interface VectorLayerDisplayConfig {
     max?: number;
   },
   heatmap?: HeatMapConfig;
+  drawPoints?: boolean;
 }
 
 export interface HeatMapConfig {
@@ -448,7 +449,8 @@ export interface NetCDFImages {
 }
 
 // Working type for setting index/opacity
-export type NetCDFImageWorking = NetCDFImages & { currentIndex: number, opacity: number, name: string };
+export type NetCDFImageWorking = NetCDFImages
+& { currentIndex: number; opacity: number; resampling: 'linear' | 'nearest'; name: string };
 export interface NetCDFVariable {
   max: number;
   min: number;
@@ -565,7 +567,7 @@ export interface KeyProcessedType {
 // Type for color configuration
 export type KeyColorConfig =
   | { type: 'solid'; color: string }
-  | { attribute: string, type: 'categorical'; pairs: { value: number | string; color: string }[] }
+  | { attribute: string, type: 'categorical'; pairs: { value: number | string; color: string, disabled?: boolean }[] }
   | { attribute: string, type: 'linear'; colors: ColorLinearNumber['numberColorPairs'], name: string }
   | { name: string, type: 'categorical-raster'; pairs: { value: number | string; color: string }[], value:string }
   | {
@@ -798,3 +800,19 @@ export interface FeatureGraphData {
     indexer: string | number;
   }>
 }
+
+export interface ColorFilterCategorical {
+  layerId: number;
+  layerType: AnnotationTypes | 'all';
+  type: 'not in';
+  key: string;
+  values: Set<string>;
+}
+
+export interface ColorFilterLinear {
+  type: 'between';
+  min: number;
+  max: number;
+}
+
+export type ColorFilters = ColorFilterCategorical;

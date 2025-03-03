@@ -4,6 +4,7 @@ import { FilterSpecification } from 'maplibre-gl';
 import {
   AnnotationTypes,
   BooleanEqualsFilter,
+  ColorFilters,
   Filter,
   NumberBetweenFilter,
   NumberComparisonFilter,
@@ -13,6 +14,24 @@ import {
   VectorLayerDisplayConfig,
   VectorMapLayer,
 } from '../types';
+import MapStore from '../MapStore';
+
+const getLayerDefaultFilter = (type: AnnotationTypes, layer?: VectorMapLayer) => {
+  let drawPoints = false;
+  if (type === 'circle' && layer?.default_style.layers && layer.default_style.layers.line) {
+    if (layer.default_style.layers.line !== true) {
+      drawPoints = !!layer.default_style.layers.line.drawPoints;
+    }
+  }
+  if (['fill', 'fill-extrusion'].includes(type)) {
+    return ['==', ['geometry-type'], 'Polygon'] as FilterSpecification;
+  }
+  if (!drawPoints && ['circle'].includes(type)) {
+    return ['==', ['geometry-type'], 'Point'] as FilterSpecification;
+  }
+
+  return true as FilterSpecification;
+};
 
 function filterToMapLibreExpression(filter: Filter): any[] {
   switch (filter.type) {
@@ -63,30 +82,47 @@ function filterToMapLibreExpression(filter: Filter): any[] {
   return [];
 }
 
+const colorFilterToExpression = (filter: ColorFilters) => {
+  const expression = ['!', ['in', ['get', filter.key], ['literal', Array.from(filter.values)]]];
+  return expression;
+};
+
 const updateFilters = (map: maplibregl.Map, layer: VectorMapLayer) => {
-  if (layer.default_style?.filters) {
+  const colorFilter = MapStore.vectorColorFilters.value.find((item) => item.layerId === layer.id);
+  if (layer.default_style?.filters || colorFilter) {
     const annotationFilters: Record<AnnotationTypes, any[]> = {
       line: [],
       fill: [],
       circle: [],
       'fill-extrusion': [],
       text: [],
+      heatmap: [],
     };
-    for (let i = 0; i < layer.default_style.filters.length; i += 1) {
-      const filter = layer.default_style.filters[i];
-      const layerTypes = filter.layers;
-      if (filter.enabled) {
-        const expression = filterToMapLibreExpression(filter);
-        layerTypes.forEach((layerType) => {
-          if (annotationFilters[layerType] === undefined) {
-            annotationFilters[layerType] = [];
-          }
-          annotationFilters[layerType].push(expression);
-        });
-      } else {
-        layerTypes.forEach((layerType) => {
-          const layerName = `Layer_${layer.id}_${layerType}`;
-          map.setFilter(layerName, null);
+    if (layer.default_style?.filters) {
+      for (let i = 0; i < layer.default_style.filters.length; i += 1) {
+        const filter = layer.default_style.filters[i];
+        const layerTypes = filter.layers;
+        if (filter.enabled) {
+          const expression = filterToMapLibreExpression(filter);
+          layerTypes.forEach((layerType) => {
+            if (annotationFilters[layerType] === undefined) {
+              annotationFilters[layerType] = [];
+            }
+            annotationFilters[layerType].push(expression);
+          });
+        } else {
+          layerTypes.forEach((layerType) => {
+            const layerName = `Layer_${layer.id}_${layerType}`;
+            map.setFilter(layerName, null);
+          });
+        }
+      }
+    }
+    if (colorFilter) {
+      if (colorFilter.layerType === 'all') {
+        (Object.keys(annotationFilters) as AnnotationTypes[]).forEach((key) => {
+          const expression = colorFilterToExpression(colorFilter);
+          annotationFilters[key].push(expression);
         });
       }
     }
@@ -96,28 +132,32 @@ const updateFilters = (map: maplibregl.Map, layer: VectorMapLayer) => {
         if (!(layer.default_style.layers[key] as VectorLayerDisplayConfig).enabled) {
           return;
         }
+        const layerConfig = (layer.default_style.layers[key] as VectorLayerDisplayConfig);
         const layerName = `Layer_${layer.id}_${key}`;
         const typeFilters = annotationFilters[key];
-        if (typeFilters.length === 0) {
+        if (typeFilters.length === 0 && !layerConfig.drawPoints) {
           return;
         }
         const lineFilter = [];
         if (['fill', 'fill-extrusion'].includes(key)) {
           lineFilter.push(['==', ['geometry-type'], 'Polygon'] as FilterSpecification);
         }
+        if (['circle'].includes(key)) {
+          lineFilter.push(['==', ['geometry-type'], 'Point'] as FilterSpecification);
+        }
         if (typeFilters.length) {
-          const filterSpecification = typeFilters.length > 0 ? ['all'] : [];
+          let filterSpecification = typeFilters.length > 0 ? ['all'] : [];
           if (lineFilter.length) {
-            filterSpecification.push(lineFilter);
+            filterSpecification = filterSpecification.concat(lineFilter);
           }
           const outputFilter = filterSpecification.concat(typeFilters);
           if (outputFilter.length) {
             map.setFilter(layerName, outputFilter as FilterSpecification);
           }
         } else {
-          const filterSpecification = [];
+          let filterSpecification = [];
           if (lineFilter.length) {
-            filterSpecification.push(lineFilter);
+            filterSpecification = filterSpecification.concat(lineFilter);
           }
           if (filterSpecification.length) {
             map.setFilter(layerName, filterSpecification as FilterSpecification);
@@ -125,7 +165,13 @@ const updateFilters = (map: maplibregl.Map, layer: VectorMapLayer) => {
         }
       }
     });
+  } else {
+    const annotationTypes: AnnotationTypes[] = ['fill', 'line', 'circle', 'fill-extrusion', 'text'];
+    annotationTypes.forEach((item) => {
+      const layerName = `Layer_${layer.id}_${item}`;
+      const filterSpecification = getLayerDefaultFilter(item, layer);
+      map.setFilter(layerName, filterSpecification as FilterSpecification);
+    });
   }
 };
-
-export { filterToMapLibreExpression, updateFilters };
+export { filterToMapLibreExpression, updateFilters, getLayerDefaultFilter };

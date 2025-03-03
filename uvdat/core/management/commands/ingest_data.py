@@ -320,6 +320,7 @@ class Command(BaseCommand):
 
         # process tabular and add file if needed
         if file_metadata.get('tabular'):
+            self.stdout.write(f'\Processing Tabular: {file_metadata.get("tabular")}')
             self.process_tabular_data(new_file_item, dataset, file_metadata, replace, action)
         return True
 

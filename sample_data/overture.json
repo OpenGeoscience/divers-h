@@ -1,0 +1,26 @@
+[{
+    "type": "Context",
+    "name": "Boston Overture",
+    "default_map_center": [
+        42.3555,
+        -71.0565
+    ],
+    "default_map_zoom": 6,
+    "datasets": [
+        {
+            "name": "Overture Data",
+            "description": "Overture Data",
+            "category": "overture",
+            "metadata": {},
+            "files": [
+                {
+                    "path": "./data/tva/overture.zip",
+                    "url": "https://data.kitware.com/api/v1/item/67bc9e26de1cd5c0d8ba62d5/download",
+                    "name": "Overture Data",
+                    "type": "zip",
+                    "metadata":{}
+                }
+            ]
+        }
+    ]
+}]
