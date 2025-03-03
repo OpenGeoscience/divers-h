@@ -9,10 +9,10 @@ import tempfile
 from PIL import Image
 from celery import current_task, shared_task
 import cftime
-from django.db import transaction
 from django.contrib.gis.geos import Polygon
 from django.contrib.gis.geos.error import GEOSException
 from django.core.files.base import ContentFile
+from django.db import transaction
 from matplotlib import cm
 import numpy as np
 import pandas as pd
@@ -174,7 +174,6 @@ def create_netcdf_data_layer(file_item, metadata):
                     var_info['steps'] = variable.size
                     logger.warning(f'Variable Min/Max Exception {var_name}: {e}')
                     logger.warning(f'Variable info {var_info}')
-
 
             description['variables'][var_name] = var_info
             if metadata.get('tags', False):
@@ -570,7 +569,9 @@ def create_netcdf_slices(
                     and all(isinstance(x, int) for x in slicer_range)
                 )
 
-                if is_range_of_integers and not (np.issubdtype(ds[sliding_variable].dtype, np.datetime64)):
+                if is_range_of_integers and not (
+                    np.issubdtype(ds[sliding_variable].dtype, np.datetime64)
+                ):
                     # Check if range is within the number of layers
                     num_layers = len(ds[sliding_variable])
                     if not (
@@ -780,14 +781,16 @@ def create_netcdf_slices(
             slice_data = data_var.isel(indexers).values
 
             # Normalize data to 0-1 for colormap application
-            # Uncomment for per-image normalization            
+            # Uncomment for per-image normalization
             # slice_min = np.nanmin(slice_data)
             # slice_max = np.nanmax(slice_data)
             normalized_data = (slice_data - slice_min) / (slice_max - slice_min)
 
             # Apply the colormap
             colored_data = colormap(normalized_data)  # Returns RGBA values
-            colored_data = (colored_data[:, :, :3] * 255).astype(np.uint8)  # Drop alpha, scale to 0-255
+            colored_data = (colored_data[:, :, :3] * 255).astype(
+                np.uint8
+            )  # Drop alpha, scale to 0-255
 
             # Convert to an RGB image using PIL
             image = Image.fromarray(colored_data, mode='RGB')
@@ -798,15 +801,17 @@ def create_netcdf_slices(
             image_content = ContentFile(image_buffer.getvalue(), name=image_name)
 
             # Collect the NetCDFImage objects for bulk creation later
-            image_objects.append(NetCDFImage(
-                netcdf_layer=netcdf_layer,
-                image=image_content,  # Save the image to the S3 field
-                slider_index=i,
-                bounds=bounds,  # Reuse the bounds calculated earlier
-            ))
+            image_objects.append(
+                NetCDFImage(
+                    netcdf_layer=netcdf_layer,
+                    image=image_content,  # Save the image to the S3 field
+                    slider_index=i,
+                    bounds=bounds,  # Reuse the bounds calculated earlier
+                )
+            )
 
         # Bulk create the NetCDFImage objects in a single database transaction
-        logger.info(f'Creating Image Objects')
+        logger.info('Creating Image Objects')
         with transaction.atomic():
             NetCDFImage.objects.bulk_create(image_objects)
         if processing_task:

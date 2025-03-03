@@ -1,12 +1,11 @@
 import json
 import logging
 
+from django.contrib.contenttypes.models import ContentType
 from django.contrib.gis.db.models import Extent
 from django.db import connection
 from django.http import HttpResponse, JsonResponse
 from django_large_image.rest import LargeImageFileDetailMixin
-from django.contrib.contenttypes.models import ContentType
-
 import numpy as np
 from rest_framework import status
 from rest_framework.decorators import action
@@ -536,7 +535,9 @@ class MapLayerViewSet(GenericViewSet):
             # Check for LayerRepresentation if provided
             layer_representation = None
             if layer_type == 'raster' or layer_type == 'vector':
-                layer_representation = LayerRepresentation.objects.filter(object_id=map_layer.id, map_type=ContentType.objects.get_for_model(map_layer))
+                layer_representation = LayerRepresentation.objects.filter(
+                    object_id=map_layer.id, map_type=ContentType.objects.get_for_model(map_layer)
+                )
 
             if layer_representation and layer_representation.exists():
                 layer_rep_obj = layer_representation.first()

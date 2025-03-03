@@ -47,9 +47,9 @@ def convert_dataset(
 
             # Handle Vector files
             tags = file_metadata.get('tags', False)
-            metadata_modified = {} 
+            metadata_modified = {}
             if tags:
-                metadata_modified = { 'tags': tags }
+                metadata_modified = {'tags': tags}
             vector_map_layers = create_vector_map_layer(
                 file_to_convert,
                 style_options=style_options,
