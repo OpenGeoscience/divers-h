@@ -193,7 +193,7 @@ class VectorFeatureTableDataViewSet(
                 y_val = row.row_data[y_axis_index]
                 if y_val is None:
                     continue
-                
+
                 if x_val not in data:
                     data[x_val] = []
                 data[x_val].append(y_val)
@@ -217,7 +217,7 @@ class VectorFeatureTableDataViewSet(
             if aggregate_all:
                 break
             if 'data' in data_types:
-                y_output_vals = [data[x] for x in sorted_x_vals]
+                y_output_vals = [data[x][0] for x in sorted_x_vals]
                 result['data'] = list(zip(sorted_x_vals, y_output_vals))
 
             if 'trendLine' in data_types:
@@ -225,6 +225,7 @@ class VectorFeatureTableDataViewSet(
                 result['trendLine'] = [(x, slope * x + intercept) for x in x_vals]
 
             if 'confidenceInterval' in data_types:
+                slope, intercept, _, _, _ = stats.linregress(x_vals, y_vals)
                 confidence_val = int(confidence_level)
                 alpha = 1 - (confidence_val / 100)
                 z_score = stats.norm.ppf(1 - alpha / 2)
@@ -258,6 +259,7 @@ class VectorFeatureTableDataViewSet(
                 aggregate_result['trendLine'] = [(x, slope * x + intercept) for x in sorted_x_vals]
 
             if 'confidenceInterval' in data_types:
+                slope, intercept, _, _, _ = stats.linregress(sorted_x_vals, avg_y_vals)
                 confidence_val = int(confidence_level)
                 alpha = 1 - (confidence_val / 100)
                 z_score = stats.norm.ppf(1 - alpha / 2)

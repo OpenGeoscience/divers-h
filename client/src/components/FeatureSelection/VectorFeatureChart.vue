@@ -1,11 +1,11 @@
 <script lang="ts">
 import {
-  PropType, defineComponent, nextTick, ref, watch,
+  PropType, computed, defineComponent, nextTick, ref, watch,
 } from 'vue';
+import { throttle } from 'lodash';
 import UVdatApi from '../../api/UVDATApi';
 import { FeatureGraphData, VectorFeatureTableGraph } from '../../types';
 import { renderVectorFeatureGraph } from './vectorFeatureGraphUtils';
-import { throttle } from 'lodash';
 
 export default defineComponent({
   name: 'FeatureGraph',
@@ -36,6 +36,16 @@ export default defineComponent({
     const movingAverageEnabled = ref(false);
     const movingAverageValue = ref(12);
 
+    const maxMovingAverage = computed(() => {
+      if (graphData.value) {
+        const keys = Object.keys(graphData.value?.graphs || []);
+        if (keys.length === 1 && graphData.value?.graphs) {
+          const dataLength = graphData.value.graphs[parseInt(keys[0], 10)].data.length;
+          return Math.floor(dataLength / 4);
+        }
+      }
+      return 50;
+    });
     // Fetch feature graph data when component is mounted or props change
     const fetchFeatureGraphData = async () => {
       noGraphData.value = false;
@@ -138,7 +148,14 @@ export default defineComponent({
     };
 
     const throttledUpateDialogGraph = throttle(updateDialogGraph, 500);
-    watch([hideBaseData, trendLine, confidenceIntervalEnabled, confidenceLevel, movingAverageEnabled, movingAverageValue], throttledUpateDialogGraph);
+    watch([
+      hideBaseData,
+      trendLine,
+      confidenceIntervalEnabled,
+      confidenceLevel,
+      movingAverageEnabled,
+      movingAverageValue,
+    ], throttledUpateDialogGraph);
 
     return {
       graphContainer,
@@ -153,6 +170,7 @@ export default defineComponent({
       confidenceLevel,
       movingAverageEnabled,
       movingAverageValue,
+      maxMovingAverage,
     };
   },
 });
@@ -190,11 +208,29 @@ export default defineComponent({
             </v-col>
             <v-col>
               <v-checkbox v-model="confidenceIntervalEnabled" density="compact" hide-details label="Confidence" />
-              <v-slider v-if="confidenceIntervalEnabled" v-model="confidenceLevel" :min="50" step="1" :max="99" :label="`${confidenceLevel.toFixed(1)}%`" hide-details />
+              <v-slider
+                v-if="confidenceIntervalEnabled"
+                v-model="confidenceLevel"
+                color="primary"
+                :min="50"
+                step="1"
+                :max="99"
+                :label="`${confidenceLevel.toFixed(1)}%`"
+                hide-details
+              />
             </v-col>
             <v-col>
               <v-checkbox v-model="movingAverageEnabled" density="compact" hide-details label="Moving Average" />
-              <v-slider v-if="movingAverageEnabled" v-model="movingAverageValue" :min="2" step="1" :max="50" :label="movingAverageValue.toFixed(0)" hide-details />
+              <v-slider
+                v-if="movingAverageEnabled"
+                v-model="movingAverageValue"
+                color="primary"
+                :min="2"
+                step="1"
+                :max="maxMovingAverage"
+                :label="movingAverageValue.toFixed(0)"
+                hide-details
+              />
             </v-col>
           </v-row>
           <svg ref="graphDialogContainer" width="100%" height="400" />

@@ -33,6 +33,16 @@ export default defineComponent({
     // eslint-disable-next-line vue/max-len
     const availableLayers = computed(() => MapStore.mapLayerFeatureGraphs.value.map((item) => ({ title: item.name, value: item.id })));
 
+    const maxMovingAverage = computed(() => {
+      if (graphData.value) {
+        if (graphData.value?.graphs && graphData.value.graphs.all) {
+          const dataLength = graphData.value.graphs.all.data.length;
+          return Math.floor(dataLength / 4);
+        }
+      }
+      return 50;
+    });
+
     const availableCharts = computed(() => {
       if (availableLayers.value && selectedLayer.value) {
         const found = MapStore.mapLayerFeatureGraphs.value.find((item) => item.id === selectedLayer.value);
@@ -165,7 +175,15 @@ export default defineComponent({
     });
 
     const throttledUpateGraph = throttle(fetchMapLayerFeatureGraphData, 500);
-    watch([aggregate, hideBaseData, trendLine, confidenceIntervalEnabled, confidenceLevel, movingAverageEnabled, movingAverageValue], throttledUpateGraph);
+    watch([
+      aggregate,
+      hideBaseData,
+      trendLine,
+      confidenceIntervalEnabled,
+      confidenceLevel,
+      movingAverageEnabled,
+      movingAverageValue,
+    ], throttledUpateGraph);
 
     return {
       selectedLayer,
@@ -183,6 +201,7 @@ export default defineComponent({
       movingAverageEnabled,
       movingAverageValue,
       aggregate,
+      maxMovingAverage,
     };
   },
 });
@@ -275,29 +294,53 @@ export default defineComponent({
           </v-col>
           <v-col>
             <v-checkbox v-model="confidenceIntervalEnabled" density="compact" hide-details label="Confidence" />
-            <v-slider v-if="confidenceIntervalEnabled" v-model="confidenceLevel" :min="50" step="1" :max="99" :label="`${confidenceLevel.toFixed(1)}%`" hide-details />
+            <v-slider
+              v-if="confidenceIntervalEnabled"
+              v-model="confidenceLevel"
+              color="primary"
+              :min="50"
+              step="1"
+              :max="99"
+              :label="`${confidenceLevel.toFixed(1)}%`"
+              hide-details
+            />
           </v-col>
           <v-col>
             <v-checkbox v-model="movingAverageEnabled" density="compact" hide-details label="Moving Average" />
-            <v-slider v-if="movingAverageEnabled" v-model="movingAverageValue" :min="2" step="1" :max="50" :label="movingAverageValue.toFixed(0)" hide-details />
-          </v-col>
-        </v-row>
-
-        <v-row no-gutters justify="center">
-          <v-col cols="12" class="text-center">
-            <v-progress-circular
-              v-if="loading"
-              indeterminate
+            <v-slider
+              v-if="movingAverageEnabled"
+              v-model="movingAverageValue"
               color="primary"
-              size="256"
-              width="32"
+              :min="2"
+              step="1"
+              :max="maxMovingAverage"
+              :label="movingAverageValue.toFixed(0)"
+              hide-details
             />
           </v-col>
         </v-row>
 
+        <v-row no-gutters justify="center">
+          <v-spacer />
+          <v-progress-circular
+            v-if="loading"
+            indeterminate
+            color="primary"
+            size="256"
+            width="32"
+            style="position:absolute"
+          />
+          <v-spacer />
+        </v-row>
+
         <v-row no-gutters>
           <v-col>
-            <svg ref="graphContainer" :height=" !loading ? '300px' : '0px'" class="selectedFeatureSVG" />
+            <svg
+              ref="graphContainer"
+              height="300px"
+              class="selectedFeatureSVG"
+              :style="loading ? 'opacity: 0.2;' : 'opacity: 1.0' "
+            />
           </v-col>
         </v-row>
       </v-container>
