@@ -6,17 +6,21 @@ const renderVectorFeatureGraph = (
   data: FeatureGraphData,
   container: SVGSVGElement,
   options?: {
-    specificGraphKey?: number; // Option to draw a specific graph
-    colors?: Record<number, string>; // Optional custom colors for specific graphs
+    specificGraphKey?: number;
+    colors?: Record<number, string>;
     xAxisLabel?: string;
     yAxisLabel?: string;
-    showXYValuesOnHover?: boolean; // New option to show X/Y instead of indexer
-    onLineClick?: (vectorFeatureId: number, indexer: string | number) => void; // Click handler
+    showXYValuesOnHover?: boolean;
+    onLineClick?: (vectorFeatureId: number, indexer: string | number) => void;
     onLineHover?: (vectorFeatureId: number, indexer: string | number) => void;
     onLineExit?: (vectorFeatureId: number, indexer: string | number) => void;
-    xAxisIsTime?: boolean; // New option to convert x-axis values from UNIX timestamp
-    xAxisVerticalLabels?: boolean; // New option to rotate x-axis labels vertically
-    zoomable?: boolean; // New option to enable zooming
+    xAxisIsTime?: boolean;
+    xAxisVerticalLabels?: boolean;
+    zoomable?: boolean;
+    hideBaseData?: boolean;
+    showTrendline?: boolean;
+    showMovingAverage?: boolean;
+    showConfidenceInterval?: boolean;
   },
   baseHeight = 400,
 ) => {
@@ -25,31 +29,37 @@ const renderVectorFeatureGraph = (
   if (!localContainer || !data) return outputColorMapping;
 
   const svg = d3.select(localContainer);
-  svg.selectAll('*').remove(); // Clear previous content
+  svg.selectAll('*').remove();
 
   const defaultMargin = {
     top: 20, right: 20, bottom: options?.xAxisVerticalLabels ? 70 : 35, left: 50,
-  }; // Base left margin
+  };
   const width = (localContainer.clientWidth || 250) - defaultMargin.left - defaultMargin.right;
   const height = baseHeight - defaultMargin.top - defaultMargin.bottom;
 
   const x = options?.xAxisIsTime
-    ? d3.scaleTime().range([0, width]) // Time scale if xAxisIsTime is true
-    : d3.scaleLinear().range([0, width]); // Linear scale for numeric data
+    ? d3.scaleTime().range([0, width])
+    : d3.scaleLinear().range([0, width]);
   const y = d3.scaleLinear().range([height, 0]);
 
   const line = d3.line()
     .x((d: [number, number]) => x(d[0]))
     .y((d: [number, number]) => y(d[1]));
 
+  const lowerConfidence = d3.line()
+    .x((d: [number, number]) => x(d[0]))
+    .y((d: [number, number]) => y(d[1]));
+
+  const upperConfidence = d3.line()
+    .x((d: [number, number]) => x(d[0]))
+    .y((d: [number, number]) => y(d[2]));
+
   const graphsToRender = options?.specificGraphKey !== undefined
     ? { [options.specificGraphKey]: data.graphs[options.specificGraphKey] }
     : data.graphs;
 
-  // Gather all data points for scaling
   const allDataPoints = Object.values(graphsToRender).flatMap((graph) => graph.data);
-
-  if (allDataPoints.length === 0) return outputColorMapping; // No data to render
+  if (allDataPoints.length === 0) return outputColorMapping;
 
   x.domain(d3.extent(allDataPoints, (d) => d[0]) as [number, number]);
   y.domain(d3.extent(allDataPoints, (d) => d[1]) as [number, number]);
@@ -83,11 +93,8 @@ const renderVectorFeatureGraph = (
 
   const g = svg.append('g').attr('transform', `translate(${margin.left},${margin.top})`);
 
-  // Generate distinct colors for different graphs
   const colorScale = d3.scaleOrdinal(d3.schemeCategory10);
   const graphKeys = Object.keys(graphsToRender).map(Number);
-
-  // Tooltip container (with background)
   const tooltipGroup = g.append('g')
     .attr('opacity', 0)
     .attr('pointer-events', 'none');
@@ -110,20 +117,24 @@ const renderVectorFeatureGraph = (
     }
     return d;
   };
+
   graphKeys.forEach((key, index) => {
     const graph = graphsToRender[key];
     const color = options?.colors?.[key] || colorScale(index.toString());
     outputColorMapping[key] = color;
-    const path = g.append('path')
-      .datum(graph.data.sort((a, b) => a[0] - b[0]))
-      .attr('fill', 'none')
-      .attr('stroke', color)
-      .attr('stroke-width', 2)
-      .attr('d', line)
-      .attr('cursor', 'pointer')
-      .attr('vectorFeatureId', key);
+    let path;
+    if (!options?.hideBaseData) {
+      path = g.append('path')
+        .datum(graph.data.sort((a, b) => a[0] - b[0]))
+        .attr('fill', 'none')
+        .attr('stroke', color)
+        .attr('stroke-width', 2)
+        .attr('d', line)
+        .attr('cursor', 'pointer')
+        .attr('vectorFeatureId', key);
+    }
 
-    if (!options?.specificGraphKey) {
+    if (!options?.specificGraphKey && path) {
       path.on('click', () => options?.onLineClick?.(key, graph.indexer))
         .on('mouseover', function () {
           d3.selectAll('path') // Select all paths
@@ -161,7 +172,7 @@ const renderVectorFeatureGraph = (
             options.onLineExit(key, graph.indexer);
           }
         });
-    } else if (options?.showXYValuesOnHover) {
+    } else if (options?.showXYValuesOnHover && path) {
       g.selectAll(`circle-${key}`)
         .data(graph.data)
         .enter()
@@ -203,8 +214,46 @@ const renderVectorFeatureGraph = (
     if (svgNode && tooltipGroupNode) {
       svgNode.appendChild(tooltipGroupNode);
     }
-  });
 
+    if (options?.showTrendline && graph.trendLine) {
+      g.append('path')
+        .datum(graph.trendLine)
+        .attr('fill', 'none')
+        .attr('stroke', '#FF00FF')
+        .attr('stroke-width', 10)
+        .attr('stroke-dasharray', '20,5')
+        .attr('d', line)
+        .attr('class', `trendline trendline-${key}`);
+    }
+
+    if (options?.showMovingAverage && graph.movingAverage) {
+      g.append('path')
+        .datum(graph.movingAverage)
+        .attr('fill', 'none')
+        .attr('stroke', '#00FFFF')
+        .attr('stroke-width', 5)
+        .attr('d', line)
+        .attr('class', `moving-average moving-average-${key}`);
+    }
+    if (options?.showConfidenceInterval && graph.confidenceIntervals) {
+      g.append('path')
+        .datum(graph.confidenceIntervals)
+        .attr('stroke', '#FF0000')
+        .attr('stroke-width', 5)
+        .attr('stroke-dasharray', '2,2')
+        .attr('opacity', 0.75)
+        .attr('d', lowerConfidence)
+        .attr('class', `confidence-interval confidence-interval-${key}`);
+      g.append('path')
+        .datum(graph.confidenceIntervals)
+        .attr('stroke', '#00FF00')
+        .attr('stroke-width', 5)
+        .attr('stroke-dasharray', '2,2')
+        .attr('opacity', 0.75)
+        .attr('d', upperConfidence)
+        .attr('class', `confidence-interval confidence-interval-${key}`);
+    }
+  });
   // Zoom functionality
   if (options?.zoomable) {
     const zoom = d3.zoom()
@@ -227,7 +276,7 @@ const renderVectorFeatureGraph = (
     xaxis.selectAll('text')
       .style('text-anchor', 'middle')
       .attr('dy', '0.35em')
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
       .text((d: any) => d3.timeFormat('%Y-%m-%d')(d * 1000));
   }
 
@@ -264,6 +313,7 @@ const renderVectorFeatureGraph = (
       .attr('text-anchor', 'middle')
       .text(options?.yAxisLabel);
   }
+
   return outputColorMapping;
 };
 

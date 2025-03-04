@@ -794,10 +794,13 @@ export type VectorFeatureTableGraphSelected = VectorFeatureTableGraph & { expand
 export interface FeatureGraphData {
   table_name: string;
   graphs:
-  Record<number, {
+  Record<number | 'all', {
     data:[number, number][];
     vectorFeatureId: number;
     indexer: string | number;
+    trendLine?:[number, number][];
+    confidenceIntervals?:[number, number, number][];
+    movingAverage?:[number, number][];
   }>
 }
 
