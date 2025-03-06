@@ -106,9 +106,16 @@ class RasterMapLayerViewSet(ModelViewSet, LargeImageFileDetailMixin):
     )
     def get_raster_bbox(self, request, **kwargs):
         raster_map_layer = self.get_object()
+        
+        if raster_map_layer.bounds:
+            bounds = raster_map_layer.bounds.extent
+            bbox_dict = {'xmin': bounds[0], 'ymin': bounds[1], 'xmax': bounds[2], 'ymax': bounds[3]}
+            return JsonResponse(bbox_dict)
+        
         data = raster_map_layer.get_bbox()
-        return HttpResponse(json.dumps(data), status=200)
-
+        return JsonResponse(data, status=200, safe=False)
+    
+    
     @action(
         detail=True,
         methods=['get'],
@@ -276,6 +283,14 @@ class VectorMapLayerViewSet(ModelViewSet):
         url_name='bbox',
     )
     def get_vector_bbox(self, request, pk=None):
+        map_layer = VectorMapLayer.objects.filter(pk=pk).first()
+        if not map_layer:
+            return JsonResponse({'error': 'Map layer not found.'}, status=404)
+
+        if map_layer.bounds:
+            bounds = map_layer.bounds.extent
+            bbox_dict = {'xmin': bounds[0], 'ymin': bounds[1], 'xmax': bounds[2], 'ymax': bounds[3]}
+            return JsonResponse(bbox_dict)
         try:
             bbox = VectorFeature.objects.filter(map_layer_id=pk).aggregate(Extent('geometry'))[
                 'geometry__extent'

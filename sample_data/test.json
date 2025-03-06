@@ -1098,7 +1098,6 @@
         "description": "TVA USGS WaterFlow and temperature",
         "category": "tabular",
         "metadata": {},
-        "action": "replace",
         "files": [
             {
                 "path": "./data/tva_sites.geojson",

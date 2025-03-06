@@ -6,7 +6,7 @@ import * as d3 from 'd3';
 import UVdatApi from '../../api/UVDATApi';
 import MapStore from '../../MapStore';
 import { AbstractMapLayer } from '../../types';
-import { toggleLayerSelection } from '../../map/mapLayers';
+import { getStringBBox, toggleLayerSelection } from '../../map/mapLayers';
 
 export default defineComponent({
   name: 'MetadataLayerFilter',
@@ -17,6 +17,7 @@ export default defineComponent({
     const colorScale = d3.scaleOrdinal(d3.schemeCategory10);
     const search = ref('');
     const showFilters = ref(false); // Toggle filter visibility
+    const filterBBox = ref(false);
 
     onMounted(async () => {
       metadataFilters.value = await UVdatApi.getMetadataFilters();
@@ -28,7 +29,11 @@ export default defineComponent({
     watch(
       [selectedFilters, search],
       async () => {
-        const result = await UVdatApi.filterOnMetadata(selectedFilters.value, search.value);
+        let bbox: string;
+        if (filterBBox.value) {
+          bbox = getStringBBox();
+        }
+        const result = await UVdatApi.filterOnMetadata(selectedFilters.value, search.value, bbox);
         filteredLayers.value = result;
       },
       { deep: true },
@@ -71,6 +76,7 @@ export default defineComponent({
       toggleFilterLayerSelection,
       search,
       showFilters,
+      filterBBox,
     };
   },
 });
@@ -88,9 +94,20 @@ export default defineComponent({
         clearable
         prepend-inner-icon="mdi-magnify"
       />
-      <v-icon icon :color="showFilters ? 'primary' : ''" @click="showFilters = !showFilters">
-        {{ showFilters ? 'mdi-filter' : 'mdi-filter' }}
-      </v-icon>
+      <v-tooltip text="Filter by current Map View">
+        <template #activator="{ props }">
+          <v-icon :color="filterBBox ? 'primary' : ''" v-bind="props" @click="filterBBox = !filterBBox">
+            mdi-vector-square
+          </v-icon>
+        </template>
+      </v-tooltip>
+      <v-tooltip text="View metadata filters">
+        <template #activator="{ props }">
+          <v-icon :color="showFilters ? 'primary' : ''" v-bind="props" @click="showFilters = !showFilters">
+            mdi-filter
+          </v-icon>
+        </template>
+      </v-tooltip>
     </v-row>
 
     <!-- Selected Filters as Chips (Shown when filters are hidden) -->

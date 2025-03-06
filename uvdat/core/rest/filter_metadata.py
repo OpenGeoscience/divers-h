@@ -42,6 +42,7 @@ class MetadataFilterViewSet(viewsets.GenericViewSet):
     def filter_layers(self, request, *args, **kwargs):
         filters = request.data.get('filters', {})  # DRF will automatically parse the JSON body
         search_query = request.data.get('search', '').strip().lower()  # Search term
+        bbox = request.data.get('bbox', None)  # Bounding box filter
 
         # Collecting all models
         models = [RasterMapLayer, VectorMapLayer, NetCDFLayer]
@@ -57,6 +58,13 @@ class MetadataFilterViewSet(viewsets.GenericViewSet):
             # Apply search filtering if provided
             if search_query:
                 layers = layers.filter(Q(name__icontains=search_query))
+
+            if bbox:
+                try:
+                    xmin, ymin, xmax, ymax = bbox
+                    layers = layers.filter(bounds__intersects=(xmin, ymin, xmax, ymax))
+                except ValueError:
+                    logger.error("Invalid bbox format. Expected [xmin, ymin, xmax, ymax]")
 
             for layer in layers:
                 if layer.metadata is None:
