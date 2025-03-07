@@ -6,6 +6,7 @@ import AvailableProperties from './Metadata/AvailableProperties.vue';
 import MetadataSettings from './Metadata/MetadataSettings.vue';
 import SelectedFeatureChartCard from './Metadata/SelectedFeatureChartCard.vue';
 import TableSummary from './TabularData/TableSummary.vue';
+import VectorFeatureSearch from './VectorFeatureSearch/Editor/VectorFeatureSearch.vue';
 
 export default defineComponent({
   components: {
@@ -21,7 +22,7 @@ export default defineComponent({
     },
   },
   setup() {
-    const tab: Ref<'availableProperties' | 'settings' | 'charts' | 'tabularData'> = ref('availableProperties');
+    const tab: Ref<'availableProperties' | 'settings' | 'charts' | 'tabularData' | 'SearchableVectorData'> = ref('availableProperties');
 
     return {
       tab,
@@ -88,6 +89,20 @@ export default defineComponent({
         </v-icon>
       </template>
     </v-tooltip>
+    <v-tooltip text="Searchable Vector Data">
+      <template #activator="{ props }">
+        <v-icon
+          class="icon-center"
+          :class="{ 'selected-tab': tab === 'SearchableVectorData' }"
+          v-bind="props"
+          color="primary"
+          size="x-small"
+          @click="tab = 'SearchableVectorData'"
+        >
+          mdi-table
+        </v-icon>
+      </template>
+    </v-tooltip>
 
     <v-spacer />
   </v-row>
@@ -95,6 +110,7 @@ export default defineComponent({
   <MetadataSettings v-else-if="tab === 'settings'" :layer-id="layerId" />
   <SelectedFeatureChartCard v-else-if="tab === 'charts'" :layer-id="layerId" />
   <TableSummary v-else-if="tab === 'tabularData'" :layer-id="layerId" />
+  <VectorFeatureSearch v-else-if="tab === 'SearchableVectorData'" :layer-id="layerId" />
 </template>
 
 <style scoped>
