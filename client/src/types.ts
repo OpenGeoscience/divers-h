@@ -878,3 +878,15 @@ export interface SearchableVectorData {
     actions: (SearchableVectorDisplayActionNavigate | SearchableVectorDisplayActionSelect | SearchableVectorDisplayActionZoom)[]
   }
 }
+
+export interface SearchableVectorDataRequest {
+  mapLayerId: number;
+  mainTextSearchFields?: string[]; // mainTextSearch Field keys, The main search will use these keys to filter items
+  search?: string;
+  filters?: Record<string, { type: 'bool' | 'number' | 'string', value: string | number | boolean | [number, number] }>;
+  bbox?: string;
+  sortKey?: string;
+  titleKey: SearchableVectorDisplayItem;
+  subtitleKeys: SearchableVectorDisplayItem[]; // Allows zero or multiple subtitles that will be in a single line
+  detailStrings: SearchableVectorDisplayItem[];
+}
