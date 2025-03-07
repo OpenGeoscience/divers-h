@@ -1114,7 +1114,21 @@
                 }
             }
         ]
+    },
+    {
+        "type": "Dataset",
+        "name": "PowerPlant",
+        "description": "TVA PowerPlants",
+        "category": "powerplants",
+        "metadata": {},
+        "files": [
+            {
+                "path": "./data/tva/powerplants.geojson",
+                "url": "https://data.kitware.com/api/v1/file/67b4e6f4146ff7c60286eaaa/download",
+                "name": "TVA Power Plants",
+                "type": "geojson",
+                "metadata": {}
+            }
+        ]
     }
-
-
 ]

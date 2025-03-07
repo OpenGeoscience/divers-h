@@ -398,6 +398,7 @@ export interface VectorMapLayer extends AbstractMapLayer {
     selectedFeatureCharts?: FeatureChart[];
     vectorFeatureTableGraphs?: VectorFeatureTableGraph[];
     mapLayerFeatureTableGraphs?: VectorFeatureTableGraph[];
+    searchableVectorFeatureData?: SearchableVectorData;
 
   }
 }
@@ -820,10 +821,9 @@ export interface ColorFilterLinear {
 
 export type ColorFilters = ColorFilterCategorical;
 
-
 export interface SearchableVectorFilter {
   key: string;
-  display?: boolean;
+  defaultDisplay?: boolean;
   type: 'number' | 'string' | 'bool';
   min?: number;
   max?: number;
@@ -859,7 +859,7 @@ export interface SearchableVectorDisplayActionNavigate {
 
 export interface SearchableVectorData {
   mainTextSearchFields?: string[]; // mainTextSearch Field keys, The main search will use these keys to filter items
-  configurableFilters: SearchableVectorFilter[];
+  configurableFilters: string[]; //Keys for searchable vector features
   display: {
     geospatialFilterEnabled: boolean; // Filter results based on map display as well
     sortable: boolean; // Ability to sort items by something other than the name of the titleKey field.
