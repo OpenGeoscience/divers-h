@@ -3,12 +3,15 @@ from pathlib import Path
 import tempfile
 
 from django.contrib.gis.db import models as geomodels
+from django.contrib.gis.geos import Polygon
 from django.core.files.base import ContentFile
 from django.db import models
 from django.dispatch import receiver
 from django_extensions.db.models import TimeStampedModel
 import large_image
 from s3_file_field import S3FileField
+from shapely.geometry import shape
+from shapely.ops import unary_union
 
 from .dataset import Dataset
 
@@ -20,8 +23,32 @@ class AbstractMapLayer(TimeStampedModel):
     index = models.IntegerField(null=True)
     name = models.CharField(max_length=255, unique=False, blank=True)
 
+    bounds = geomodels.PolygonField(
+        help_text='Bounds/Extents of the Layer',
+        null=True,
+        blank=True,
+    )
+
     def is_in_context(self, context_id):
         return self.dataset.is_in_context(context_id)
+
+    def set_bounds(self):
+        if isinstance(self, RasterMapLayer):
+            bbox = self.get_bbox()  # Expected format: (xmin, ymin, xmax, ymax)
+            if bbox and all(k in bbox for k in ['xmin', 'ymin', 'xmax', 'ymax']):
+                self.bounds = Polygon.from_bbox(
+                    (bbox['xmin'], bbox['ymin'], bbox['xmax'], bbox['ymax'])
+                )
+        elif isinstance(self, VectorMapLayer):
+            geojson_data = self.read_geojson_data()
+            if 'features' in geojson_data:
+                geometries = [shape(feature['geometry']) for feature in geojson_data['features']]
+                if geometries:
+                    combined = unary_union(geometries)  # Shapely Polygon
+                    self.bounds = Polygon(
+                        list(combined.envelope.exterior.coords)
+                    )  # Convert to GEOS Polygon
+        self.save()
 
     class Meta:
         abstract = True

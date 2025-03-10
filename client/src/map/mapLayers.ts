@@ -136,4 +136,5 @@ export {
   toggleLayerSelection,
   toggleLayerVisibility,
   getCenterAndZoom,
+  internalMap,
 };

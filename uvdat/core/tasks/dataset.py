@@ -37,7 +37,11 @@ def convert_dataset(
         file_metadata = file_to_convert.metadata
         style_options = file_metadata.get('default_style', base_style_options)
         if file_name.endswith('.gpkg'):
-            process_geopackage(file_to_convert, style_options)
+            raster_map_layers, vector_map_layers = process_geopackage(
+                file_to_convert, style_options
+            )
+            for item in raster_map_layers:
+                item.set_bounds()
         elif file_name.endswith(('.zip', '.geojson', '.json', '.csv')):
             if file_metadata.get('processing', False) == 'csvToHeatmap' and file_name.endswith(
                 '.csv'
@@ -74,13 +78,15 @@ def convert_dataset(
                         process_tabular_vector_feature_data(
                             vector_map_layer.pk, tabular_geojson, tabular_matcher
                         )
+                vector_map_layer.set_bounds()
 
         elif file_name.endswith(('.tif', '.tiff')):
             # Handle Raster files
-            create_raster_map_layer(
+            raster_map_layer = create_raster_map_layer(
                 file_to_convert,
                 style_options=style_options,
             )
+            raster_map_layer.set_bounds()
         elif file_name.endswith('.nc'):  # convert netcdf into a netcdf Data model
             create_netcdf_data_layer(
                 file_to_convert,
@@ -132,6 +138,7 @@ def process_file_item(self, file_item_id):
             )
             for vector_map_layer in new_vector_map_layers:
                 save_vector_features(vector_map_layer=vector_map_layer)
+                vector_map_layer.set_bounds()
                 vector_map_layers.append(vector_map_layer)
 
         elif file_name.endswith(('.tif', '.tiff')):
@@ -154,6 +161,8 @@ def process_file_item(self, file_item_id):
                 status=ProcessingTask.Status.ERROR, error=str(f'Unsupported file type: {file_name}')
             )
 
+        for item in raster_map_layer:
+            item.set_bounds()
     except Exception as e:
         processing_task.update(status=ProcessingTask.Status.ERROR, error=str(e))
         dataset.processing = False

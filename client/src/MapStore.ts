@@ -11,6 +11,7 @@ import {
   NetCDFData,
   NetCDFLayer,
   RasterMapLayer,
+  SearchableVectorData,
   VectorFeatureTableGraph,
   VectorMapLayer,
 } from './types';
@@ -23,7 +24,7 @@ async function isVectorBaseMapAvailable(vectorMapUrl: string) {
   return Number(resp.headers.get('content-length') ?? 0) > 0 && resp.status === 200;
 }
 
-type SideBarCard = 'indicators' | 'charts';
+type SideBarCard = 'indicators' | 'charts' | 'searchableVectors';
 
 export default class MapStore {
   public static osmBaseMap = ref<'none' | 'osm-raster' | 'osm-vector'>('osm-raster');
@@ -127,6 +128,24 @@ export default class MapStore {
     MapStore.mapLayerFeatureColorMapping.value = {};
   };
 
+  // Searchable Vector Features
+
+  public static mapLayerVectorSearchable = computed(() => {
+    const foundMapLayerSearchable: { name: string, id: number; searchSettings: SearchableVectorData }[] = [];
+    MapStore.selectedVectorMapLayers.value.forEach((item) => {
+      if (item.default_style.searchableVectorFeatureData) {
+        foundMapLayerSearchable.push({
+          name: item.name,
+          id: item.id,
+          searchSettings: item.default_style.searchableVectorFeatureData,
+        });
+      }
+    });
+    return foundMapLayerSearchable;
+  });
+
+  public static mapLayerSearchableEnabled = ref(false);
+
   // ToolTips
   public static toolTipMenuOpen = ref(false);
 
@@ -218,6 +237,10 @@ export default class MapStore {
         charts: {
           name: 'Chart', width: 650, icon: 'mdi-chart-bar', enabled: false, key: 'charts',
         },
+        searchableVectors: {
+          name: 'Search Vector Features', width: 300, icon: 'mdi-map-search-outline', enabled: false, key: 'searchableVectors',
+        },
+
       },
     );
 
