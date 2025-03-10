@@ -1,5 +1,6 @@
 import logging
 
+from django.contrib.gis.geos import GEOSGeometry
 from django.db.models import Q
 from rest_framework import viewsets
 from rest_framework.decorators import action
@@ -60,11 +61,11 @@ class MetadataFilterViewSet(viewsets.GenericViewSet):
                 layers = layers.filter(Q(name__icontains=search_query))
 
             if bbox:
-                try:
-                    xmin, ymin, xmax, ymax = bbox
-                    layers = layers.filter(bounds__intersects=(xmin, ymin, xmax, ymax))
-                except ValueError:
-                    logger.error("Invalid bbox format. Expected [xmin, ymin, xmax, ymax]")
+                xmin, ymin, xmax, ymax = map(float, bbox.split(','))
+                bbox_geom = GEOSGeometry(
+                    f'POLYGON(({xmin} {ymin}, {xmin} {ymax}, {xmax} {ymax}, {xmax} {ymin}, {xmin} {ymin}))'
+                )
+                layers = layers.filter(bounds__intersects=bbox_geom)
 
             for layer in layers:
                 if layer.metadata is None:
@@ -83,7 +84,6 @@ class MetadataFilterViewSet(viewsets.GenericViewSet):
                                 match += 1
                                 matches[key] = value
 
-                logger.info(filters)
                 if match == filter_length:
                     matching_ids.append(
                         {

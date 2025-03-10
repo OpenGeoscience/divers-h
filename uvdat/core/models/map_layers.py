@@ -3,6 +3,7 @@ from pathlib import Path
 import tempfile
 
 from django.contrib.gis.db import models as geomodels
+from django.contrib.gis.geos import Polygon
 from django.core.files.base import ContentFile
 from django.db import models
 from django.dispatch import receiver
@@ -11,7 +12,6 @@ import large_image
 from s3_file_field import S3FileField
 from shapely.geometry import shape
 from shapely.ops import unary_union
-from django.contrib.gis.geos import Polygon
 
 from .dataset import Dataset
 
@@ -36,14 +36,18 @@ class AbstractMapLayer(TimeStampedModel):
         if isinstance(self, RasterMapLayer):
             bbox = self.get_bbox()  # Expected format: (xmin, ymin, xmax, ymax)
             if bbox and all(k in bbox for k in ['xmin', 'ymin', 'xmax', 'ymax']):
-                self.bounds = Polygon.from_bbox((bbox['xmin'], bbox['ymin'], bbox['xmax'], bbox['ymax']))
+                self.bounds = Polygon.from_bbox(
+                    (bbox['xmin'], bbox['ymin'], bbox['xmax'], bbox['ymax'])
+                )
         elif isinstance(self, VectorMapLayer):
             geojson_data = self.read_geojson_data()
             if 'features' in geojson_data:
                 geometries = [shape(feature['geometry']) for feature in geojson_data['features']]
                 if geometries:
                     combined = unary_union(geometries)  # Shapely Polygon
-                    self.bounds = Polygon(list(combined.envelope.exterior.coords))  # Convert to GEOS Polygon
+                    self.bounds = Polygon(
+                        list(combined.envelope.exterior.coords)
+                    )  # Convert to GEOS Polygon
         self.save()
 
     class Meta:
@@ -74,6 +78,7 @@ class RasterMapLayer(AbstractMapLayer):
             source = large_image.open(raster_path)
             bounds = source.getBounds('epsg:4326')
             return bounds
+
 
 @receiver(models.signals.pre_delete, sender=RasterMapLayer)
 def delete_raster_content(sender, instance, **kwargs):

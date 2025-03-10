@@ -1,12 +1,15 @@
 <script lang="ts">
 import {
-  PropType, Ref, computed, defineComponent, onMounted, ref,
+  Ref, computed, defineComponent, onMounted, ref,
 } from 'vue';
 import { AvailablePropertyDisplay, SearchableVectorData } from '../../../types';
-import VectorFeatureSearchFilterItem from './VectorFeatureSearchFilterItem.vue';
 import MapStore from '../../../MapStore';
+import VectorFeatureSearchFilterItem from './VectorFeatureSearchFilterItem.vue';
 
 export default defineComponent({
+  components: {
+    VectorFeatureSearchFilterItem,
+  },
   props: {
     layerId: {
       type: Number,
@@ -48,9 +51,7 @@ export default defineComponent({
     const updateVectorFeatureSearch = () => {
       const found = MapStore.selectedVectorMapLayers.value.find((item) => item.id === props.layerId);
       if (found) {
-        if (found.default_style.searchableVectorFeatureData) {
-          found.default_style.searchableVectorFeatureData = localData.value;
-        }
+        found.default_style.searchableVectorFeatureData = localData.value;
       }
     };
 
@@ -82,14 +83,19 @@ export default defineComponent({
     const addNewKey = (type: 'detail' | 'subtitle') => {
       addingKeyType.value = type;
       addKeyDialog.value = true;
+      addingKey.value = { key: '', showDisplayName: false };
     };
 
     const saveNewKey = (type: 'detail' | 'subtitle') => {
       if (addingKey.value) {
         if (type === 'detail') {
-          localData.value.display.detailStrings.push(addingKey.value);
+          localData.value.display.detailStrings.push(
+            { key: addingKey.value.key, showDisplayName: addingKey.value.showDisplayName },
+          );
         } else {
-          localData.value.display.subtitleKeys.push(addingKey.value);
+          localData.value.display.subtitleKeys.push(
+            { key: addingKey.value.key, showDisplayName: addingKey.value.showDisplayName },
+          );
         }
       }
       addKeyDialog.value = false;
@@ -106,6 +112,7 @@ export default defineComponent({
 
     const saveChanges = () => {
       updateVectorFeatureSearch();
+      searchDialog.value = false;
     };
 
     return {
@@ -129,7 +136,7 @@ export default defineComponent({
 
 <template>
   <v-row dense align="center" justify="center">
-    <h3>Tabular Data/Graphs</h3>
+    <h3>VectorFeature Searchable</h3>
     <v-spacer />
     <v-icon :disabled="availablePropertyKeys.length === 0" @click="searchDialog = true">
       mdi-cog
@@ -149,87 +156,112 @@ export default defineComponent({
             <v-expansion-panel-title>
               <strong>Search and Filters</strong>
             </v-expansion-panel-title>
-            <v-expansion-panels>
-              <v-expansion-panel>
-                <v-expansion-panel-title>
-                  <strong>Main Text Search Fields</strong>
-                </v-expansion-panel-title>
-                <v-expansion-panel-text>
-                  <v-combobox
-                    v-model="localData.mainTextSearchFields"
-                    :items="availablePropertyKeys"
-                    multiple
-                    chips
-                    clearable
-                    closable-chips
-                    label="Select or Add Fields"
-                  />
-                  <v-switch v-model="localData.display.geospatialFilterEnabled" label="BBox Filter Enabled" />
-                  <v-switch v-model="localData.display.zoomButton" label="Zoom Button Enabled" />
-                  <v-switch v-model="localData.display.selectionButton" label="Selection Button" />
-                  <div v-if="localData.display.zoomButton">
-                    <v-select v-model="localData.display.zoomType" :items="['level', 'buffer']" label="Zoom Type" />
-                    <v-text-field v-model.number="localData.display.zoomBufferOrLevel" label="Zoom Value" />
-                  </div>
-                </v-expansion-panel-text>
-              </v-expansion-panel>
-              <v-expansion-panel>
-                <v-expansion-panel-title>
-                  <strong>Filters</strong>
-                </v-expansion-panel-title>
-                <v-expansion-panel-text>
-                  <VectorFeatureSearchFilterItem v-model="localData.configurableFilters" :available-properties="availablePropertyKeys" />
-                </v-expansion-panel-text>
-              </v-expansion-panel>
-            </v-expansion-panels>
+            <v-expansion-panel-text>
+              <v-expansion-panels>
+                <v-expansion-panel>
+                  <v-expansion-panel-title>
+                    <strong>Main Text Search Fields</strong>
+                  </v-expansion-panel-title>
+                  <v-expansion-panel-text>
+                    <v-combobox
+                      v-model="localData.mainTextSearchFields"
+                      :items="availablePropertyKeys"
+                      multiple
+                      chips
+                      clearable
+                      closable-chips
+                      item-title="title"
+                      item-value="value"
+                      label="Select or Add Fields"
+                    />
+                    <v-switch
+                      v-model="localData.display.geospatialFilterEnabled"
+                      :color="localData.display.geospatialFilterEnabled ? 'primary' : ''"
+                      label="BBox Filter Enabled"
+                    />
+                    <v-switch
+                      v-model="localData.display.selectionButton"
+                      :color="localData.display.selectionButton ? 'primary' : ''"
+                      label="Selection Button"
+                    />
+                    <v-switch
+                      v-model="localData.display.zoomButton"
+                      :color="localData.display.zoomButton ? 'primary' : ''"
+                      label="Zoom Button Enabled"
+                    />
+                    <div v-if="localData.display.zoomButton">
+                      <v-select v-model="localData.display.zoomType" :items="['level', 'buffer']" label="Zoom Type" />
+                      <v-text-field v-model.number="localData.display.zoomBufferOrLevel" label="Zoom Value" />
+                    </div>
+                  </v-expansion-panel-text>
+                </v-expansion-panel>
+                <v-expansion-panel>
+                  <v-expansion-panel-title>
+                    <strong>Filters</strong>
+                  </v-expansion-panel-title>
+                  <v-expansion-panel-text>
+                    <VectorFeatureSearchFilterItem
+                      v-model="localData.configurableFilters"
+                      :available-property-keys="availablePropertyKeys"
+                    />
+                  </v-expansion-panel-text>
+                </v-expansion-panel>
+              </v-expansion-panels>
+            </v-expansion-panel-text>
           </v-expansion-panel>
           <v-expansion-panel>
             <v-expansion-panel-title>
               <strong>Display</strong>
             </v-expansion-panel-title>
-            <v-expansion-panels>
-              <v-expansion-panel>
-                <v-expansion-panel-title>
-                  <strong>Title</strong>
-                </v-expansion-panel-title>
-                <v-expansion-panel-text>
-                  <v-select v-model="localData.display.titleKey" :items="availablePropertyKeys" label="Title Key" />
-                </v-expansion-panel-text>
-              </v-expansion-panel>
-              <v-expansion-panel>
-                <v-expansion-panel-title>
-                  <strong>Subtitle</strong>
-                </v-expansion-panel-title>
-                <v-expansion-panel-text>
-                  <v-list>
-                    <v-list-item v-for="(subtitle, index) in localData.display.subtitleKeys" :key="index">
-                      <v-select v-model="subtitle.key" :items="availablePropertyKeys" label="Subtitle Key" />
-                      <v-btn icon="mdi-delete" color="error" @click="removeKey(index, 'subtitle')" />
-                    </v-list-item>
-                  </v-list>
-                  <v-btn @click="addNewKey('subtitle')">
-                    Add Subtitle Key
-                  </v-btn>
-                </v-expansion-panel-text>
-              </v-expansion-panel>
-              <v-expansion-panel>
-                <v-expansion-panel-title>
-                  <strong>Detail Strings</strong>
-                </v-expansion-panel-title>
-                <v-expansion-panel-text>
-                  <h3>Detail Strings</h3>
-                  <v-list>
-                    <v-list-item v-for="(detail, index) in localData.display.detailStrings" :key="index">
-                      <v-select v-model="detail.key" :items="availablePropertyKeys" label="Detail Key" />
-                      <v-btn icon="mdi-delete" color="error" @click="removeKey(index, 'detail')" />
-                    </v-list-item>
-                  </v-list>
-                  <v-btn @click="addNewKey('detail')">
-                    Add Detail String
-                  </v-btn>
-                </v-expansion-panel-text>
-              </v-expansion-panel>
-            </v-expansion-panels>
+            <v-expansion-panel-text>
+              <v-expansion-panels>
+                <v-expansion-panel>
+                  <v-expansion-panel-title>
+                    <strong>Title</strong>
+                  </v-expansion-panel-title>
+                  <v-expansion-panel-text>
+                    <v-select v-model="localData.display.titleKey" :items="availablePropertyKeys" label="Title Key" />
+                  </v-expansion-panel-text>
+                </v-expansion-panel>
+                <v-expansion-panel>
+                  <v-expansion-panel-title>
+                    <strong>Subtitle</strong>
+                  </v-expansion-panel-title>
+                  <v-expansion-panel-text>
+                    <v-list>
+                      <v-list-item v-for="(subtitle, index) in localData.display.subtitleKeys" :key="index">
+                        {{ subtitle.key }} - Show Display Name: {{ subtitle.showDisplayName }}
+                        <v-icon color="error" @click="removeKey(index, 'subtitle')">
+                          mdi-delete
+                        </v-icon>
+                      </v-list-item>
+                    </v-list>
+                    <v-btn @click="addNewKey('subtitle')">
+                      Add Subtitle Key
+                    </v-btn>
+                  </v-expansion-panel-text>
+                </v-expansion-panel>
+                <v-expansion-panel>
+                  <v-expansion-panel-title>
+                    <strong>Detail Strings</strong>
+                  </v-expansion-panel-title>
+                  <v-expansion-panel-text>
+                    <h3>Detail Strings</h3>
+                    <v-list>
+                      <v-list-item v-for="(detail, index) in localData.display.detailStrings" :key="index">
+                        {{ detail.key }} - Show Display Name: {{ detail.showDisplayName }}
+                        <v-icon color="error" @click="removeKey(index, 'detail')">
+                          mdi-delete
+                        </v-icon>
+                      </v-list-item>
+                    </v-list>
+                    <v-btn @click="addNewKey('detail')">
+                      Add Detail String
+                    </v-btn>
+                  </v-expansion-panel-text>
+                </v-expansion-panel>
+              </v-expansion-panels>
+            </v-expansion-panel-text>
           </v-expansion-panel>
         </v-expansion-panels>
       </v-card-text>
@@ -244,7 +276,8 @@ export default defineComponent({
         <v-card-title>Add Key</v-card-title>
         <v-card-text>
           <v-select
-            v-model="addingKey"
+            v-if="addingKey"
+            v-model="addingKey.key"
             :items="addingKeyType === 'subtitle' ? availableSubtitleKeys : availableDetailKeys"
             label="Select Key"
           />

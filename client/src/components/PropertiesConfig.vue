@@ -6,7 +6,7 @@ import AvailableProperties from './Metadata/AvailableProperties.vue';
 import MetadataSettings from './Metadata/MetadataSettings.vue';
 import SelectedFeatureChartCard from './Metadata/SelectedFeatureChartCard.vue';
 import TableSummary from './TabularData/TableSummary.vue';
-import VectorFeatureSearch from './VectorFeatureSearch/Editor/VectorFeatureSearch.vue';
+import VectorFeatureSearch from './VectorFeatureSearch/Editor/VectorFeatureSearchEditor.vue';
 
 export default defineComponent({
   components: {
@@ -14,6 +14,7 @@ export default defineComponent({
     MetadataSettings,
     SelectedFeatureChartCard,
     TableSummary,
+    VectorFeatureSearch,
   },
   props: {
     layerId: {
@@ -22,7 +23,9 @@ export default defineComponent({
     },
   },
   setup() {
-    const tab: Ref<'availableProperties' | 'settings' | 'charts' | 'tabularData' | 'SearchableVectorData'> = ref('availableProperties');
+    const tab: Ref<
+    'availableProperties' | 'settings' | 'charts' | 'tabularData' | 'SearchableVectorData'
+    > = ref('availableProperties');
 
     return {
       tab,
@@ -99,7 +102,7 @@ export default defineComponent({
           size="x-small"
           @click="tab = 'SearchableVectorData'"
         >
-          mdi-table
+          mdi-map-search-outline
         </v-icon>
       </template>
     </v-tooltip>

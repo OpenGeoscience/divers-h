@@ -14,16 +14,22 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='netcdfdata',
             name='bounds',
-            field=django.contrib.gis.db.models.fields.PolygonField(blank=True, help_text='Bounds/Extents of the Layer', null=True, srid=4326),
+            field=django.contrib.gis.db.models.fields.PolygonField(
+                blank=True, help_text='Bounds/Extents of the Layer', null=True, srid=4326
+            ),
         ),
         migrations.AddField(
             model_name='rastermaplayer',
             name='bounds',
-            field=django.contrib.gis.db.models.fields.PolygonField(blank=True, help_text='Bounds/Extents of the Layer', null=True, srid=4326),
+            field=django.contrib.gis.db.models.fields.PolygonField(
+                blank=True, help_text='Bounds/Extents of the Layer', null=True, srid=4326
+            ),
         ),
         migrations.AddField(
             model_name='vectormaplayer',
             name='bounds',
-            field=django.contrib.gis.db.models.fields.PolygonField(blank=True, help_text='Bounds/Extents of the Layer', null=True, srid=4326),
+            field=django.contrib.gis.db.models.fields.PolygonField(
+                blank=True, help_text='Bounds/Extents of the Layer', null=True, srid=4326
+            ),
         ),
     ]

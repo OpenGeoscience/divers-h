@@ -37,7 +37,9 @@ def convert_dataset(
         file_metadata = file_to_convert.metadata
         style_options = file_metadata.get('default_style', base_style_options)
         if file_name.endswith('.gpkg'):
-            raster_map_layers, vector_map_layers = process_geopackage(file_to_convert, style_options)
+            raster_map_layers, vector_map_layers = process_geopackage(
+                file_to_convert, style_options
+            )
             for item in raster_map_layers:
                 item.set_bounds()
         elif file_name.endswith(('.zip', '.geojson', '.json', '.csv')):

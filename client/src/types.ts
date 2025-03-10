@@ -858,8 +858,9 @@ export interface SearchableVectorDisplayActionNavigate {
 }
 
 export interface SearchableVectorData {
-  mainTextSearchFields?: string[]; // mainTextSearch Field keys, The main search will use these keys to filter items
-  configurableFilters: string[]; //Keys for searchable vector features
+  // mainTextSearch Field keys, The main search will use these keys to filter items
+  mainTextSearchFields?: { title: string, value: string }[];
+  configurableFilters: string[]; // Keys for searchable vector features
   display: {
     geospatialFilterEnabled: boolean; // Filter results based on map display as well
     sortable: boolean; // Ability to sort items by something other than the name of the titleKey field.
@@ -881,7 +882,8 @@ export interface SearchableVectorData {
 
 export interface SearchableVectorDataRequest {
   mapLayerId: number;
-  mainTextSearchFields?: string[]; // mainTextSearch Field keys, The main search will use these keys to filter items
+  // mainTextSearch Field keys, The main search will use these keys to filter items
+  mainTextSearchFields?: { title: string, value: string }[];
   search?: string;
   filters?: Record<string, { type: 'bool' | 'number' | 'string', value: string | number | boolean | [number, number] }>;
   bbox?: string;
@@ -889,4 +891,11 @@ export interface SearchableVectorDataRequest {
   titleKey: SearchableVectorDisplayItem;
   subtitleKeys: SearchableVectorDisplayItem[]; // Allows zero or multiple subtitles that will be in a single line
   detailStrings: SearchableVectorDisplayItem[];
+}
+
+export interface SearchableVectorFeatureResponse {
+  id: number;
+  title: string;
+  subtitles: string[];
+  details: string[];
 }

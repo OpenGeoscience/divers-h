@@ -21,6 +21,8 @@ import {
   PropertySummary,
   RasterData,
   RasterMapLayer,
+  SearchableVectorDataRequest,
+  SearchableVectorFeatureResponse,
   SimulationType,
   TableSummary,
   VectorMapLayer,
@@ -583,5 +585,9 @@ export default class UVdatApi {
     layerTypes.forEach((id) => params.append('mapLayerTypes', id.toString()));
 
     return (await UVdatApi.apiClient.get('/map-layers/', { params })).data;
+  }
+
+  public static async searchVectorFeatures(requestData: SearchableVectorDataRequest): Promise<SearchableVectorFeatureResponse[]> {
+    return (await UVdatApi.apiClient.post('/map-layers/search-features/', requestData)).data;
   }
 }
