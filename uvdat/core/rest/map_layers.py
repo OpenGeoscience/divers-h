@@ -748,8 +748,20 @@ class MapLayerViewSet(GenericViewSet):
             {
                 'id': feature.id,
                 'title': feature.properties.get(title_key, ''),
-                'subtitles': [feature.properties.get(key, '') for key in subtitle_keys],
-                'details': [feature.properties.get(key, '') for key in detail_keys],
+                'subtitles': [
+                    {'key': key, 'value': feature.properties.get(key, '')} for key in subtitle_keys
+                ],
+                'details': [
+                    {'key': key, 'value': feature.properties.get(key, '')} for key in detail_keys
+                ],
+                'center': (
+                    {
+                        'lat': feature.geometry.centroid.y,
+                        'lon': feature.geometry.centroid.x,
+                    }
+                    if feature.geometry
+                    else None
+                ),
             }
             for feature in queryset
         ]

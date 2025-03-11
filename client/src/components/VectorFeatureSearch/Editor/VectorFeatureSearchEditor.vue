@@ -21,7 +21,7 @@ export default defineComponent({
       mainTextSearchFields: [],
       configurableFilters: [],
       display: {
-        titleKey: { key: '', showDisplayName: false },
+        titleKey: '',
         subtitleKeys: [],
         detailStrings: [],
         sortableFields: [],
@@ -36,6 +36,13 @@ export default defineComponent({
     });
     const searchDialog = ref(false);
     const availableProperties: Ref<Record<string, AvailablePropertyDisplay>> = ref({});
+
+    const getDisplayName = (key: string) => {
+      if (availableProperties.value[key]) {
+        return availableProperties.value[key].displayName || key;
+      }
+      return key;
+    };
     const loadInitialData = () => {
       const found = MapStore.selectedVectorMapLayers.value.find((item) => item.id === props.layerId);
       if (found) {
@@ -66,6 +73,8 @@ export default defineComponent({
       title: availableProperties.value?.[key]?.displayName || key,
       value: key,
     })));
+
+    const availableTitleKeys = computed(() => Object.keys(availableProperties.value || {}).map((key) => (getDisplayName(key))));
 
     const availableSubtitleKeys = computed(() => Object.keys(availableProperties.value || {}).map((key) => ({
       title: availableProperties.value?.[key]?.displayName || key,
@@ -123,12 +132,14 @@ export default defineComponent({
       saveChanges,
       addKeyDialog,
       addingKeyType,
+      availableTitleKeys,
       availableSubtitleKeys,
       availableDetailKeys,
       addingKey,
       addNewKey,
       saveNewKey,
       searchDialog,
+      getDisplayName,
     };
   },
 });
@@ -147,6 +158,41 @@ export default defineComponent({
       Properties need to be configured before setting up search fields
     </v-alert>
   </v-row>
+  <div v-if="localData && localData.mainTextSearchFields && localData.mainTextSearchFields.length > 0" class="my-1">
+    <b class="mr-2">Searchable:</b>
+    <v-chip
+      v-for="(field, index) in localData.mainTextSearchFields"
+      :key="index"
+      size="x-small"
+    >
+      {{ field.title }}
+    </v-chip>
+  </div>
+  <div v-if="localData && localData.display" class="my-1">
+    <b class="mr-2">Title:</b>
+    <span>{{ getDisplayName(localData.display.titleKey) }}</span>
+  </div>
+  <div v-if="localData && localData.display" class="my-1">
+    <b class="mr-2">Subtitles:</b>
+    <v-chip
+      v-for="(field, index) in localData.display.subtitleKeys"
+      :key="index"
+      size="x-small"
+    >
+      {{ field.key }}
+    </v-chip>
+  </div>
+  <div v-if="localData && localData.display" class="my-1">
+    <b class="mr-2">Details:</b>
+    <v-chip
+      v-for="(field, index) in localData.display.detailStrings"
+      :key="index"
+      size="x-small"
+    >
+      {{ field.key }}
+    </v-chip>
+  </div>
+
   <v-dialog v-model="searchDialog" width="800px">
     <v-card>
       <v-card-title>Edit Searchable Vector Data</v-card-title>
@@ -190,8 +236,7 @@ export default defineComponent({
                       label="Zoom Button Enabled"
                     />
                     <div v-if="localData.display.zoomButton">
-                      <v-select v-model="localData.display.zoomType" :items="['level', 'buffer']" label="Zoom Type" />
-                      <v-text-field v-model.number="localData.display.zoomBufferOrLevel" label="Zoom Value" />
+                      <v-text-field v-model.number="localData.display.zoomBufferOrLevel" label="Zoom Level" />
                     </div>
                   </v-expansion-panel-text>
                 </v-expansion-panel>
@@ -200,7 +245,9 @@ export default defineComponent({
                     <strong>Filters</strong>
                   </v-expansion-panel-title>
                   <v-expansion-panel-text>
+                    <p>Filters will be implmented in the future</p>
                     <VectorFeatureSearchFilterItem
+                      v-if="false"
                       v-model="localData.configurableFilters"
                       :available-property-keys="availablePropertyKeys"
                     />
@@ -220,7 +267,7 @@ export default defineComponent({
                     <strong>Title</strong>
                   </v-expansion-panel-title>
                   <v-expansion-panel-text>
-                    <v-select v-model="localData.display.titleKey" :items="availablePropertyKeys" label="Title Key" />
+                    <v-select v-model="localData.display.titleKey" :items="availableTitleKeys" label="Title Key" />
                   </v-expansion-panel-text>
                 </v-expansion-panel>
                 <v-expansion-panel>

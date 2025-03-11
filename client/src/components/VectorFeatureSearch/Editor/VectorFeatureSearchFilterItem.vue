@@ -5,7 +5,7 @@ import {
 
 export default defineComponent({
   props: {
-    value: {
+    modelValue: {
       type: Array as PropType<string[]>,
       required: true,
     },
@@ -14,12 +14,12 @@ export default defineComponent({
       required: true,
     },
   },
-  emits: ['update'],
+  emits: ['update:modelValue'],
   setup(props, { emit }) {
-    const localFilters = ref(props.value);
+    const localFilters = ref(props.modelValue);
 
     watch(localFilters, () => {
-      emit('update', localFilters.value);
+      emit('update:modelValue', localFilters.value);
     }, { deep: true });
 
     return {

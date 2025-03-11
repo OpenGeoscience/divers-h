@@ -95,6 +95,13 @@ export default defineComponent({
       throw new Error('Invalid base map type');
     });
 
+    const rightSideBarPadding = computed(() => {
+      if (MapStore.sideBarOpen.value && MapStore.activeSideBarCard.value) {
+        return `${MapStore.sideBarCardSettings.value[MapStore.activeSideBarCard.value].width + 20}px`;
+      }
+      return '20px';
+    });
+
     return {
       oauthClient,
       loginText,
@@ -126,6 +133,7 @@ export default defineComponent({
       sideBarWidth: MapStore.currentSideBarWidth,
       sideBarOpen: MapStore.sideBarOpen,
       activeSideBar: MapStore.activeSideBarCard,
+      rightSideBarPadding,
     };
   },
 });
@@ -299,7 +307,7 @@ export default defineComponent({
       <charts v-if="activeSideBar === 'charts'" />
       <VectorFeatureSearch v-if="activeSideBar === 'searchableVectors'" />
     </v-navigation-drawer>
-    <MapLegend class="static-map-legend" />
+    <MapLegend class="static-map-legend" :style="`right: ${rightSideBarPadding};transition: all 0.2s ease`" />
   </v-container>
 </template>
 

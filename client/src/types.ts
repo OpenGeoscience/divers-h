@@ -864,7 +864,7 @@ export interface SearchableVectorData {
   display: {
     geospatialFilterEnabled: boolean; // Filter results based on map display as well
     sortable: boolean; // Ability to sort items by something other than the name of the titleKey field.
-    titleKey: SearchableVectorDisplayItem;
+    titleKey: string; // key of property to display
     subtitleKeys: SearchableVectorDisplayItem[]; // Allows zero or multiple subtitles that will be in a single line
     detailStrings: SearchableVectorDisplayItem[];
     selectionButton: boolean;
@@ -896,6 +896,7 @@ export interface SearchableVectorDataRequest {
 export interface SearchableVectorFeatureResponse {
   id: number;
   title: string;
-  subtitles: string[];
-  details: string[];
+  subtitles: { key: string; value: string }[];
+  details: { key: string; value: string }[];
+  center: { lat: number, lon: number };
 }
