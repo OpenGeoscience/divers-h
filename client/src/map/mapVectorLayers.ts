@@ -9,7 +9,6 @@ import { calculateColors } from './mapColors';
 import { updateProps } from './mapProperties';
 import { getLayerDefaultFilter, updateFilters } from './mapFilters';
 import { subLayerMapping, updateHeatmap } from './mapHeatmap';
-import { getVectorLayerDisplayConfig } from '../utils';
 
 const addedLayers: Ref<VectorMapLayer[]> = ref([]);
 const defaultAnnotationColor = 'black';
