@@ -76,7 +76,6 @@ export default defineComponent({
 
     const toggleVectorFeatureSearch = () => {
       if (MapStore.mapLayerVectorSearchable.value.length) {
-        MapStore.mapLayerSearchableEnabled.value = !MapStore.mapLayerSearchableEnabled.value;
         MapStore.toggleContext('searchableVectors');
       }
     };
@@ -84,7 +83,6 @@ export default defineComponent({
     const chartView = computed(() => MapStore.activeSideBarCard.value === 'charts');
     const toggleChartView = () => {
       MapStore.toggleContext('charts');
-      MapStore.chartsOpen.value = MapStore.sideBarCardSettings.value.charts.enabled;
     };
 
     const osmBaseMapType = computed(() => {
@@ -100,6 +98,16 @@ export default defineComponent({
         return `${MapStore.sideBarCardSettings.value[MapStore.activeSideBarCard.value].width + 20}px`;
       }
       return '20px';
+    });
+
+    const SideBarHasData = computed(() => {
+      if (MapStore.activeSideBarCard.value === 'searchableVectors') {
+        return !!MapStore.mapLayerVectorSearchable.value.length;
+      }
+      if (MapStore.activeSideBarCard.value === 'charts') {
+        return true;
+      }
+      return false;
     });
 
     return {
@@ -129,11 +137,11 @@ export default defineComponent({
       mapLayerVectorSearch: MapStore.mapLayerVectorSearchable,
       hasVectorFeatureSearch,
       toggleVectorFeatureSearch,
-      mapLayerVectorSearchEnabled: MapStore.mapLayerSearchableEnabled,
       sideBarWidth: MapStore.currentSideBarWidth,
       sideBarOpen: MapStore.sideBarOpen,
       activeSideBar: MapStore.activeSideBarCard,
       rightSideBarPadding,
+      SideBarHasData,
     };
   },
 });
@@ -232,7 +240,7 @@ export default defineComponent({
           v-bind="props"
           class="mx-2"
           size="30"
-          :color="mapLayerVectorSearchEnabled ? 'primary' : ''"
+          :color="activeSideBar === 'searchableVectors' ? 'primary' : ''"
           @click="toggleVectorFeatureSearch()"
         >
           mdi-map-search-outline
@@ -302,10 +310,10 @@ export default defineComponent({
       </v-col>
     </v-row>
     <selected-feature-list />
-    <v-navigation-drawer :model-value="sideBarOpen" location="right" :width="sideBarWidth" permanent>
+    <v-navigation-drawer v-if="SideBarHasData" :model-value="sideBarOpen" location="right" :width="sideBarWidth" permanent>
       <indicator-filterable-list v-if="activeSideBar === 'indicators'" :indicators="indicators" />
       <charts v-if="activeSideBar === 'charts'" />
-      <VectorFeatureSearch v-if="activeSideBar === 'searchableVectors'" />
+      <VectorFeatureSearch v-if="mapLayerVectorSearch.length && activeSideBar === 'searchableVectors'" />
     </v-navigation-drawer>
     <MapLegend class="static-map-legend" :style="`right: ${rightSideBarPadding};transition: all 0.2s ease`" />
   </v-container>

@@ -28,6 +28,7 @@ export default defineComponent({
         sortable: false,
         hoverHighlight: false,
         geospatialFilterEnabled: false,
+        autoOpenSideBar: true,
         zoomButton: false,
         selectionButton: false,
         zoomType: 'level',
@@ -261,6 +262,7 @@ export default defineComponent({
               <strong>Display</strong>
             </v-expansion-panel-title>
             <v-expansion-panel-text>
+              <v-switch v-model="localData.display.autoOpenSideBar" label="Auto Open Sidebar" />
               <v-expansion-panels>
                 <v-expansion-panel>
                   <v-expansion-panel-title>

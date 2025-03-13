@@ -862,6 +862,7 @@ export interface SearchableVectorData {
   mainTextSearchFields?: { title: string, value: string }[];
   configurableFilters: string[]; // Keys for searchable vector features
   display: {
+    autoOpenSideBar: boolean;
     geospatialFilterEnabled: boolean; // Filter results based on map display as well
     sortable: boolean; // Ability to sort items by something other than the name of the titleKey field.
     titleKey: string; // key of property to display

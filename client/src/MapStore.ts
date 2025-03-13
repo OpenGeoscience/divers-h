@@ -144,8 +144,6 @@ export default class MapStore {
     return foundMapLayerSearchable;
   });
 
-  public static mapLayerSearchableEnabled = ref(false);
-
   // ToolTips
   public static toolTipMenuOpen = ref(false);
 
@@ -221,9 +219,6 @@ export default class MapStore {
       },
     };
   };
-
-  // Charts
-  public static chartsOpen = ref(false);
 
   // SideBar Cards
   public static activeSideBarCard: Ref<undefined | SideBarCard> = ref(undefined);

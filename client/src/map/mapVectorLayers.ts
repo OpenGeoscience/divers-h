@@ -9,6 +9,7 @@ import { calculateColors } from './mapColors';
 import { updateProps } from './mapProperties';
 import { getLayerDefaultFilter, updateFilters } from './mapFilters';
 import { subLayerMapping, updateHeatmap } from './mapHeatmap';
+import { getVectorLayerDisplayConfig } from '../utils';
 
 const addedLayers: Ref<VectorMapLayer[]> = ref([]);
 const defaultAnnotationColor = 'black';
@@ -293,6 +294,13 @@ const toggleVectorMapLayers = (map: maplibregl.Map) => {
     if (MapStore.visibleMapLayers.value.has(`${layer.type}_${layer.id}`)) {
       // eslint-disable-next-line @typescript-eslint/no-use-before-define
       updateVectorLayer(layer);
+      if (layer?.default_style.searchableVectorFeatureData) {
+        if (layer.default_style.searchableVectorFeatureData.display.autoOpenSideBar) {
+          if (MapStore.activeSideBarCard.value !== 'searchableVectors') {
+            MapStore.toggleContext('searchableVectors');
+          }
+        }
+      }
     }
   });
 };
