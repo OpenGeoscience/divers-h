@@ -9,6 +9,7 @@ import UVdatApi from '../../api/UVDATApi';
 import MapStore from '../../MapStore';
 import { SearchableVectorDataRequest, SearchableVectorFeatureResponse } from '../../types';
 import { getStringBBox, internalMap } from '../../map/mapLayers';
+import { centerAndZoom } from '../../map/mapVectorLayers';
 
 export default defineComponent({
   name: 'VectorFeatureSearch',
@@ -114,8 +115,7 @@ export default defineComponent({
     const zoomToFeature = (id: number) => {
       const found = searchResults.value.find((item) => item.id === id);
       if (found && internalMap.value && selectedSearchSettings.value?.display.zoomBufferOrLevel) {
-        internalMap.value.setCenter([found.center.lon, found.center.lat]);
-        internalMap.value.setZoom(selectedSearchSettings.value.display.zoomBufferOrLevel);
+        centerAndZoom([found.center.lon, found.center.lat], selectedSearchSettings.value.display.zoomBufferOrLevel, true);
       }
     };
 

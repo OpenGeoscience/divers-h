@@ -373,10 +373,17 @@ const updateVectorLayer = (layer: VectorMapLayer) => {
   updateHeatmap(internalMap.value as maplibregl.Map, layer);
 };
 
-const centerAndZoom = (center: number[], zoom: number) => {
+const centerAndZoom = (center: number[], zoom: number, flyTo = false) => {
   if (internalMap.value !== null) {
-    internalMap.value.setCenter(center as [number, number]);
-    internalMap.value.setZoom(zoom);
+    if (!flyTo) {
+      internalMap.value.setCenter(center as [number, number]);
+      internalMap.value.setZoom(zoom);
+    } else {
+      internalMap.value.flyTo({
+        center: center as [number, number],
+        zoom,
+      });
+    }
   }
 };
 
