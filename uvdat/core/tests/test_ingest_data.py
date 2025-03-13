@@ -40,7 +40,7 @@ def test_ingest_data():
     assert SimulationResult.objects.all().count() == 0
     assert SourceRegion.objects.all().count() == 0
     assert VectorMapLayer.objects.all().count() == 13
-    assert VectorFeature.objects.count() == 35503
+    assert VectorFeature.objects.count() == 35506
     # Testing that layer/file-item index and naming is working properly
     assert VectorMapLayer.objects.filter(name='Chicago Vectors ShapeFile').count() == 1
     assert VectorMapLayer.objects.filter(name='Second Chicago Vectors Shapefile').count() == 1
@@ -48,5 +48,5 @@ def test_ingest_data():
     assert NetCDFData.objects.count() == 2
     assert NetCDFLayer.objects.count() == 2
     assert NetCDFImage.objects.count() == 1330
-    assert VectorFeatureTableData.objects.count() == 224
-    assert VectorFeatureRowData.objects.count() == 43997
+    assert VectorFeatureTableData.objects.count() == 230
+    assert VectorFeatureRowData.objects.count() == 69341
