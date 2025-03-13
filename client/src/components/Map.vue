@@ -237,7 +237,7 @@ export default defineComponent({
     watch(
       MapStore.hoveredFeatures,
       () => {
-        if (map.value && MapStore.mapLayerFeatureGraphsVisible.value) {
+        if (map.value && (MapStore.mapLayerFeatureGraphsVisible.value || MapStore.activeSideBarCard.value === 'searchableVectors')) {
           updateSelected(map.value);
         }
       },

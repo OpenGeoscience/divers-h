@@ -3,7 +3,9 @@ import logging
 
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.gis.db.models import Extent
+from django.contrib.gis.geos import GEOSGeometry
 from django.db import connection
+from django.db.models import Q
 from django.http import HttpResponse, JsonResponse
 from django_large_image.rest import LargeImageFileDetailMixin
 import numpy as np
@@ -106,8 +108,14 @@ class RasterMapLayerViewSet(ModelViewSet, LargeImageFileDetailMixin):
     )
     def get_raster_bbox(self, request, **kwargs):
         raster_map_layer = self.get_object()
+
+        if raster_map_layer.bounds:
+            bounds = raster_map_layer.bounds.extent
+            bbox_dict = {'xmin': bounds[0], 'ymin': bounds[1], 'xmax': bounds[2], 'ymax': bounds[3]}
+            return JsonResponse(bbox_dict)
+
         data = raster_map_layer.get_bbox()
-        return HttpResponse(json.dumps(data), status=200)
+        return JsonResponse(data, status=200, safe=False)
 
     @action(
         detail=True,
@@ -276,6 +284,14 @@ class VectorMapLayerViewSet(ModelViewSet):
         url_name='bbox',
     )
     def get_vector_bbox(self, request, pk=None):
+        map_layer = VectorMapLayer.objects.filter(pk=pk).first()
+        if not map_layer:
+            return JsonResponse({'error': 'Map layer not found.'}, status=404)
+
+        if map_layer.bounds:
+            bounds = map_layer.bounds.extent
+            bbox_dict = {'xmin': bounds[0], 'ymin': bounds[1], 'xmax': bounds[2], 'ymax': bounds[3]}
+            return JsonResponse(bbox_dict)
         try:
             bbox = VectorFeature.objects.filter(map_layer_id=pk).aggregate(Extent('geometry'))[
                 'geometry__extent'
@@ -655,3 +671,99 @@ class MapLayerViewSet(GenericViewSet):
                 {'error': 'An error occurred while updating the name.'},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
+
+    @action(
+        detail=False,
+        methods=['post'],
+        url_path='search-features',
+        url_name='search_features',
+    )
+    def search_vector_features(self, request, *args, **kwargs):
+        data = request.data
+        map_layer_id = data.get('mapLayerId')
+        main_text_search_fields = [
+            field.get('value')
+            for field in data.get('mainTextSearchFields', [])
+            if isinstance(field, dict)
+        ]
+        search_query = data.get('search', '').strip()
+        filters = data.get('filters', {})
+        bbox = data.get('bbox', None)
+        sort_key = data.get('sortKey', None)
+        title_key = data.get('titleKey', '')
+        subtitle_keys = [item.get('key') for item in data.get('subtitleKeys', [])]
+        detail_keys = [item.get('key') for item in data.get('detailStrings', [])]
+
+        if not map_layer_id or not title_key:
+            return Response(
+                {'error': 'mapLayerId and titleKey are required.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        queryset = VectorFeature.objects.filter(map_layer_id=map_layer_id)
+
+        # Apply text search
+        if search_query and main_text_search_fields:
+            search_conditions = Q()
+            for field in main_text_search_fields:
+                search_conditions |= Q(**{f'properties__{field}__icontains': search_query})
+            queryset = queryset.filter(search_conditions)
+
+        # Apply filters
+        for key, filter_data in filters.items():
+            filter_type = filter_data.get('type')
+            value = filter_data.get('value')
+
+            if filter_type == 'bool':
+                queryset = queryset.filter(**{f'properties__{key}': bool(value)})
+            elif filter_type == 'number':
+                if isinstance(value, list) and len(value) == 2:  # Range filter
+                    queryset = queryset.filter(
+                        **{f'properties__{key}__gte': value[0], f'properties__{key}__lte': value[1]}
+                    )
+                else:
+                    queryset = queryset.filter(**{f'properties__{key}': value})
+            elif filter_type == 'string':
+                queryset = queryset.filter(**{f'properties__{key}__icontains': value})
+
+        # Apply bounding box filter
+        if bbox:
+            try:
+                min_x, min_y, max_x, max_y = map(float, bbox.split(','))
+                bbox_geom = GEOSGeometry(
+                    f'POLYGON(({min_x} {min_y}, {min_x} {max_y}, {max_x} {max_y}, {max_x} {min_y}, {min_x} {min_y}))'
+                )
+                queryset = queryset.filter(geometry__intersects=bbox_geom)
+            except ValueError:
+                return Response(
+                    {'error': 'Invalid BBOX format'}, status=status.HTTP_400_BAD_REQUEST
+                )
+
+        # Apply sorting
+        if sort_key:
+            queryset = queryset.order_by(f'properties__{sort_key}')
+
+        # Serialize response
+        response_data = [
+            {
+                'id': feature.id,
+                'title': feature.properties.get(title_key, ''),
+                'subtitles': [
+                    {'key': key, 'value': feature.properties.get(key, '')} for key in subtitle_keys
+                ],
+                'details': [
+                    {'key': key, 'value': feature.properties.get(key, '')} for key in detail_keys
+                ],
+                'center': (
+                    {
+                        'lat': feature.geometry.centroid.y,
+                        'lon': feature.geometry.centroid.x,
+                    }
+                    if feature.geometry
+                    else None
+                ),
+            }
+            for feature in queryset
+        ]
+
+        return Response(response_data, status=status.HTTP_200_OK)

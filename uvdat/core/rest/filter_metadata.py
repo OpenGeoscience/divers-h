@@ -1,5 +1,6 @@
 import logging
 
+from django.contrib.gis.geos import GEOSGeometry
 from django.db.models import Q
 from rest_framework import viewsets
 from rest_framework.decorators import action
@@ -42,6 +43,7 @@ class MetadataFilterViewSet(viewsets.GenericViewSet):
     def filter_layers(self, request, *args, **kwargs):
         filters = request.data.get('filters', {})  # DRF will automatically parse the JSON body
         search_query = request.data.get('search', '').strip().lower()  # Search term
+        bbox = request.data.get('bbox', None)  # Bounding box filter
 
         # Collecting all models
         models = [RasterMapLayer, VectorMapLayer, NetCDFLayer]
@@ -57,6 +59,13 @@ class MetadataFilterViewSet(viewsets.GenericViewSet):
             # Apply search filtering if provided
             if search_query:
                 layers = layers.filter(Q(name__icontains=search_query))
+
+            if bbox:
+                xmin, ymin, xmax, ymax = map(float, bbox.split(','))
+                bbox_geom = GEOSGeometry(
+                    f'POLYGON(({xmin} {ymin}, {xmin} {ymax}, {xmax} {ymax}, {xmax} {ymin}, {xmin} {ymin}))'
+                )
+                layers = layers.filter(bounds__intersects=bbox_geom)
 
             for layer in layers:
                 if layer.metadata is None:
@@ -75,7 +84,6 @@ class MetadataFilterViewSet(viewsets.GenericViewSet):
                                 match += 1
                                 matches[key] = value
 
-                logger.info(filters)
                 if match == filter_length:
                     matching_ids.append(
                         {

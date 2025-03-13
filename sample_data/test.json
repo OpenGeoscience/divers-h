@@ -1019,6 +1019,13 @@
                                         }
                                     }
                                 ]
+                            },
+                            "tags": {
+                                "filters": {
+                                    "Type": "geojson",
+                                    "Location": "New York",
+                                    "Name": "County Data"
+                                }
                             }
                         }
                     }
@@ -1038,7 +1045,15 @@
                 "name": "TimePoints Geojson",
                 "url": "https://data.kitware.com/api/v1/item/67532ab09ccf870f61ceac9f/download",
                 "type": "geojson",
-                "metadata": {}
+                "metadata": {
+                    "tags": {
+                        "filters": {
+                            "Type": "geojson",
+                            "Location": "New York",
+                            "Name": "Time Points"
+                        }
+                    }
+                }
             }
         ]
     },
@@ -1055,13 +1070,22 @@
                 "url": "https://data.kitware.com/api/v1/item/675b13429ccf870f61ceb2da/download",
                 "type": "netcdf",
                 "metadata": {
-                    "generate": [{
-                        "name": "Temperature Layer",
-                        "variable": "t",
-                        "sliding_variable": "valid_time",
-                        "x_variable": "longitude",
-                        "y_variable": "latitude"
-                    }]
+                    "generate": [
+                        {
+                            "name": "Temperature Layer",
+                            "variable": "t",
+                            "sliding_variable": "valid_time",
+                            "x_variable": "longitude",
+                            "y_variable": "latitude"
+                        }
+                    ],
+                    "tags": {
+                        "filters": {
+                            "Type": "netcdf",
+                            "Location": "New York",
+                            "Name": "Temperature"
+                        }
+                    }
                 }
             }
         ]
@@ -1079,15 +1103,26 @@
                 "type": "netcdf",
                 "url": "https://data.kitware.com/api/v1/item/677ec13a37ed172242a867bc/download",
                 "metadata": {
-                    "generate": [{
-                        "name": "World Precipitation",
-                        "variable": "prveg",
-                        "sliding_variable": "time",
-                        "x_variable": "lon",
-                        "y_variable": "lat",
-                        "yRange":[-45, 45]
-                    }]
-
+                    "generate": [
+                        {
+                            "name": "World Precipitation",
+                            "variable": "prveg",
+                            "sliding_variable": "time",
+                            "x_variable": "lon",
+                            "y_variable": "lat",
+                            "yRange": [
+                                -45,
+                                45
+                            ]
+                        }
+                    ],
+                    "tags": {
+                        "filters": {
+                            "Type": "netcdf",
+                            "Location": "World",
+                            "Name": "Precipitation"
+                        }
+                    }
                 }
             }
         ]
@@ -1098,7 +1133,6 @@
         "description": "TVA USGS WaterFlow and temperature",
         "category": "tabular",
         "metadata": {},
-        "action": "replace",
         "files": [
             {
                 "path": "./data/tva_sites.geojson",
@@ -1111,11 +1145,272 @@
                         "name": "USGS TVA Tabular Montly Data",
                         "url": "https://data.kitware.com/api/v1/file/67a224907dbb9df48b660b12/download",
                         "featurePropertyMatcher": "site_number"
+                    },
+                    "tags": {
+                        "filters": {
+                            "Type": "geojson",
+                            "Location": "TVA",
+                            "Name": "USGS Gauges"
+                        }
+                    }
+                }
+            }
+        ]
+    },
+    {
+        "type": "Dataset",
+        "name": "PowerPlant",
+        "description": "TVA PowerPlants",
+        "category": "powerplants",
+        "metadata": {},
+        "files": [
+            {
+                "path": "./data/tva/powerplants.geojson",
+                "url": "https://data.kitware.com/api/v1/file/67b4e6f4146ff7c60286eaaa/download",
+                "name": "TVA Power Plants",
+                "type": "geojson",
+                "metadata": {
+                    "default_style": {
+                        "layers": {
+                            "fill": {
+                                "color": "#888888",
+                                "enabled": false
+                            },
+                            "line": {
+                                "size": 1,
+                                "color": "#000000",
+                                "enabled": false
+                            },
+                            "text": {
+                                "color": "#888888",
+                                "enabled": false
+                            },
+                            "circle": {
+                                "color": "#888888",
+                                "enabled": true,
+                                "selectable": "singleSelect",
+                                "selectColor": "#00FFFF"
+                            },
+                            "fill-extrusion": {
+                                "color": "#888888",
+                                "enabled": false
+                            }
+                        },
+                        "properties": {
+                            "availableProperties": {
+                                "City": {
+                                    "key": "City",
+                                    "type": "string",
+                                    "values": [
+                                        "Ackerman",
+                                        "Albertville",
+                                        "Ashland",
+                                        "Ashland City",
+                                        "Batesville",
+                                        "Benton",
+                                        "Blairsville",
+                                        "Blue Ridge",
+                                        "Bolivar",
+                                        "Bristol",
+                                        "Brownsville",
+                                        "Calhoun",
+                                        "Camden",
+                                        "Carthage",
+                                        "Celina",
+                                        "Chattanooga",
+                                        "Cherokee",
+                                        "Clinton",
+                                        "Collinsville",
+                                        "Columbus",
+                                        "Cordova",
+                                        "Counce",
+                                        "Culberson",
+                                        "Cumberland City",
+                                        "Dalton",
+                                        "Dandridge",
+                                        "De Kalb",
+                                        "Decatur",
+                                        "Drakesboro",
+                                        "Elizabethon",
+                                        "Elizabethton",
+                                        "Elkmont",
+                                        "Elora",
+                                        "Florence",
+                                        "French Camp",
+                                        "Gallatin",
+                                        "Glasgow",
+                                        "Gleason",
+                                        "Grand Rivers",
+                                        "Greeneville",
+                                        "Guntersville",
+                                        "Hayesville",
+                                        "Hendersonville",
+                                        "Hollywood",
+                                        "Houston",
+                                        "Huntsville",
+                                        "Jackson",
+                                        "Jonesborough",
+                                        "Kingsport",
+                                        "Kingston",
+                                        "Knoxville",
+                                        "Kyles Ford",
+                                        "Lancaster",
+                                        "Leesburg",
+                                        "Lenoir City",
+                                        "Limestone",
+                                        "Loudon",
+                                        "Madison",
+                                        "McMinnville",
+                                        "Memphis",
+                                        "Millington",
+                                        "Moscow",
+                                        "Mountain Home",
+                                        "Murfreesboro",
+                                        "Murphy",
+                                        "Muscle Shoals",
+                                        "Nashville",
+                                        "New Hope",
+                                        "New Johnsonville",
+                                        "Norris",
+                                        "Obion",
+                                        "Oliver Springs",
+                                        "Paris",
+                                        "Pickwick Dam",
+                                        "Reliance",
+                                        "Rock Island",
+                                        "Rogersville",
+                                        "Rudledge",
+                                        "Selmer",
+                                        "Soddy Daisy",
+                                        "Somerville",
+                                        "Spring City",
+                                        "Stanton",
+                                        "Steens",
+                                        "Tallassee",
+                                        "Tarrant",
+                                        "Town Creek",
+                                        "Trinity",
+                                        "Tuscumbia",
+                                        "Whiteville",
+                                        "Winchester",
+                                        "Woodlawn"
+                                    ],
+                                    "display": false,
+                                    "tooltip": false,
+                                    "description": "",
+                                    "displayName": "City"
+                                },
+                                "State": {
+                                    "key": "State",
+                                    "type": "string",
+                                    "values": [
+                                        "Alabama",
+                                        "Georgia",
+                                        "Kentucky",
+                                        "Mississippi",
+                                        "North Carolina",
+                                        "Tennessee",
+                                        "Virginia"
+                                    ],
+                                    "display": false,
+                                    "tooltip": false,
+                                    "description": "",
+                                    "displayName": "State"
+                                },
+                                "County": {
+                                    "key": "County",
+                                    "type": "string",
+                                    "values": [
+                                        "Anderson",
+                                        "Barren",
+                                        "Benton",
+                                        "Blount",
+                                        "Bristol City",
+                                        "Carter",
+                                        "Cherokee",
+                                        "Chickasaw",
+                                        "Choctaw",
+                                        "Clay",
+                                        "Colbert",
+                                        "Davidson",
+                                        "DeKalb",
+                                        "Dekalb",
+                                        "Dickson",
+                                        "Fannin",
+                                        "Fayette",
+                                        "Franklin",
+                                        "Greene",
+                                        "Hamilton",
+                                        "Hancock",
+                                        "Hardeman",
+                                        "Hardin",
+                                        "Hawkins",
+                                        "Haywood",
+                                        "Henry",
+                                        "Humphreys",
+                                        "Jackson",
+                                        "Jefferson",
+                                        "Kemper",
+                                        "Knox",
+                                        "Lauderdale",
+                                        "Lawrence",
+                                        "Limestone",
+                                        "Lincoln",
+                                        "Loudon",
+                                        "Lowndes",
+                                        "Madison",
+                                        "Marion",
+                                        "Marshall",
+                                        "McMinn",
+                                        "McNairy",
+                                        "Montgomery",
+                                        "Morgan",
+                                        "Muhlenberg",
+                                        "Murray",
+                                        "Obion",
+                                        "Panola",
+                                        "Polk",
+                                        "Rhea",
+                                        "Roane",
+                                        "Rutherford",
+                                        "Sevier",
+                                        "Shelby",
+                                        "Smith",
+                                        "Stewart",
+                                        "Sullivan",
+                                        "Sumner",
+                                        "Union",
+                                        "Warren",
+                                        "Washington",
+                                        "Weakley"
+                                    ],
+                                    "display": false,
+                                    "tooltip": false,
+                                    "description": "",
+                                    "displayName": "County"
+                                },
+                                "Plant_Name": {
+                                    "key": "Plant_Name",
+                                    "type": "string",
+                                    "unique": 121,
+                                    "display": false,
+                                    "tooltip": false,
+                                    "searchable": true,
+                                    "description": "",
+                                    "displayName": "Plant_Name"
+                                }
+                            }
+                        }
+                    },
+                    "tags": {
+                        "filters": {
+                            "Type": "geojson",
+                            "Location": "TVA",
+                            "Name": "Power Plants"
+                        }
                     }
                 }
             }
         ]
     }
-
-
 ]

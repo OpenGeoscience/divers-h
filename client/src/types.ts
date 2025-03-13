@@ -398,6 +398,7 @@ export interface VectorMapLayer extends AbstractMapLayer {
     selectedFeatureCharts?: FeatureChart[];
     vectorFeatureTableGraphs?: VectorFeatureTableGraph[];
     mapLayerFeatureTableGraphs?: VectorFeatureTableGraph[];
+    searchableVectorFeatureData?: SearchableVectorData;
 
   }
 }
@@ -819,3 +820,84 @@ export interface ColorFilterLinear {
 }
 
 export type ColorFilters = ColorFilterCategorical;
+
+export interface SearchableVectorFilter {
+  key: string;
+  defaultDisplay?: boolean;
+  type: 'number' | 'string' | 'bool';
+  min?: number;
+  max?: number;
+  searchable?: boolean;
+  value: string | string[] | [number, number]
+}
+
+export interface SearchableVectorDisplayItem {
+  key: string; // key of propery to display
+  showDisplayName: boolean;
+}
+
+export interface SearchableVectorDisplayActionItem {
+  type: 'select' | 'zoom' | 'navigate';
+}
+export interface SearchableVectorDisplayActionZoom {
+  type: 'zoom'
+  zoomType: 'buffer' | 'level';
+  value: number;
+  delay?: number; // ms to delay until next action
+}
+
+export interface SearchableVectorDisplayActionSelect {
+  type: 'select';
+  delay?: number;
+}
+
+export interface SearchableVectorDisplayActionNavigate {
+  type: 'navigate';
+  to: 'metadata' | 'datasets' | 'context';
+  special: Record<string, string>; // special actions like geospatial filtering
+}
+
+export interface SearchableVectorData {
+  // mainTextSearch Field keys, The main search will use these keys to filter items
+  mainTextSearchFields?: { title: string, value: string }[];
+  configurableFilters: string[]; // Keys for searchable vector features
+  display: {
+    autoOpenSideBar: boolean;
+    geospatialFilterEnabled: boolean; // Filter results based on map display as well
+    sortable: boolean; // Ability to sort items by something other than the name of the titleKey field.
+    titleKey: string; // key of property to display
+    subtitleKeys: SearchableVectorDisplayItem[]; // Allows zero or multiple subtitles that will be in a single line
+    detailStrings: SearchableVectorDisplayItem[];
+    selectionButton: boolean;
+    hoverHighlight: boolean;
+    zoomButton: boolean;
+    zoomType?: 'buffer' | 'level';
+    zoomBufferOrLevel?: number;
+  };
+  action?: {
+    icon?: string; // new button to the item for selection, if none clicking on the title will select it
+    toolTip: string; // describes what happens
+    actions: (SearchableVectorDisplayActionNavigate | SearchableVectorDisplayActionSelect | SearchableVectorDisplayActionZoom)[]
+  }
+}
+
+export interface SearchableVectorDataRequest {
+  mapLayerId: number;
+  // mainTextSearch Field keys, The main search will use these keys to filter items
+  mainTextSearchFields?: { title: string, value: string }[];
+  search?: string;
+  filters?: Record<string, { type: 'bool' | 'number' | 'string', value: string | number | boolean | [number, number] }>;
+  bbox?: string;
+  sortKey?: string;
+  titleKey: SearchableVectorDisplayItem;
+  subtitleKeys: SearchableVectorDisplayItem[]; // Allows zero or multiple subtitles that will be in a single line
+  detailStrings: SearchableVectorDisplayItem[];
+}
+
+export interface SearchableVectorFeatureResponse {
+  id: number;
+  title: string;
+  subtitles: { key: string; value: string }[];
+  details: { key: string; value: string }[];
+  center: { lat: number, lon: number };
+}

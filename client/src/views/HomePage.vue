@@ -14,6 +14,7 @@ import SelectedFeatureList from '../components/FeatureSelection/SelectedFeatureL
 import Charts from '../components/Charts/Charts.vue';
 import MapLayerTableGraph from '../components/TabularData/MapLayerTableGraph.vue';
 import UVdatApi from '../api/UVDATApi';
+import VectorFeatureSearch from '../components/VectorFeatureSearch/VectorFeatureSearch.vue';
 
 export default defineComponent({
   components: {
@@ -25,6 +26,7 @@ export default defineComponent({
     SelectedFeatureList,
     Charts,
     MapLayerTableGraph,
+    VectorFeatureSearch,
   },
   setup() {
     const oauthClient = inject<OAuthClient>('oauthClient');
@@ -64,15 +66,23 @@ export default defineComponent({
 
     const hasMapLayerVectorGraphs = computed(() => !!MapStore.mapLayerFeatureGraphs.value.length);
 
+    const hasVectorFeatureSearch = computed(() => !!MapStore.mapLayerVectorSearchable.value.length);
+
     const toggleMapLayerVectorGraphs = () => {
       if (MapStore.mapLayerFeatureGraphs.value.length) {
         MapStore.mapLayerFeatureGraphsVisible.value = !MapStore.mapLayerFeatureGraphsVisible.value;
       }
     };
+
+    const toggleVectorFeatureSearch = () => {
+      if (MapStore.mapLayerVectorSearchable.value.length) {
+        MapStore.toggleContext('searchableVectors');
+      }
+    };
+
     const chartView = computed(() => MapStore.activeSideBarCard.value === 'charts');
     const toggleChartView = () => {
       MapStore.toggleContext('charts');
-      MapStore.chartsOpen.value = MapStore.sideBarCardSettings.value.charts.enabled;
     };
 
     const osmBaseMapType = computed(() => {
@@ -81,6 +91,23 @@ export default defineComponent({
       if (type === 'osm-raster') return 'Raster';
       if (type === 'osm-vector') return 'Vector';
       throw new Error('Invalid base map type');
+    });
+
+    const rightSideBarPadding = computed(() => {
+      if (MapStore.sideBarOpen.value && MapStore.activeSideBarCard.value) {
+        return `${MapStore.sideBarCardSettings.value[MapStore.activeSideBarCard.value].width + 20}px`;
+      }
+      return '20px';
+    });
+
+    const SideBarHasData = computed(() => {
+      if (MapStore.activeSideBarCard.value === 'searchableVectors') {
+        return !!MapStore.mapLayerVectorSearchable.value.length;
+      }
+      if (MapStore.activeSideBarCard.value === 'charts') {
+        return true;
+      }
+      return false;
     });
 
     return {
@@ -107,9 +134,14 @@ export default defineComponent({
       toggleMapLayerVectorGraphs,
       mapLayerVectorGraphsVisible: MapStore.mapLayerFeatureGraphsVisible,
       mapLayerFeatureGraphs: MapStore.mapLayerFeatureGraphs,
+      mapLayerVectorSearch: MapStore.mapLayerVectorSearchable,
+      hasVectorFeatureSearch,
+      toggleVectorFeatureSearch,
       sideBarWidth: MapStore.currentSideBarWidth,
       sideBarOpen: MapStore.sideBarOpen,
       activeSideBar: MapStore.activeSideBarCard,
+      rightSideBarPadding,
+      SideBarHasData,
     };
   },
 });
@@ -202,6 +234,20 @@ export default defineComponent({
         </v-icon>
       </template>
     </v-tooltip>
+    <v-tooltip v-if="hasVectorFeatureSearch" text="Vector Feature Search">
+      <template #activator="{ props }">
+        <v-icon
+          v-bind="props"
+          class="mx-2"
+          size="30"
+          :color="activeSideBar === 'searchableVectors' ? 'primary' : ''"
+          @click="toggleVectorFeatureSearch()"
+        >
+          mdi-map-search-outline
+        </v-icon>
+      </template>
+    </v-tooltip>
+
     <v-tooltip text="Chart View">
       <template #activator="{ props }">
         <v-icon
@@ -264,11 +310,12 @@ export default defineComponent({
       </v-col>
     </v-row>
     <selected-feature-list />
-    <v-navigation-drawer :model-value="sideBarOpen" location="right" :width="sideBarWidth" permanent>
+    <v-navigation-drawer v-if="SideBarHasData" :model-value="sideBarOpen" location="right" :width="sideBarWidth" permanent>
       <indicator-filterable-list v-if="activeSideBar === 'indicators'" :indicators="indicators" />
       <charts v-if="activeSideBar === 'charts'" />
+      <VectorFeatureSearch v-if="mapLayerVectorSearch.length && activeSideBar === 'searchableVectors'" />
     </v-navigation-drawer>
-    <MapLegend class="static-map-legend" />
+    <MapLegend class="static-map-legend" :style="`right: ${rightSideBarPadding};transition: all 0.2s ease`" />
   </v-container>
 </template>
 

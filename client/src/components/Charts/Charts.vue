@@ -38,7 +38,6 @@ export default defineComponent({
     );
     const enabledMapPanels: Ref<number[]> = ref([]);
     const enabledChartPanels: Ref<Record<number, number[]>> = ref({});
-    const chartVisible = computed(() => MapStore.chartsOpen.value);
     const addingEditingChart = ref(false);
     const editingChart: Ref<CustomChart | null> = ref(null);
     const editingChartIndex = ref(-1);
@@ -119,7 +118,6 @@ export default defineComponent({
       }
     };
     return {
-      chartVisible,
       proMode: MapStore.proMode,
       configuredChartsByMap,
       addingEditingChart,

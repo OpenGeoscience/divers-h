@@ -293,6 +293,13 @@ const toggleVectorMapLayers = (map: maplibregl.Map) => {
     if (MapStore.visibleMapLayers.value.has(`${layer.type}_${layer.id}`)) {
       // eslint-disable-next-line @typescript-eslint/no-use-before-define
       updateVectorLayer(layer);
+      if (layer?.default_style.searchableVectorFeatureData) {
+        if (layer.default_style.searchableVectorFeatureData.display.autoOpenSideBar) {
+          if (MapStore.activeSideBarCard.value !== 'searchableVectors') {
+            MapStore.toggleContext('searchableVectors');
+          }
+        }
+      }
     }
   });
 };
@@ -373,10 +380,17 @@ const updateVectorLayer = (layer: VectorMapLayer) => {
   updateHeatmap(internalMap.value as maplibregl.Map, layer);
 };
 
-const centerAndZoom = (center: number[], zoom: number) => {
+const centerAndZoom = (center: number[], zoom: number, flyTo = false) => {
   if (internalMap.value !== null) {
-    internalMap.value.setCenter(center as [number, number]);
-    internalMap.value.setZoom(zoom);
+    if (!flyTo) {
+      internalMap.value.setCenter(center as [number, number]);
+      internalMap.value.setZoom(zoom);
+    } else {
+      internalMap.value.flyTo({
+        center: center as [number, number],
+        zoom,
+      });
+    }
   }
 };
 

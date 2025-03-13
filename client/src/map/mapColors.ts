@@ -53,7 +53,7 @@ const chainSelected = (result: any[] = [], color = 'cyan', defaultColor = '') =>
   result.push('case');
   result.push(['in', ['get', 'vectorfeatureid'], ['literal', MapStore.selectedIds.value]]);
   result.push(color);
-  if (MapStore.mapLayerFeatureGraphsVisible.value) {
+  if (MapStore.mapLayerFeatureGraphsVisible.value || MapStore.activeSideBarCard.value === 'searchableVectors') {
     result.push(['in', ['get', 'vectorfeatureid'], ['literal', MapStore.hoveredFeatures.value]]);
     result.push(color);
   }

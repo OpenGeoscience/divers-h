@@ -113,7 +113,6 @@ export default defineComponent({
       </v-col>
 
       <v-col
-        v-if="proMode"
         title="Deselect"
         cols="1"
       >

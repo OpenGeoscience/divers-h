@@ -49,14 +49,14 @@ class ChartAdmin(admin.ModelAdmin):
 
 
 class RasterMapLayerAdmin(admin.ModelAdmin):
-    list_display = ['id', 'name', 'get_dataset_name', 'index']
+    list_display = ['id', 'name', 'get_dataset_name', 'index', 'bounds']
 
     def get_dataset_name(self, obj):
         return obj.dataset.name
 
 
 class VectorMapLayerAdmin(admin.ModelAdmin):
-    list_display = ['id', 'name', 'get_dataset_name', 'index', 'geojson_file']
+    list_display = ['id', 'name', 'get_dataset_name', 'index', 'geojson_file', 'bounds']
 
     def get_dataset_name(self, obj):
         return obj.dataset.name
