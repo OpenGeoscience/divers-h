@@ -8,6 +8,7 @@ import {
   ContextWithIds,
   Dataset,
   DerivedRegion,
+  DisplayConfiguration,
   FeatureGraphData,
   FileItem,
   LayerCollection,
@@ -589,5 +590,26 @@ export default class UVdatApi {
 
   public static async searchVectorFeatures(requestData: SearchableVectorDataRequest): Promise<SearchableVectorFeatureResponse[]> {
     return (await UVdatApi.apiClient.post('/map-layers/search-features/', requestData)).data;
+  }
+
+  public static async getDisplayConfiguration(): Promise<DisplayConfiguration> {
+    const response = await UVdatApi.apiClient.get('display_configuration/');
+    return response.data;
+  }
+
+  // Fully update the display configuration (PUT /display_configuration/)
+  public static async updateDisplayConfiguration(
+    config: DisplayConfiguration,
+  ): Promise<DisplayConfiguration> {
+    const response = await UVdatApi.apiClient.put('display_configuration/', config);
+    return response.data;
+  }
+
+  // Partially update the display configuration (PATCH /display_configuration/)
+  public static async partialUpdateDisplayConfiguration(
+    config: Partial<DisplayConfiguration>,
+  ): Promise<DisplayConfiguration> {
+    const response = await UVdatApi.apiClient.patch('display_configuration/', config);
+    return response.data;
   }
 }

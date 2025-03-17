@@ -901,3 +901,9 @@ export interface SearchableVectorFeatureResponse {
   details: { key: string; value: string }[];
   center: { lat: number, lon: number };
 }
+
+export interface DisplayConfiguration {
+  enabled_ui: string[];
+  default_tab: string;
+  default_displayed_layers: Array<{ type: string; [key: string]: string }>;
+}

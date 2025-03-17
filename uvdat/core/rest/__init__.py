@@ -14,6 +14,7 @@ from .simulations import SimulationViewSet
 from .tasks import TasksAPIView
 from .user import UserViewSet
 from .vector_feature_table_data import VectorFeatureTableDataViewSet
+from .display_configuration import DisplayConfigurationViewSet
 
 __all__ = [
     ContextViewSet,
@@ -38,4 +39,5 @@ __all__ = [
     VectorFeatureTableDataViewSet,
     TasksAPIView,
     MetadataFilterViewSet,
+    DisplayConfigurationViewSet,
 ]

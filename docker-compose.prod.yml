@@ -63,15 +63,6 @@ services:
       - minio
     platform: linux/amd64
 
-  gen-vector-basemap:
-    build:
-      context: ./docker/tilemaker
-      dockerfile: Dockerfile
-    restart: no
-    volumes:
-      - vector-workdir:/work
-      - ./client/public/vectortiles:/data
-
   web:
     build:
       context: .

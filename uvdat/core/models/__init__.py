@@ -1,6 +1,7 @@
 from .chart import Chart
 from .context import Context
 from .dataset import Dataset
+from .display_configuration import DisplayConfiguration
 from .file_item import FileItem
 from .layer_collection import LayerCollection
 from .layer_representation import LayerRepresentation
@@ -34,4 +35,5 @@ __all__ = [
     ProcessingTask,
     VectorFeatureTableData,
     VectorFeatureRowData,
+    DisplayConfiguration,
 ]
