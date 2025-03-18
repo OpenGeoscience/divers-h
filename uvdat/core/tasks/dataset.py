@@ -161,7 +161,7 @@ def process_file_item(self, file_item_id):
                 status=ProcessingTask.Status.ERROR, error=str(f'Unsupported file type: {file_name}')
             )
 
-        for item in raster_map_layer:
+        for item in raster_map_layers:
             item.set_bounds()
     except Exception as e:
         processing_task.update(status=ProcessingTask.Status.ERROR, error=str(e))
