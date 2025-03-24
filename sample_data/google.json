@@ -1,0 +1,157 @@
+[
+    {
+        "type": "Context",
+        "name": "Google Neural Hydrology",
+        "default_map_center": [
+            34.8019,
+            -86.1794
+        ],
+        "default_map_zoom": 6,
+        "datasets": [
+            {
+                "name": "Google Neural Hydrology",
+                "description": "Google Neural Hydrology",
+                "category": "Google Neural Hydrology",
+                "metadata": {},
+                "files": [
+                    {
+                        "name": "Google Eural Hydrology Data",
+                        "path": "./data/GoogleNeuralHydrology/matching_hru_ids.geojson",
+                        "url": "https://data.kitware.com/api/v1/file/67e175bf3e5f3e5e96b97512/download",
+                        "type": "geojson",
+                        "metadata": {
+                            "tabular": {
+                                "path": "./data/GoogleNeuralHydrology/combined.json",
+                                "name": "Google Neural Hydrology Tabular Data",
+                                "url": "https://data.kitware.com/api/v1/file/67e175c03e5f3e5e96b97515/download",
+                                "featurePropertyMatcher": "hru_id"
+                            },
+                            "default_style": {
+                                "layers": {
+                                    "fill": {
+                                        "color": "#888888",
+                                        "enabled": true,
+                                        "selectable": "singleSelect",
+                                        "selectColor": "#00FFFF"
+                                    },
+                                    "line": {
+                                        "size": 1,
+                                        "color": "#000000",
+                                        "enabled": true
+                                    },
+                                    "text": {
+                                        "color": "#888888",
+                                        "enabled": false
+                                    },
+                                    "circle": {
+                                        "size": 3,
+                                        "color": "#888888",
+                                        "enabled": false
+                                    },
+                                    "fill-extrusion": {
+                                        "color": "#888888",
+                                        "enabled": false
+                                    }
+                                },
+                                "vectorFeatureTableGraphs": [
+                                    {
+                                        "name": "QObs(mm/d)_obs",
+                                        "type": "GoogleNeuralHydrology",
+                                        "xAxis": "unix_time",
+                                        "yAxis": "QObs(mm/d)_obs",
+                                        "indexer": "hru_id",
+                                        "xAxisLabel": "Date",
+                                        "yAxisLabel": "QObs(mm/d)_obs"
+                                    },
+                                    {
+                                        "name": "QObs(mm/d)_sim",
+                                        "type": "GoogleNeuralHydrology",
+                                        "xAxis": "unix_time",
+                                        "yAxis": "QObs(mm/d)_sim",
+                                        "indexer": "hru_id",
+                                        "xAxisLabel": "Date",
+                                        "yAxisLabel": "QObs(mm/d)_sim"
+                                    },
+                                    {
+                                        "name": "Obs - Sim",
+                                        "type": "GoogleNeuralHydrology",
+                                        "xAxis": "unix_time",
+                                        "yAxis": "Obs - Sim",
+                                        "indexer": "hru_id",
+                                        "xAxisLabel": "Date",
+                                        "yAxisLabel": "Obs - Sim"
+                                    },
+                                    {
+                                        "name": "Percentage Off",
+                                        "type": "GoogleNeuralHydrology",
+                                        "xAxis": "unix_time",
+                                        "yAxis": "Percentage Off",
+                                        "indexer": "hru_id",
+                                        "xAxisLabel": "Date",
+                                        "yAxisLabel": "Percentage Off"
+                                    },
+                                    {
+                                        "name": "00060_Mean",
+                                        "type": "USGS_gauge_daily_00060",
+                                        "xAxis": "unix_time",
+                                        "yAxis": "00060_Mean",
+                                        "indexer": "hru_id",
+                                        "xAxisLabel": "Date",
+                                        "yAxisLabel": "00060_Mean"
+                                    }
+                                ],
+                                "mapLayerFeatureTableGraphs": [
+                                    {
+                                        "name": "QObs(mm/d)_obs",
+                                        "type": "GoogleNeuralHydrology",
+                                        "xAxis": "unix_time",
+                                        "yAxis": "QObs(mm/d)_obs",
+                                        "indexer": "hru_id",
+                                        "xAxisLabel": "Date",
+                                        "yAxisLabel": "QObs(mm/d)_obs"
+                                    },
+                                    {
+                                        "name": "QObs(mm/d)_sim",
+                                        "type": "GoogleNeuralHydrology",
+                                        "xAxis": "unix_time",
+                                        "yAxis": "QObs(mm/d)_sim",
+                                        "indexer": "hru_id",
+                                        "xAxisLabel": "Date",
+                                        "yAxisLabel": "QObs(mm/d)_sim"
+                                    },
+                                    {
+                                        "name": "Obs - Sim",
+                                        "type": "GoogleNeuralHydrology",
+                                        "xAxis": "unix_time",
+                                        "yAxis": "Obs - Sim",
+                                        "indexer": "hru_id",
+                                        "xAxisLabel": "Date",
+                                        "yAxisLabel": "Obs - Sim"
+                                    },
+                                    {
+                                        "name": "Percentage Off",
+                                        "type": "GoogleNeuralHydrology",
+                                        "xAxis": "unix_time",
+                                        "yAxis": "Percentage Off",
+                                        "indexer": "hru_id",
+                                        "xAxisLabel": "Date",
+                                        "yAxisLabel": "Percentage Off"
+                                    },
+                                    {
+                                        "name": "00060_Mean",
+                                        "type": "USGS_gauge_daily_00060",
+                                        "xAxis": "unix_time",
+                                        "yAxis": "00060_Mean",
+                                        "indexer": "hru_id",
+                                        "xAxisLabel": "Date",
+                                        "yAxisLabel": "00060_Mean"
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                ]
+            }
+        ]
+    }
+]

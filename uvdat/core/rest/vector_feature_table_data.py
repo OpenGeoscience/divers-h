@@ -106,7 +106,7 @@ class VectorFeatureTableDataViewSet(
             # Aggregate summary statistics per column
             for column, stats_col in table_summary.items():
                 if 'type' not in column_summaries[table_type][column]:
-                    column_summaries[table_type][column]['type'] = stats.get('type')
+                    column_summaries[table_type][column]['type'] = stats_col.get('type')
 
                 if stats_col.get('type') == 'number':
                     column_summaries[table_type][column]['min'] = min(
@@ -129,10 +129,10 @@ class VectorFeatureTableDataViewSet(
                     )
                     column_summaries[table_type][column]['value_count'] = column_summaries[
                         table_type
-                    ][column].get('value_count', 0) + stats.get('value_count', 0)
+                    ][column].get('value_count', 0) + stats_col.get('value_count', 0)
 
                 if stats_col.get('description', None):
-                    column_summaries[table_type][column]['description'] = stats.get(
+                    column_summaries[table_type][column]['description'] = stats_col.get(
                         'description', 'Unknown'
                     )
         # Construct the response

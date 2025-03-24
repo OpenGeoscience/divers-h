@@ -5,7 +5,7 @@ import numpy as np
 import os
 import pandas as pd
 
-def summarize_data(ds):
+def summarize_data(ds, diff_values, percentage_off):
     """Generate a summary of the dataset with min/max values for numerical variables."""
     summary = {}
 
@@ -17,24 +17,41 @@ def summarize_data(ds):
                 "min": np.nanmin(data).item() if np.any(~np.isnan(data)) else None,
                 "max": np.nanmax(data).item() if np.any(~np.isnan(data)) else None
             }
-    
-    summary["columns"] = list(ds.data_vars.keys())  # List of available variables
+
+    # Add the new computed values to the summary
+    summary["Obs - Sim"] = {
+        "type": "number",
+        "min": np.nanmin(diff_values).item() if np.any(~np.isnan(diff_values)) else None,
+        "max": np.nanmax(diff_values).item() if np.any(~np.isnan(diff_values)) else None
+    }
+
+    summary["Percentage Off"] = {
+        "type": "number",
+        "min": np.nanmin(percentage_off).item() if np.any(~np.isnan(percentage_off)) else None,
+        "max": np.nanmax(percentage_off).item() if np.any(~np.isnan(percentage_off)) else None
+    }
+
+    summary["columns"] = list(ds.data_vars.keys()) + ["Obs - Sim", "Percentage Off"]
+
     if 'date' in ds:
         time_values = ds['date'].values
         start_time = pd.to_datetime(time_values.min())
         end_time = pd.to_datetime(time_values.max())
-        
+        unique_dates = np.unique(time_values)
+
         summary["time"] = {
             "type": "string",
             "start": start_time.strftime("%Y-%m-%d"),
-            "end": end_time.strftime("%Y-%m-%d")
+            "end": end_time.strftime("%Y-%m-%d"),
+            "value_count": len(unique_dates)
         }
         
         # Convert to Unix time (seconds since the Unix epoch)
         summary["unix_time"] = {
             "type": "number",
             "min": start_time.value // 10**9,  # Convert to seconds
-            "max": end_time.value // 10**9     # Convert to seconds
+            "max": end_time.value // 10**9,     # Convert to seconds
+            "value_count": len(unique_dates)
         }
 
     return summary
@@ -47,6 +64,10 @@ def convert_netcdf_to_json(nc_file):
     time = ds["date"].values  # Extract dates
     obs_values = ds["QObs(mm/d)_obs"].values.flatten()
     sim_values = ds["QObs(mm/d)_sim"].values.flatten()
+
+    # Compute differences and percentage differences
+    diff_values = obs_values - sim_values
+    percentage_off = np.where(obs_values != 0, (diff_values / obs_values) * 100, np.nan)  # Avoid division by zero
 
     # Format time correctly and convert to UNIX time
     if "units" in ds["date"].attrs and "since" in ds["date"].attrs["units"]:
@@ -61,11 +82,14 @@ def convert_netcdf_to_json(nc_file):
     # Format time as strings
     time_str = time.strftime("%Y-%m-%d").tolist()
 
-    # Construct rows with UNIX time
-    rows = [[time_str[i], int(unix_time[i]), float(obs_values[i]), float(sim_values[i])] for i in range(len(time))]
+    # Construct rows with the new columns
+    rows = [
+        [time_str[i], int(unix_time[i]), float(obs_values[i]), float(sim_values[i]), float(diff_values[i]), float(percentage_off[i])]
+        for i in range(len(time))
+    ]
 
-    # Generate summary
-    summary = summarize_data(ds)
+    # Generate summary including new values
+    summary = summarize_data(ds, diff_values, percentage_off)
 
     # Construct final JSON output
     output_json = {
@@ -92,26 +116,27 @@ def process_folder(folder_path):
             json_output[base_filename] = [{
                 "name": f"{base_filename}_daily",
                 "description": "This is a table of the daily values",
-                "type": f"GoogleNeuralHydrology_{base_filename}",
+                "type": f"GoogleNeuralHydrology",
                 "summary": {
                     "time": json_data["summary"].get("time", {}),
                     "unix_time": json_data["summary"].get("unix_time", {}),
                     "QObs(mm/d)_obs": json_data["summary"].get("QObs(mm/d)_obs", {}),
                     "QObs(mm/d)_sim": json_data["summary"].get("QObs(mm/d)_sim", {}),
+                    "Obs - Sim": json_data["summary"].get("Obs - Sim", {}),
+                    "Percentage Off": json_data["summary"].get("Percentage Off", {}),
                 },
-                "header": ["time", "unix_time", "QObs(mm/d)_obs", "QObs(mm/d)_sim"],
+                "header": ["time", "unix_time", "QObs(mm/d)_obs", "QObs(mm/d)_sim", "Obs - Sim", "Percentage Off"],
                 "rows": json_data["rows"]
             }]
 
     return json_output
+
 @click.command()
 @click.argument("folder", type=click.Path(exists=True))
-@click.argument("output", type=click.Path())
+@click.argument("output", default='ncToJSONOutput.json')
 def convert_netcdf(folder, output):
     """CLI tool to convert a NetCDF (.nc) file to JSON format."""
     json_data = process_folder(folder)
-
-    # Set default output file
 
     # Save JSON
     with open(output, "w") as json_file:
