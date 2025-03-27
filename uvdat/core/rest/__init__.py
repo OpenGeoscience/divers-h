@@ -1,6 +1,7 @@
 from .chart import ChartViewSet
 from .context import ContextViewSet
 from .dataset import DatasetViewSet
+from .display_configuration import DisplayConfigurationViewSet
 from .file_item import FileItemViewSet
 from .filter_metadata import MetadataFilterViewSet
 from .layer_collection import LayerCollectionViewSet
@@ -14,7 +15,6 @@ from .simulations import SimulationViewSet
 from .tasks import TasksAPIView
 from .user import UserViewSet
 from .vector_feature_table_data import VectorFeatureTableDataViewSet
-from .display_configuration import DisplayConfigurationViewSet
 
 __all__ = [
     ContextViewSet,

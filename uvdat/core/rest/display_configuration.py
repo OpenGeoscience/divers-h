@@ -1,4 +1,4 @@
-from typing import Any, Dict, List
+from typing import Any, Dict
 
 from django.core.exceptions import ValidationError
 from rest_framework import status, viewsets
@@ -26,46 +26,41 @@ class DisplayConfigurationSerializer(ModelSerializer):
         fields = ['enabled_ui', 'default_tab', 'default_displayed_layers']
 
     def validate(self, data: Dict[str, Any]) -> Dict[str, Any]:
-        '''Ensure `default_tab` is within `enabled_ui` and validate `default_displayed_layers`.'''
         enabled_ui = data.get('enabled_ui', [])
         default_tab = data.get('default_tab')
         default_displayed_layers = data.get('default_displayed_layers', [])
 
         if default_tab not in enabled_ui:
-            raise ValidationError({'default_tab': 'The default tab must be one of the enabled features.'})
+            raise ValidationError(
+                {'default_tab': 'The default tab must be one of the enabled features.'}
+            )
 
-        if not all(isinstance(layer, dict) and 'type' in layer for layer in default_displayed_layers):
-            raise ValidationError({'default_displayed_layers': 'Each entry must be a dictionary with a "type" field.'})
+        if not all(
+            isinstance(layer, dict) and 'type' in layer for layer in default_displayed_layers
+        ):
+            raise ValidationError(
+                {'default_displayed_layers': 'Each entry must be a dictionary with a "type" field.'}
+            )
 
         return data
 
 
 class DisplayConfigurationViewSet(viewsets.GenericViewSet):
-    '''
-    ViewSet for managing the single Display Configuration instance.
-
-    - `GET /display_configuration/`: Retrieve the current configuration.
-    - `PATCH /display_configuration/`: Partially update the configuration.
-    - `PUT /display_configuration/`: Fully update the configuration.
-    '''
 
     queryset = DisplayConfiguration.objects.all()
     serializer_class = DisplayConfigurationSerializer
 
     def get_object(self) -> DisplayConfiguration:
-        '''Retrieve or create the single Configuration instance.'''
         return DisplayConfiguration.objects.first() or DisplayConfiguration.objects.create()
 
     @action(detail=False, methods=['get'], url_path='display-configuration')
     def retrieve(self, request: Request, *args: Any, **kwargs: Any) -> Response:
-        '''Retrieve the single Display Configuration.'''
         instance = self.get_object()
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
 
     @action(detail=False, methods=['put'], url_path='display-configuration')
     def update(self, request: Request, *args: Any, **kwargs: Any) -> Response:
-        '''Fully replace the configuration (PUT request).'''
         instance = self.get_object()
         serializer = self.get_serializer(instance, data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -74,7 +69,6 @@ class DisplayConfigurationViewSet(viewsets.GenericViewSet):
 
     @action(detail=False, methods=['patch'], url_path='display-configuration')
     def partial_update(self, request: Request, *args: Any, **kwargs: Any) -> Response:
-        '''Partially update the configuration (PATCH request).'''
         instance = self.get_object()
         serializer = self.get_serializer(instance, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
