@@ -6,7 +6,7 @@ import xarray as xr
 from girder_client import GirderClient
 import matplotlib.pyplot as plt
 
-baseApiKey = 'ePEu0WAw7o7DCAzCR3xdSgAmtAOReWrUOIUCiCHC'
+baseApiKey = 'GIRDER API KEY HERE'
 
 
 def authenticate(client: GirderClient):
