@@ -6,7 +6,7 @@ import xarray as xr
 from girder_client import GirderClient
 import matplotlib.pyplot as plt
 
-baseApiKey = 'OxhoPyCrzkGsnQiiRYZm3BgTlPhscKvILVyRdasT'
+baseApiKey = 'ePEu0WAw7o7DCAzCR3xdSgAmtAOReWrUOIUCiCHC'
 
 
 def authenticate(client: GirderClient):
@@ -97,7 +97,7 @@ def upload_data(client: GirderClient, remote_folder_id, base_geojson, base_tab_j
     default_style['mapLayerFeatureTableGraphs'] = mapLayerFeatureTableGraphs
     print(default_style['mapLayerFeatureTableGraphs'])
     file_metadata.append({
-        'name': f'Google Eural Hydrology Data',
+        'name': f'Google Neural Hydrology Data',
         'path': f'./data/GoogleNeuralHydrology/{base_geojson}',
         'url': geojson_url,
         'type': 'geojson',

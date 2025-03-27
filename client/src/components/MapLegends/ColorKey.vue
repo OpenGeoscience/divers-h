@@ -269,8 +269,11 @@ export default defineComponent({
         // D3 allows color strings but says it requires numbers for type definitions
         .range(colors);
       // Recalculate percentage of width for gradient
-      const max = domain[domain.length - 1];
-      const percent = domain.map((item) => (max === 0 ? 0 : item / max));
+      const min = Math.min(...domain);
+      const max = Math.max(...domain);
+      const range = max - min;
+
+      const percent = domain.map((item) => (range === 0 ? 0 : (item - min) / range));
       // Append multiple color stops using data/enter step
       linearGradient.selectAll('stop').remove();
       linearGradient

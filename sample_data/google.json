@@ -15,15 +15,15 @@
                 "metadata": {},
                 "files": [
                     {
-                        "name": "Google Eural Hydrology Data",
-                        "path": "./data/GoogleNeuralHydrology/matching_hru_ids.geojson",
-                        "url": "https://data.kitware.com/api/v1/file/67e175bf3e5f3e5e96b97512/download",
+                        "name": "Google Neural Hydrology Data",
+                        "path": "./data/GoogleNeuralHydrology/CAMEL_USGS_Stats.geojson",
+                        "url": "https://data.kitware.com/api/v1/file/67e579ae3e5f3e5e96b97cb5/download",
                         "type": "geojson",
                         "metadata": {
                             "tabular": {
                                 "path": "./data/GoogleNeuralHydrology/combined.json",
                                 "name": "Google Neural Hydrology Tabular Data",
-                                "url": "https://data.kitware.com/api/v1/file/67e175c03e5f3e5e96b97515/download",
+                                "url": "https://data.kitware.com/api/v1/file/67e579d63e5f3e5e96b97cb8/download",
                                 "featurePropertyMatcher": "hru_id"
                             },
                             "default_style": {
@@ -89,15 +89,6 @@
                                         "indexer": "hru_id",
                                         "xAxisLabel": "Date",
                                         "yAxisLabel": "Percentage Off"
-                                    },
-                                    {
-                                        "name": "00060_Mean",
-                                        "type": "USGS_gauge_daily_00060",
-                                        "xAxis": "unix_time",
-                                        "yAxis": "00060_Mean",
-                                        "indexer": "hru_id",
-                                        "xAxisLabel": "Date",
-                                        "yAxisLabel": "00060_Mean"
                                     }
                                 ],
                                 "mapLayerFeatureTableGraphs": [
@@ -136,15 +127,6 @@
                                         "indexer": "hru_id",
                                         "xAxisLabel": "Date",
                                         "yAxisLabel": "Percentage Off"
-                                    },
-                                    {
-                                        "name": "00060_Mean",
-                                        "type": "USGS_gauge_daily_00060",
-                                        "xAxis": "unix_time",
-                                        "yAxis": "00060_Mean",
-                                        "indexer": "hru_id",
-                                        "xAxisLabel": "Date",
-                                        "yAxisLabel": "00060_Mean"
                                     }
                                 ]
                             }

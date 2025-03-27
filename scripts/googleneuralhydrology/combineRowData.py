@@ -21,17 +21,21 @@ def combine_json(json_file1, json_file2, output):
     all_keys = set(data1.keys()).union(data2.keys())
     
     for key in all_keys:
-        array1 = data1.get(key, [])
-        array2 = data2.get(key, [])
+        value1 = data1.get(key, None)
+        value2 = data2.get(key, None)
         
-        if isinstance(array1, list) and isinstance(array2, list):
-            combined_data[key] = array1 + array2
+        if isinstance(value1, list) and isinstance(value2, list):
+            combined_data[key] = value1 + value2
+        elif isinstance(value1, list):
+            combined_data[key] = value1
+        elif isinstance(value2, list):
+            combined_data[key] = value2
         else:
-            raise ValueError(f"Values for key '{key}' are not both arrays.")
+            ValueError('Key is not valid in either data')
     
     # Save combined JSON
     with open(output, "w") as f:
-        json.dump(combined_data, f, indent=4)
+        json.dump(combined_data, f, separators=(',', ':'))
     
     click.echo(f"Combined JSON saved to {output}")
 

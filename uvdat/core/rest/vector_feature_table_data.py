@@ -239,7 +239,7 @@ class VectorFeatureTableDataViewSet(
 
             if 'movingAverage' in data_types and moving_avg_val is not None and moving_avg_val > 1:
                 moving_avg = np.convolve(
-                    y_vals, np.ones(moving_avg_val) / moving_avg_val, mode='valid'
+                    y_vals, np.ones(moving_avg_val) / moving_avg_val, mode='same'
                 )
                 moving_avg_x = x_vals[moving_avg_val - 1 :]
                 result['movingAverage'] = list(zip(moving_avg_x, moving_avg))
