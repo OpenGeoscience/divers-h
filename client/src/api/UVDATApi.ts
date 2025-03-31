@@ -3,6 +3,7 @@ import { ref } from 'vue';
 import OauthClient from '@girder/oauth-client/dist/oauth-client';
 import {
   AbstractMapLayer,
+  AbstractMapLayerListItem,
   Chart,
   Context,
   ContextWithIds,
@@ -214,7 +215,8 @@ export default class UVdatApi {
     return (await UVdatApi.apiClient.delete(`/files/${fileItemId}/`)).data;
   }
 
-  public static async getGlobalDatasets(filter: { unconnected: boolean }): Promise<(Dataset & { contextCount: number })[]> {
+
+  public static async getGlobalDatasets(filter?: { unconnected: boolean }): Promise<(Dataset & { contextCount: number })[]> {
     return (await UVdatApi.apiClient.get('datasets', { params: { ...filter } })).data.results;
   }
 
@@ -588,12 +590,16 @@ export default class UVdatApi {
     return (await UVdatApi.apiClient.get('/map-layers/', { params })).data;
   }
 
+  public static async getMapLayerAll(): Promise<AbstractMapLayerListItem[]> {
+    return (await UVdatApi.apiClient.get('/map-layers/all')).data;
+  }
+
   public static async searchVectorFeatures(requestData: SearchableVectorDataRequest): Promise<SearchableVectorFeatureResponse[]> {
     return (await UVdatApi.apiClient.post('/map-layers/search-features/', requestData)).data;
   }
 
   public static async getDisplayConfiguration(): Promise<DisplayConfiguration> {
-    const response = await UVdatApi.apiClient.get('display_configuration/');
+    const response = await UVdatApi.apiClient.get('display-configuration/');
     return response.data;
   }
 
@@ -601,7 +607,7 @@ export default class UVdatApi {
   public static async updateDisplayConfiguration(
     config: DisplayConfiguration,
   ): Promise<DisplayConfiguration> {
-    const response = await UVdatApi.apiClient.put('display_configuration/', config);
+    const response = await UVdatApi.apiClient.put('display-configuration/', config);
     return response.data;
   }
 
@@ -609,7 +615,7 @@ export default class UVdatApi {
   public static async partialUpdateDisplayConfiguration(
     config: Partial<DisplayConfiguration>,
   ): Promise<DisplayConfiguration> {
-    const response = await UVdatApi.apiClient.patch('display_configuration/', config);
+    const response = await UVdatApi.apiClient.patch('display-configuration/', config);
     return response.data;
   }
 }

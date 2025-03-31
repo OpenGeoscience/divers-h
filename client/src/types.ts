@@ -903,7 +903,16 @@ export interface SearchableVectorFeatureResponse {
 }
 
 export interface DisplayConfiguration {
-  enabled_ui: string[];
-  default_tab: string;
-  default_displayed_layers: Array<{ type: string; [key: string]: string }>;
+  enabled_ui: ('Scenarios' | 'Collections' | 'Datasets' | 'Metadata')[];
+  default_tab: 'Scenarios' | 'Collections' | 'Datasets' | 'Metadata';
+  default_displayed_layers: Array<{ type: AbstractMapLayer['type']; id: number; name: string }>;
+}
+
+export interface AbstractMapLayerListItem {
+  id: number;
+  name: string;
+  type: AbstractMapLayer['type'];
+  datset_id: number;
+  file_item: { id: number, name: string }[];
+  processing_tasks?: null | ProcessingTask[]
 }

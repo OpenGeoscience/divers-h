@@ -6,11 +6,12 @@ class DisplayConfiguration(models.Model):
         ('Collections', 'Collections'),
         ('Datasets', 'Datasets'),
         ('Metadata', 'Metadata'),
+        ('Scenarios', 'Scenarios'),
     ]
 
     enabled_ui = models.JSONField(
         default=list,
-        help_text="List of enabled UI elements: 'Collections', 'Datasets', 'Metadata'.",
+        help_text="List of enabled UI elements: 'Collections', 'Datasets', 'Metadata', 'Scenarios'.",
     )
 
     default_tab = models.CharField(
@@ -27,8 +28,8 @@ class DisplayConfiguration(models.Model):
     def clean(self):
         """Ensure default_tab is within enabled_features."""
         super().clean()
-        if self.default_tab not in self.enabled_features:
+        if self.default_tab not in self.enabled_ui:
             raise ValueError('The default tab must be one of the enabled features.')
 
     def __str__(self):
-        return f"Configuration ({', '.join(self.enabled_features)})"
+        return f"Configuration ({', '.join(self.enabled_ui)})"

@@ -5,6 +5,7 @@ from django.contrib.gis.serializers import geojson
 from rest_framework import serializers
 
 from uvdat.core.models import (
+    AbstractMapLayer,
     Chart,
     Context,
     Dataset,
@@ -82,7 +83,9 @@ class ProcessingTaskSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-def get_file_item_ids(obj: VectorMapLayer | RasterMapLayer | NetCDFData):
+def get_file_item_ids(obj: VectorMapLayer | RasterMapLayer | NetCDFLayer):
+    if isinstance(obj, NetCDFLayer):
+        return [obj.netcdf_data.dataset.id]
     if obj.dataset is None:
         return []
     ids = []
@@ -97,8 +100,14 @@ class AbstractMapLayerSerializer(serializers.Serializer):
     dataset_id = serializers.SerializerMethodField('get_dataset_id')
     file_item = serializers.SerializerMethodField('get_file_item')
     processing_tasks = serializers.SerializerMethodField('get_processing_tasks')
+    id = serializers.SerializerMethodField('get_id')
 
-    def get_name(self, obj: VectorMapLayer | RasterMapLayer | NetCDFData):
+    def get_id(self, obj: VectorMapLayer | RasterMapLayer | NetCDFLayer):
+        return obj.id
+
+    def get_name(self, obj: VectorMapLayer | RasterMapLayer | NetCDFLayer):
+        if isinstance(obj, NetCDFLayer):
+            return obj.name
         if obj.name:
             return obj.name
         if obj.dataset:
@@ -108,21 +117,30 @@ class AbstractMapLayerSerializer(serializers.Serializer):
             return f'{obj.dataset.name} Layer {obj.index}'
         return None
 
-    def get_type(self, obj: VectorMapLayer | RasterMapLayer | NetCDFData):
+    def get_type(self, obj: VectorMapLayer | RasterMapLayer | NetCDFLayer):
         if isinstance(obj, VectorMapLayer):
             return 'vector'
         if isinstance(obj, RasterMapLayer):
             return 'raster'
-        if isinstance(obj, NetCDFData):
+        if isinstance(obj, NetCDFLayer):
             return 'netcdf'
         return 'none'
 
-    def get_dataset_id(self, obj: VectorMapLayer | RasterMapLayer | NetCDFData):
+    def get_dataset_id(self, obj: VectorMapLayer | RasterMapLayer | NetCDFLayer):
+        if isinstance(obj, NetCDFLayer):
+            return obj.netcdf_data.dataset.id
         if obj.dataset:
             return obj.dataset.id
         return None
 
     def get_file_item(self, obj: VectorMapLayer | RasterMapLayer | NetCDFData):
+        if isinstance(obj, NetCDFLayer):
+            for file_item in obj.netcdf_data.dataset.source_files.all():
+                if file_item.index == obj.netcdf_data.index:
+                    return {
+                        'id': file_item.id,
+                        'name': file_item.name,
+                    }
         if obj.dataset is None:
             return None
         for file_item in obj.dataset.source_files.all():

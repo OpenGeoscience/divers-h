@@ -1,6 +1,6 @@
 <script lang="ts">
 import {
-  computed, defineComponent, inject, ref,
+  computed, defineComponent, inject, onMounted, ref,
   watch,
 } from 'vue';
 import OAuthClient from '@girder/oauth-client';
@@ -45,6 +45,8 @@ export default defineComponent({
         oauthClient.redirectToLogin();
       }
     };
+
+    onMounted(() => MapStore.getDisplayConfiguration());
 
     watch(MapStore.userIsStaff, () => {
       if (!MapStore.userIsStaff.value) {
@@ -278,6 +280,9 @@ export default defineComponent({
       </template>
     </v-tooltip>
     <v-spacer />
+    <v-btn v-if="userIsStaff" to="/admin">
+      Admin
+    </v-btn>
     <v-btn @click="logInOrOut">
       {{ loginText }}
     </v-btn>

@@ -230,7 +230,7 @@ const renderVectorFeatureGraph = (
       g.append('path')
         .datum(graph.movingAverage)
         .attr('fill', 'none')
-        .attr('stroke', '#00FFFF')
+        .attr('stroke', '#FFFF00')
         .attr('stroke-width', 5)
         .attr('d', line)
         .attr('class', `moving-average moving-average-${key}`);

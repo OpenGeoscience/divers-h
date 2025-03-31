@@ -7,6 +7,7 @@ import {
   ColorFilters,
   Context,
   Dataset,
+  DisplayConfiguration,
   LayerCollection,
   NetCDFData,
   NetCDFLayer,
@@ -32,6 +33,8 @@ export default class MapStore {
   public static userIsStaff = computed(() => !!UVdatApi.user?.is_staff);
 
   public static proModeButtonEnabled = ref(true);
+
+  public static displayConfiguration: Ref<DisplayConfiguration> = ref({ default_displayed_layers: [], enabled_ui: ['Collections', 'Datasets', 'Metadata'], default_tab: 'Scenarios' });
 
   // Ability to toggle proMode so Staff users can see what other users see.
   public static proMode = computed(() => MapStore.userIsStaff.value && MapStore.proModeButtonEnabled.value);
@@ -101,6 +104,10 @@ export default class MapStore {
     // but that scenario isn't a concern. Also, no cancellation behavior.
     if (datasetId in MapStore.mapLayersByDataset && !force) return;
     MapStore.mapLayersByDataset[datasetId] = await UVdatApi.getDatasetLayers(datasetId);
+  }
+
+  public static async getDisplayConfiguration() {
+    MapStore.displayConfiguration.value = await UVdatApi.getDisplayConfiguration();
   }
 
   public static mapLayerFeatureGraphs = computed(() => {

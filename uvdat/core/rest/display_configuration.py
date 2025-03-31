@@ -13,7 +13,7 @@ from uvdat.core.models import DisplayConfiguration
 class DisplayConfigurationSerializer(ModelSerializer):
     enabled_ui = ListField(
         child=CharField(),
-        help_text='List of enabled features: "Collections", "Datasets", "Metadata".',
+        help_text='List of enabled features: "Collections", "Datasets", "Metadata", "Scenarios".',
     )
     default_tab = CharField(help_text='Default tab, must be one of the enabled features.')
     default_displayed_layers = ListField(
