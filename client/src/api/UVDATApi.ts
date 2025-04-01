@@ -215,7 +215,6 @@ export default class UVdatApi {
     return (await UVdatApi.apiClient.delete(`/files/${fileItemId}/`)).data;
   }
 
-
   public static async getGlobalDatasets(filter?: { unconnected: boolean }): Promise<(Dataset & { contextCount: number })[]> {
     return (await UVdatApi.apiClient.get('datasets', { params: { ...filter } })).data.results;
   }

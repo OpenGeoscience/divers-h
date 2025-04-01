@@ -527,7 +527,7 @@ class MapLayerViewSet(GenericViewSet):
         netcdf_layers = NetCDFLayer.objects.all()
 
         # Serialize layers
-        for map_layer, serializer_class, layer_type in [
+        for map_layer, layer_type in [
             (raster_layers, RasterMapLayerSerializer, 'raster'),
             (vector_layers, VectorMapLayerSerializer, 'vector'),
             (netcdf_layers, NetCDFLayerSerializer, 'netcdf'),
@@ -543,13 +543,15 @@ class MapLayerViewSet(GenericViewSet):
                         object_id=layer.id, map_type=ContentType.objects.get_for_model(layer)
                     ).first()
                     if layer_representation:
-                        layer_response['default_style'] = layer_representation.default_style or layer_response.get('default_style')
+                        layer_response['default_style'] = (
+                            layer_representation.default_style
+                            or layer_response.get('default_style')
+                        )
                         layer_response['layerRepresentationId'] = layer_representation.id
-                
+
                 response_data.append(layer_response)
 
         return Response(response_data, status=status.HTTP_200_OK)
-
 
     def list(self, request, *args, **kwargs):
         map_layer_ids = request.query_params.getlist('mapLayerIds', [])

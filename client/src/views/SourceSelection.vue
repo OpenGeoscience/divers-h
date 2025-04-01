@@ -26,12 +26,12 @@ export default defineComponent({
       if (MapStore.displayConfiguration.value.default_tab) {
         tab.value = MapStore.displayConfiguration.value.default_tab;
       }
-    })
+    });
     return {
       tab,
       selectedLayersCount,
       collectionList: MapStore.availableCollections,
-      displayConfig: MapStore.displayConfiguration
+      displayConfig: MapStore.displayConfiguration,
     };
   },
 });

@@ -13,10 +13,39 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='DisplayConfiguration',
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('enabled_ui', models.JSONField(default=list, help_text="List of enabled UI elements: 'Collections', 'Datasets', 'Metadata', 'Scenarios'.")),
-                ('default_tab', models.CharField(choices=[('Collections', 'Collections'), ('Datasets', 'Datasets'), ('Metadata', 'Metadata'), ('Scenarios', 'Scenarios')], help_text='The default tab must be one of the enabled features.', max_length=256)),
-                ('default_displayed_layers', models.JSONField(default=list, help_text="List of map_layers enabled: [{type: 'netcdf', id: 1}. {type: 'vector', id: 3}, {type: 'raster', id: 4}]")),
+                (
+                    'id',
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name='ID'
+                    ),
+                ),
+                (
+                    'enabled_ui',
+                    models.JSONField(
+                        default=list,
+                        help_text="List of enabled UI elements: 'Collections', 'Datasets', 'Metadata', 'Scenarios'.",
+                    ),
+                ),
+                (
+                    'default_tab',
+                    models.CharField(
+                        choices=[
+                            ('Collections', 'Collections'),
+                            ('Datasets', 'Datasets'),
+                            ('Metadata', 'Metadata'),
+                            ('Scenarios', 'Scenarios'),
+                        ],
+                        help_text='The default tab must be one of the enabled features.',
+                        max_length=256,
+                    ),
+                ),
+                (
+                    'default_displayed_layers',
+                    models.JSONField(
+                        default=list,
+                        help_text="List of map_layers enabled: [{type: 'netcdf', id: 1}. {type: 'vector', id: 3}, {type: 'raster', id: 4}]",
+                    ),
+                ),
             ],
         ),
     ]

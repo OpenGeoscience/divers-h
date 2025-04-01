@@ -75,7 +75,7 @@ export default defineComponent({
       value: key,
     })));
 
-    const availableTitleKeys = computed(() => Object.keys(availableProperties.value || {}).map((key) => (getDisplayName(key))));
+    const availableTitleKeys = computed(() => Object.keys(availableProperties.value || {}).map((key) => ({ title: getDisplayName(key), value: key })));
 
     const availableSubtitleKeys = computed(() => Object.keys(availableProperties.value || {}).map((key) => ({
       title: availableProperties.value?.[key]?.displayName || key,
@@ -269,7 +269,13 @@ export default defineComponent({
                     <strong>Title</strong>
                   </v-expansion-panel-title>
                   <v-expansion-panel-text>
-                    <v-select v-model="localData.display.titleKey" :items="availableTitleKeys" label="Title Key" />
+                    <v-select
+                      v-model="localData.display.titleKey"
+                      :items="availableTitleKeys"
+                      item-title="title"
+                      item-value="value"
+                      label="Title Key"
+                    />
                   </v-expansion-panel-text>
                 </v-expansion-panel>
                 <v-expansion-panel>
