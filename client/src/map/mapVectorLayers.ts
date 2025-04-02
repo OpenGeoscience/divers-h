@@ -293,7 +293,7 @@ const toggleVectorMapLayers = (map: maplibregl.Map) => {
     if (MapStore.visibleMapLayers.value.has(`${layer.type}_${layer.id}`)) {
       // eslint-disable-next-line @typescript-eslint/no-use-before-define
       updateVectorLayer(layer);
-      if (layer?.default_style.searchableVectorFeatureData) {
+      if (layer?.default_style?.searchableVectorFeatureData) {
         if (layer.default_style.searchableVectorFeatureData.display.autoOpenSideBar) {
           if (MapStore.activeSideBarCard.value !== 'searchableVectors') {
             MapStore.toggleContext('searchableVectors');

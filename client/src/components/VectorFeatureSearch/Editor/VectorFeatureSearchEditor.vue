@@ -1,3 +1,4 @@
+<!-- eslint-disable vue/max-len -->
 <script lang="ts">
 import {
   Ref, computed, defineComponent, onMounted, ref,

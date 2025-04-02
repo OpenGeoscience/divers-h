@@ -1,3 +1,4 @@
+<!-- eslint-disable vue/max-len -->
 <!-- eslint-disable vuejs-accessibility/mouse-events-have-key-events -->
 <!-- eslint-disable vuejs-accessibility/mouse-events-have-key-events -->
 <script lang="ts">

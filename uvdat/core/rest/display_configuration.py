@@ -1,25 +1,30 @@
 from typing import Any, Dict
 
 from django.core.exceptions import ValidationError
-from rest_framework import status, viewsets
+from rest_framework import serializers, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.request import Request
 from rest_framework.response import Response
-from rest_framework.serializers import CharField, DictField, ListField, ModelSerializer
 
 from uvdat.core.models import DisplayConfiguration
 
 
-class DisplayConfigurationSerializer(ModelSerializer):
-    enabled_ui = ListField(
-        child=CharField(),
+class LayerSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    dataset_id = serializers.IntegerField()
+    type = serializers.CharField()
+    name = serializers.CharField()
+
+
+class DisplayConfigurationSerializer(serializers.ModelSerializer):
+    enabled_ui = serializers.ListField(
+        child=serializers.CharField(),
         help_text='List of enabled features: "Collections", "Datasets", "Metadata", "Scenarios".',
     )
-    default_tab = CharField(help_text='Default tab, must be one of the enabled features.')
-    default_displayed_layers = ListField(
-        child=DictField(child=CharField()),
-        help_text='List of map layers: [{type: "netcdf"}, {type: "vector"}, {type: "raster"}].',
+    default_tab = serializers.CharField(
+        help_text='Default tab, must be one of the enabled features.'
     )
+    default_displayed_layers = serializers.ListField(child=LayerSerializer())
 
     class Meta:
         model = DisplayConfiguration

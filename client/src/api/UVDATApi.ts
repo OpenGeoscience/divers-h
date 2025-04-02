@@ -452,6 +452,12 @@ export default class UVdatApi {
     return (await UVdatApi.apiClient.get(`/datasets/${datasetId}/map_layers`)).data;
   }
 
+  public static async getDatasetsLayers(datasetIds: number[]): Promise<(VectorMapLayer | RasterMapLayer | NetCDFData)[]> {
+    const params = new URLSearchParams();
+    datasetIds.forEach((item) => params.append('datasetIds', item.toString()));
+    return (await UVdatApi.apiClient.get('/datasets/map_layers', { params })).data;
+  }
+
   public static async getProcessingTasks(): Promise<ProcessingTask[]> {
     return (await UVdatApi.apiClient.get('/processing-tasks')).data;
   }

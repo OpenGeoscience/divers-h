@@ -15,6 +15,8 @@ import Charts from '../components/Charts/Charts.vue';
 import MapLayerTableGraph from '../components/TabularData/MapLayerTableGraph.vue';
 import UVdatApi from '../api/UVDATApi';
 import VectorFeatureSearch from '../components/VectorFeatureSearch/VectorFeatureSearch.vue';
+// eslint-disable-next-line import/no-cycle
+import { toggleLayerSelection } from '../map/mapLayers';
 
 export default defineComponent({
   components: {
@@ -46,7 +48,10 @@ export default defineComponent({
       }
     };
 
-    onMounted(() => MapStore.getDisplayConfiguration());
+    onMounted(async () => {
+      const layers = await MapStore.getDisplayConfiguration(true);
+      layers.forEach((layer) => toggleLayerSelection(layer));
+    });
 
     watch(MapStore.userIsStaff, () => {
       if (!MapStore.userIsStaff.value) {

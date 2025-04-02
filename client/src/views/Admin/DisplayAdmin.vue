@@ -19,7 +19,7 @@ export default defineComponent({
     onMounted(async () => {
       config.value = await UVdatApi.getDisplayConfiguration();
       layers.value = await UVdatApi.getMapLayerAll();
-      selectedLayers.value = config.value.default_displayed_layers.map((item) => (`${item.type}_${item.id}`));
+      selectedLayers.value = config.value.default_displayed_layers.map((item) => (`${item.type}_${item.id}_${item.dataset_id}`));
     });
 
     watch(() => config.value?.enabled_ui, (newVal) => {
@@ -31,7 +31,7 @@ export default defineComponent({
     const availableLayers = computed(() => {
       if (layers.value) {
         return layers.value.map((item) => ({
-          id: item.id, name: item.name, type: item.type, index: `${item.type}_${item.id}`,
+          id: item.id, name: item.name, dataset_id: item.dataset_id, type: item.type, index: `${item.type}_${item.id}_${item.dataset_id}`,
         }));
       }
       return [];
@@ -44,7 +44,9 @@ export default defineComponent({
           selectedLayers.value.forEach((item) => {
             const data = availableLayers.value.find((layer) => layer.index === item);
             if (data) {
-              config.value?.default_displayed_layers.push({ id: data.id, name: data.name, type: data.type });
+              config.value?.default_displayed_layers.push({
+                id: data.id, name: data.name, dataset_id: data.dataset_id, type: data.type,
+              });
             }
           });
           await UVdatApi.updateDisplayConfiguration(config.value);
@@ -101,8 +103,8 @@ export default defineComponent({
           clearable
           closable-chips
         >
-          <template #chip="{ item }">
-            <v-chip>
+          <template #chip="{ props, item }">
+            <v-chip v-bind="props">
               {{ item.raw.name }}:{{ item.raw.type }}
             </v-chip>
           </template>

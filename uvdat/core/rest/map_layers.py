@@ -527,7 +527,7 @@ class MapLayerViewSet(GenericViewSet):
         netcdf_layers = NetCDFLayer.objects.all()
 
         # Serialize layers
-        for map_layer, layer_type in [
+        for map_layer, _serializer, layer_type in [
             (raster_layers, RasterMapLayerSerializer, 'raster'),
             (vector_layers, VectorMapLayerSerializer, 'vector'),
             (netcdf_layers, NetCDFLayerSerializer, 'netcdf'),
