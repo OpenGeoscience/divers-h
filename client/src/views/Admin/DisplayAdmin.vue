@@ -6,9 +6,13 @@ import {
   AbstractMapLayerListItem, DisplayConfiguration,
 } from '../../types';
 import UVdatApi from '../../api/UVDATApi';
+import MapSelection from '../../components/Admin/MapSelection.vue';
 
 export default defineComponent({
   name: 'DisplayConfigurationEditor',
+  components: {
+    MapSelection,
+  },
   setup() {
     const config: Ref<DisplayConfiguration | null> = ref(null);
     const enabledUiOptions = ['Scenarios', 'Collections', 'Datasets', 'Metadata'];
@@ -31,7 +35,11 @@ export default defineComponent({
     const availableLayers = computed(() => {
       if (layers.value) {
         return layers.value.map((item) => ({
-          id: item.id, name: item.name, dataset_id: item.dataset_id, type: item.type, index: `${item.type}_${item.id}_${item.dataset_id}`,
+          id: item.id,
+          name: item.name,
+          dataset_id: item.dataset_id,
+          type: item.type,
+          index: `${item.type}_${item.id}_${item.dataset_id}`,
         }));
       }
       return [];
@@ -57,6 +65,12 @@ export default defineComponent({
       }
     };
 
+    const updateDefaultMapSettings = (settings: { location: { center: [number, number]; zoom: number; }; }) => {
+      if (config.value) {
+        config.value.default_map_settings = settings;
+      }
+    };
+
     return {
       config,
       enabledUiOptions,
@@ -65,6 +79,7 @@ export default defineComponent({
       snackbar,
       availableLayers,
       selectedLayers,
+      updateDefaultMapSettings,
     };
   },
 });
@@ -114,6 +129,10 @@ export default defineComponent({
             </v-list-item>
           </template>
         </v-select>
+        <map-selection
+          :default-map-settings="config?.default_map_settings || { location: { center: [-86.1794, 34.8019], zoom: 6 } }"
+          @update:settings="updateDefaultMapSettings($event)"
+        />
       </v-card-text>
       <v-card-actions>
         <v-btn color="primary" @click="saveConfig">

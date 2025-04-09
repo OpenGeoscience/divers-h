@@ -25,6 +25,13 @@ class DisplayConfiguration(models.Model):
         help_text="List of map_layers enabled: [{type: 'netcdf', id: 1}. {type: 'vector', id: 3}, {type: 'raster', id: 4}]",
     )
 
+    default_map_settings = models.JSONField(
+        blank=True,
+        null=True,
+        default=None,
+        help_text='{location: { center: [x, y], zoom: 5 }}',
+    )
+
     def clean(self):
         """Ensure default_tab is within enabled_features."""
         super().clean()

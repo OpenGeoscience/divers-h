@@ -32,6 +32,7 @@ export default defineComponent({
   },
   setup() {
     const oauthClient = inject<OAuthClient>('oauthClient');
+    const loading = ref(false);
     const drawerOpen = ref(true);
     if (oauthClient === undefined) {
       throw new Error('Must provide "oauthClient" into component.');
@@ -49,7 +50,9 @@ export default defineComponent({
     };
 
     onMounted(async () => {
+      loading.value = true;
       const layers = await MapStore.getDisplayConfiguration(true);
+      loading.value = false;
       layers.forEach((layer) => toggleLayerSelection(layer));
     });
 
@@ -149,6 +152,7 @@ export default defineComponent({
       activeSideBar: MapStore.activeSideBarCard,
       rightSideBarPadding,
       SideBarHasData,
+      loading,
     };
   },
 });
@@ -313,7 +317,7 @@ export default defineComponent({
     >
       <source-selection />
     </v-navigation-drawer>
-    <v-row dense class="fill-height">
+    <v-row v-if="!loading" dense class="fill-height">
       <v-col class="d-flex flex-column fill-height" style="min-height: 90vh">
         <MapVue />
         <MapLayerTableGraph v-if="mapLayerVectorGraphsVisible && mapLayerFeatureGraphs.length" />

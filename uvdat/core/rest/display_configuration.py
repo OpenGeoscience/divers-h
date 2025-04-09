@@ -25,10 +25,13 @@ class DisplayConfigurationSerializer(serializers.ModelSerializer):
         help_text='Default tab, must be one of the enabled features.'
     )
     default_displayed_layers = serializers.ListField(child=LayerSerializer())
+    default_map_settings = serializers.JSONField(
+        help_text='Map settings, e.g., {"location": {"center": [x, y], "zoom": 5}}.'
+    )
 
     class Meta:
         model = DisplayConfiguration
-        fields = ['enabled_ui', 'default_tab', 'default_displayed_layers']
+        fields = ['enabled_ui', 'default_tab', 'default_displayed_layers', 'default_map_settings']
 
     def validate(self, data: Dict[str, Any]) -> Dict[str, Any]:
         enabled_ui = data.get('enabled_ui', [])

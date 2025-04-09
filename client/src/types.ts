@@ -906,6 +906,7 @@ export interface DisplayConfiguration {
   enabled_ui: ('Scenarios' | 'Collections' | 'Datasets' | 'Metadata')[];
   default_tab: 'Scenarios' | 'Collections' | 'Datasets' | 'Metadata';
   default_displayed_layers: Array<{ type: AbstractMapLayer['type']; id: number; dataset_id: number; name: string }>;
+  default_map_settings?: { location: { center: [number, number], zoom: number } };
 }
 
 export interface AbstractMapLayerListItem {

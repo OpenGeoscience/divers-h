@@ -218,6 +218,7 @@ class DisplayConfigurationAdmin(admin.ModelAdmin):
         'enabled_ui',
         'default_tab',
         'default_displayed_layers',
+        'default_map_settings',
     ]
 
 

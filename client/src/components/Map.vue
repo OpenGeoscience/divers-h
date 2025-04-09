@@ -66,6 +66,8 @@ export default defineComponent({
 
     const initializeMap = () => {
       if (mapContainer.value) {
+        const center = MapStore.displayConfiguration.value.default_map_settings?.location.center || [-86.1794, 34.8019];
+        const zoom = MapStore.displayConfiguration.value.default_map_settings?.location.zoom || 6;
         map.value = new maplibregl.Map({
           container: mapContainer.value,
           style: {
@@ -156,8 +158,8 @@ export default defineComponent({
             sprite: 'https://maputnik.github.io/osm-liberty/sprites/osm-liberty',
             glyphs: 'https://orangemug.github.io/font-glyphs/glyphs/{fontstack}/{range}.pbf',
           },
-          center: [-86.1794, 34.8019], // Coordinates for the relative center of the TVA
-          zoom: 6, // Initial zoom level
+          center,
+          zoom,
         });
         if (map.value) {
           setInternalMap(map as Ref<Map>);
