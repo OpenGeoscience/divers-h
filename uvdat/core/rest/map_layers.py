@@ -23,6 +23,7 @@ from uvdat.core.models import (
     VectorMapLayer,
 )
 from uvdat.core.rest.serializers import (
+    AbstractMapLayerSerializer,
     NetCDFLayerSerializer,
     RasterMapLayerSerializer,
     VectorMapLayerDetailSerializer,
@@ -509,6 +510,47 @@ class MapLayerViewSet(GenericViewSet):
             response_data.append(layer_response)
 
         # Return the combined data
+        return Response(response_data, status=status.HTTP_200_OK)
+
+    @action(
+        detail=False,
+        methods=['get'],
+        url_path='all',
+        url_name='all',
+    )
+    def list_all_map_layers(self, request, *args, **kwargs):
+        response_data = []
+
+        # Fetch all layers
+        raster_layers = RasterMapLayer.objects.all()
+        vector_layers = VectorMapLayer.objects.all()
+        netcdf_layers = NetCDFLayer.objects.all()
+
+        # Serialize layers
+        for map_layer, _serializer, layer_type in [
+            (raster_layers, RasterMapLayerSerializer, 'raster'),
+            (vector_layers, VectorMapLayerSerializer, 'vector'),
+            (netcdf_layers, NetCDFLayerSerializer, 'netcdf'),
+        ]:
+            for layer in map_layer:
+                serializer = AbstractMapLayerSerializer(layer)
+                layer_response = serializer.data
+                layer_response['type'] = layer_type
+
+                # Check for LayerRepresentation if applicable
+                if layer_type in ['raster', 'vector']:
+                    layer_representation = LayerRepresentation.objects.filter(
+                        object_id=layer.id, map_type=ContentType.objects.get_for_model(layer)
+                    ).first()
+                    if layer_representation:
+                        layer_response['default_style'] = (
+                            layer_representation.default_style
+                            or layer_response.get('default_style')
+                        )
+                        layer_response['layerRepresentationId'] = layer_representation.id
+
+                response_data.append(layer_response)
+
         return Response(response_data, status=status.HTTP_200_OK)
 
     def list(self, request, *args, **kwargs):

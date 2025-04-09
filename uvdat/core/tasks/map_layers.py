@@ -646,7 +646,7 @@ def process_tabular_vector_feature_data(map_layer_id, json_data, matcher):
         # Ensure the matcher value exists in json_data
         if matcher_value not in json_data:
             logger.info(
-                f'Could not find a match for the property {matcher} in vectorFeature properties'
+                f'Could not find a match for the property {matcher} : {type(matcher)} in vectorFeature properties with match_value: {matcher_value}: {type(matcher_value)}'
             )
             logger.info(feature.properties)
             continue

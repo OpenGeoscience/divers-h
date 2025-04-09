@@ -10,6 +10,7 @@ from uvdat.core.rest import (
     ContextViewSet,
     DatasetViewSet,
     DerivedRegionViewSet,
+    DisplayConfigurationViewSet,
     FileItemViewSet,
     LayerCollectionViewSet,
     LayerRepresentationViewSet,
@@ -67,6 +68,12 @@ urlpatterns = [
     path('accounts/', include('allauth.urls')),
     path('oauth/', include('oauth2_provider.urls')),
     path('admin/', admin.site.urls),
+    path(
+        'api/v1/display-configuration/',
+        DisplayConfigurationViewSet.as_view(
+            {'get': 'retrieve', 'put': 'update', 'patch': 'partial_update'}
+        ),
+    ),
     path('api/v1/s3-upload/', include('s3_file_field.urls')),
     path('api/v1/', include(router.urls)),
     path('api/docs/redoc/', schema_view.with_ui('redoc'), name='docs-redoc'),

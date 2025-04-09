@@ -35,9 +35,13 @@ export default defineComponent({
 
     const maxMovingAverage = computed(() => {
       if (graphData.value) {
-        if (graphData.value?.graphs && graphData.value.graphs.all) {
-          const dataLength = graphData.value.graphs.all.data.length;
-          return Math.floor(dataLength / 4);
+        if (graphData.value?.graphs) {
+          const values = Object.values(graphData.value.graphs);
+          let max = -Infinity;
+          for (let i = 0; i < values.length; i += 1) {
+            max = Math.max(max, Math.floor(values[i].data.length / 4));
+          }
+          return max;
         }
       }
       return 50;

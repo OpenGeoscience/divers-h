@@ -7,6 +7,7 @@ import {
   ColorFilters,
   Context,
   Dataset,
+  DisplayConfiguration,
   LayerCollection,
   NetCDFData,
   NetCDFLayer,
@@ -32,6 +33,10 @@ export default class MapStore {
   public static userIsStaff = computed(() => !!UVdatApi.user?.is_staff);
 
   public static proModeButtonEnabled = ref(true);
+
+  public static displayConfiguration: Ref<DisplayConfiguration> = ref(
+    { default_displayed_layers: [], enabled_ui: ['Collections', 'Datasets', 'Metadata'], default_tab: 'Scenarios' },
+  );
 
   // Ability to toggle proMode so Staff users can see what other users see.
   public static proMode = computed(() => MapStore.userIsStaff.value && MapStore.proModeButtonEnabled.value);
@@ -103,10 +108,57 @@ export default class MapStore {
     MapStore.mapLayersByDataset[datasetId] = await UVdatApi.getDatasetLayers(datasetId);
   }
 
+  public static async getDisplayConfiguration(initial = false) {
+    MapStore.displayConfiguration.value = await UVdatApi.getDisplayConfiguration();
+    // Loading first time process default map layers
+    if (initial && MapStore.displayConfiguration.value.default_displayed_layers.length) {
+      const datasetIds = MapStore.displayConfiguration.value.default_displayed_layers.map((item) => item.dataset_id);
+      const datasetIdLayers = await UVdatApi.getDatasetsLayers(datasetIds);
+      const layerByDataset: Record<number, (VectorMapLayer | RasterMapLayer | NetCDFData)[]> = {};
+      const toggleLayers: (VectorMapLayer | RasterMapLayer | NetCDFLayer)[] = [];
+      const enabledLayers = MapStore.displayConfiguration.value.default_displayed_layers;
+      datasetIdLayers.forEach((item) => {
+        if (item.dataset_id !== undefined) {
+          if (layerByDataset[item.dataset_id] === undefined) {
+            layerByDataset[item.dataset_id] = [];
+          }
+          layerByDataset[item.dataset_id].push(item);
+        }
+        enabledLayers.forEach((enabledLayer) => {
+          if (item.type === 'netcdf') {
+            if (enabledLayer.dataset_id === item.dataset_id) {
+              const netCDFLayers = ((item as NetCDFData).layers);
+              for (let i = 0; i < netCDFLayers.length; i += 1) {
+                const layer = netCDFLayers[i];
+                if (layer.id === enabledLayer.id) {
+                  toggleLayers.push(layer);
+                }
+              }
+            }
+          } else if (
+            enabledLayer.type === item.type
+            && enabledLayer.id === item.id
+            && enabledLayer.dataset_id === item.dataset_id) {
+            toggleLayers.push(item);
+          }
+        });
+      });
+      Object.keys(layerByDataset).forEach((datasetIdKey) => {
+        const datasetId = parseInt(datasetIdKey, 10);
+        if (!Number.isNaN(datasetId)) {
+          MapStore.mapLayersByDataset[datasetId] = layerByDataset[datasetId];
+        }
+      });
+      // Now we enable these default layers
+      return toggleLayers;
+    }
+    return [];
+  }
+
   public static mapLayerFeatureGraphs = computed(() => {
     const foundMapLayerFeatureGraphs: { name: string, id: number; graphs: VectorFeatureTableGraph[] }[] = [];
     MapStore.selectedVectorMapLayers.value.forEach((item) => {
-      if (item.default_style.mapLayerFeatureTableGraphs && item.default_style.mapLayerFeatureTableGraphs.length) {
+      if (item.default_style?.mapLayerFeatureTableGraphs && item.default_style.mapLayerFeatureTableGraphs.length) {
         foundMapLayerFeatureGraphs.push({
           name: item.name,
           id: item.id,
@@ -133,7 +185,7 @@ export default class MapStore {
   public static mapLayerVectorSearchable = computed(() => {
     const foundMapLayerSearchable: { name: string, id: number; searchSettings: SearchableVectorData }[] = [];
     MapStore.selectedVectorMapLayers.value.forEach((item) => {
-      if (item.default_style.searchableVectorFeatureData) {
+      if (item.default_style?.searchableVectorFeatureData) {
         foundMapLayerSearchable.push({
           name: item.name,
           id: item.id,

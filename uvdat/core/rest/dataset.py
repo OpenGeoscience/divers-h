@@ -72,6 +72,34 @@ class DatasetViewSet(ModelViewSet):
         # Return response with combined data
         return Response(combined_layers, status=200)
 
+    @action(detail=False, methods=['get'], url_path='map_layers')
+    def map_layers_from_datasets(self, request, **kwargs):
+        dataset_ids = request.query_params.getlist('datasetIds', [])
+        datasets = Dataset.objects.filter(id__in=dataset_ids)
+        total_layers = []
+        for dataset in datasets:
+            map_layers = list(dataset.get_map_layers())
+
+            # Combine both Raster and Vector map layers in a single list
+            raster_layers = uvdat_serializers.RasterMapLayerSerializer(
+                [layer for layer in map_layers if isinstance(layer, RasterMapLayer)], many=True
+            ).data
+
+            vector_layers = uvdat_serializers.VectorMapLayerSerializer(
+                [layer for layer in map_layers if isinstance(layer, VectorMapLayer)], many=True
+            ).data
+
+            netcdf_data = uvdat_serializers.NetCDFDataSerializer(
+                [layer for layer in map_layers if isinstance(layer, NetCDFData)], many=True
+            ).data
+
+            # Combine both serialized data
+            combined_layers = raster_layers + vector_layers + netcdf_data
+            total_layers += combined_layers
+
+        # Return response with combined data
+        return Response(total_layers, status=200)
+
     @action(detail=True, methods=['get'])
     def convert(self, request, **kwargs):
         dataset = self.get_object()

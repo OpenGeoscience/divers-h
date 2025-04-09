@@ -1,0 +1,305 @@
+[
+  {
+    "type": "Context",
+    "name": "DIVERS-H",
+    "default_map_center": [34.8019, -86.1794],
+    "default_map_zoom": 6,
+    "datasets": [
+      {
+        "name": "DIVERS-H",
+        "description": "DIVERS-H PowerPlant data",
+        "category": "merged",
+        "metadata": {},
+        "files": [
+          {
+            "name": "PowerPlant_CNRM-CM6-1_ssp585_r4i1p1f2_tabular",
+            "path": "./data/DIVERS-H/PowerPlants/TVAPowerPlants.geojson",
+            "url": "https://data.kitware.com/api/v1/file/67c0deb5de1cd5c0d8ba66ce/download",
+            "type": "geojson",
+            "metadata": {
+              "tabular": {
+                "path": "./data/DIVERS-H/PowerPlants/PowerPlant_CNRM-CM6-1_ssp585_r4i1p1f2_tabular.json",
+                "name": "PowerPlant_CNRM-CM6-1_ssp585_r4i1p1f2_tabular_data",
+                "url": "https://data.kitware.com/api/v1/file/67c0deb5de1cd5c0d8ba66d1/download",
+                "featurePropertyMatcher": "Plant_Code"
+              },
+              "tags": {
+                "filters": {
+                  "Model": "CNRM-CM6-1",
+                  "Scenario": "ssp585",
+                  "Ensemble": "r4i1p1f2",
+                  "Input/Output": "Ouput"
+                }
+              },
+              "default_style": {
+                "layers": {
+                  "fill": {
+                    "color": "#888888",
+                    "enabled": false
+                  },
+                  "line": {
+                    "size": 1,
+                    "color": "#000000",
+                    "enabled": false
+                  },
+                  "text": {
+                    "size": {
+                      "type": "SizeZoom",
+                      "zoomLevels": [
+                        [10, 12],
+                        [12, 9],
+                        [16, 10]
+                      ]
+                    },
+                    "text": {
+                      "key": "Plant_Name"
+                    },
+                    "zoom": {
+                      "max": 24,
+                      "min": 7
+                    },
+                    "color": "#000000",
+                    "enabled": true
+                  },
+                  "circle": {
+                    "color": "#888888",
+                    "enabled": true,
+                    "selectable": "singleSelect",
+                    "selectColor": "#00FFFF"
+                  },
+                  "fill-extrusion": {
+                    "color": "#888888",
+                    "enabled": false
+                  }
+                },
+                "properties": {
+                  "selectionDisplay": true,
+                  "availableProperties": {
+                    "Total_MW": {
+                      "key": "Total_MW",
+                      "max": 3661.7,
+                      "min": 0.9,
+                      "type": "number",
+                      "display": true,
+                      "tooltip": false,
+                      "description": "",
+                      "displayName": "Total_MW"
+                    },
+                    "tech_desc": {
+                      "key": "tech_desc",
+                      "type": "string",
+                      "values": [
+                        "Batteries; Solar Photovoltaic;",
+                        "Conventional Hydroelectric",
+                        "Conventional Steam Coal",
+                        "Conventional Steam Coal; Natural Gas Fired Combustion Turbine;",
+                        "Hydroelectric Pumped Storage",
+                        "Hydroelectric Pumped Storage; Conventional Hydroelectric;",
+                        "Landfill Gas",
+                        "Natural Gas Fired Combined Cycle",
+                        "Natural Gas Fired Combined Cycle; Natural Gas Fired Combustion Turbine;",
+                        "Natural Gas Fired Combined Cycle; Petroleum Liquids;",
+                        "Natural Gas Fired Combustion Turbine",
+                        "Natural Gas Internal Combustion Engine; Petroleum Liquids;",
+                        "Nuclear",
+                        "Onshore Wind Turbine",
+                        "Other Gases",
+                        "Other Waste Biomass; Petroleum Liquids;",
+                        "Petroleum Liquids",
+                        "Solar Photovoltaic",
+                        "Wood/Wood Waste Biomass"
+                      ],
+                      "display": true,
+                      "tooltip": false,
+                      "description": "",
+                      "displayName": "tech_desc"
+                    },
+                    "Plant_Code": {
+                      "key": "Plant_Code",
+                      "max": 65642,
+                      "min": 20,
+                      "type": "number",
+                      "display": true,
+                      "tooltip": false,
+                      "description": "",
+                      "displayName": "Plant_Code"
+                    },
+                    "Plant_Name": {
+                      "key": "Plant_Name",
+                      "type": "string",
+                      "unique": 121,
+                      "display": true,
+                      "tooltip": false,
+                      "searchable": true,
+                      "description": "",
+                      "displayName": "Plant_Name"
+                    }
+                  }
+                },
+                "vectorFeatureTableGraphs": [
+                  {
+                    "name": "tas",
+                    "type": "tas_pr_evspsbl_P_minus_E",
+                    "xAxis": "unix_time",
+                    "yAxis": "tas",
+                    "xAxisLabel": "Date",
+                    "yAxisLabel": "tas"
+                  },
+                  {
+                    "name": "pr",
+                    "type": "tas_pr_evspsbl_P_minus_E",
+                    "xAxis": "unix_time",
+                    "yAxis": "pr",
+                    "xAxisLabel": "Date",
+                    "yAxisLabel": "pr"
+                  },
+                  {
+                    "name": "evspsbl",
+                    "type": "tas_pr_evspsbl_P_minus_E",
+                    "xAxis": "unix_time",
+                    "yAxis": "evspsbl",
+                    "xAxisLabel": "Date",
+                    "yAxisLabel": "evspsbl"
+                  },
+                  {
+                    "name": "P_minus_E",
+                    "type": "tas_pr_evspsbl_P_minus_E",
+                    "xAxis": "unix_time",
+                    "yAxis": "P_minus_E",
+                    "xAxisLabel": "Date",
+                    "yAxisLabel": "P_minus_E"
+                  }
+                ],
+                "mapLayerFeatureTableGraphs": [
+                  {
+                    "name": "tas",
+                    "type": "tas_pr_evspsbl_P_minus_E",
+                    "xAxis": "unix_time",
+                    "yAxis": "tas",
+                    "indexer": "Plant_Name",
+                    "xAxisLabel": "Date",
+                    "yAxisLabel": "tas"
+                  },
+                  {
+                    "name": "pr",
+                    "type": "tas_pr_evspsbl_P_minus_E",
+                    "xAxis": "unix_time",
+                    "yAxis": "pr",
+                    "indexer": "Plant_Name",
+                    "xAxisLabel": "Date",
+                    "yAxisLabel": "pr"
+                  },
+                  {
+                    "name": "evspsbl",
+                    "type": "tas_pr_evspsbl_P_minus_E",
+                    "xAxis": "unix_time",
+                    "yAxis": "evspsbl",
+                    "indexer": "Plant_Name",
+                    "xAxisLabel": "Date",
+                    "yAxisLabel": "evspsbl"
+                  },
+                  {
+                    "name": "P_minus_E",
+                    "type": "tas_pr_evspsbl_P_minus_E",
+                    "xAxis": "unix_time",
+                    "yAxis": "P_minus_E",
+                    "indexer": "Plant_Name",
+                    "xAxisLabel": "Date",
+                    "yAxisLabel": "P_minus_E"
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "name": "PminusE_Amon_CNRM-CM6-1_ssp585_r4i1p1f2_2015-2055",
+            "path": "./data/DIVERS-H/Output/PminusE_Amon_CNRM-CM6-1_ssp585_r4i1p1f2_2015-2055.nc",
+            "url": "https://data.kitware.com/api/v1/file/67c0dea9de1cd5c0d8ba66a4/download",
+            "type": "netcdf",
+            "metadata": {
+              "generate": [
+                {
+                  "name": "PminusE_Amon_CNRM-CM6-1_ssp585_r4i1p1f2_2015-2055",
+                  "x_variable": "lon",
+                  "y_variable": "lat",
+                  "variable": "P_minus_E",
+                  "sliding_variable": "time",
+                  "color_map": "turbo"
+                }
+              ],
+              "tags": {
+                "filters": {
+                  "Variable": "PminusE",
+                  "Model": "CNRM-CM6-1",
+                  "Scenario": "ssp585",
+                  "Ensemble": "r4i1p1f2",
+                  "Grid": null,
+                  "Time Range": "2015-2055",
+                  "Input/Output": "Output"
+                }
+              }
+            }
+          },
+          {
+            "name": "tas_Amon_CNRM-CM6-1_ssp585_r4i1p1f2_gr_201501-210012",
+            "path": "./data/DIVERS-H/Input/tas_Amon_CNRM-CM6-1_ssp585_r4i1p1f2_gr_201501-210012.nc",
+            "url": "https://data.kitware.com/api/v1/file/67c0dea0de1cd5c0d8ba667a/download",
+            "type": "netcdf",
+            "metadata": {
+              "generate": [
+                {
+                  "name": "tas_Amon_CNRM-CM6-1_ssp585_r4i1p1f2_gr_201501-210012",
+                  "x_variable": "lon",
+                  "y_variable": "lat",
+                  "variable": "tas",
+                  "sliding_variable": "time",
+                  "color_map": "Reds"
+                }
+              ],
+              "tags": {
+                "filters": {
+                  "Variable": "tas",
+                  "Model": "CNRM-CM6-1",
+                  "Scenario": "ssp585",
+                  "Ensemble": "r4i1p1f2",
+                  "Grid": "gr",
+                  "Time Range": "201501-210012",
+                  "Input/Output": "Input"
+                }
+              }
+            }
+          },
+          {
+            "name": "evspsbl_Amon_CNRM-CM6-1_ssp585_r4i1p1f2_gr_201501-210012",
+            "path": "./data/DIVERS-H/Input/evspsbl_Amon_CNRM-CM6-1_ssp585_r4i1p1f2_gr_201501-210012.nc",
+            "url": "https://data.kitware.com/api/v1/file/67c0de9ede1cd5c0d8ba666e/download",
+            "type": "netcdf",
+            "metadata": {
+              "generate": [
+                {
+                  "name": "evspsbl_Amon_CNRM-CM6-1_ssp585_r4i1p1f2_gr_201501-210012",
+                  "x_variable": "lon",
+                  "y_variable": "lat",
+                  "variable": "evspsbl",
+                  "sliding_variable": "time",
+                  "color_map": "Blues"
+                }
+              ],
+              "tags": {
+                "filters": {
+                  "Variable": "evspsbl",
+                  "Model": "CNRM-CM6-1",
+                  "Scenario": "ssp585",
+                  "Ensemble": "r4i1p1f2",
+                  "Grid": "gr",
+                  "Time Range": "201501-210012",
+                  "Input/Output": "Input"
+                }
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+]

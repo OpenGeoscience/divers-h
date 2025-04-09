@@ -1,6 +1,6 @@
 <script lang="ts">
 import {
-  computed, defineComponent, inject, ref,
+  computed, defineComponent, inject, onMounted, ref,
   watch,
 } from 'vue';
 import OAuthClient from '@girder/oauth-client';
@@ -15,6 +15,8 @@ import Charts from '../components/Charts/Charts.vue';
 import MapLayerTableGraph from '../components/TabularData/MapLayerTableGraph.vue';
 import UVdatApi from '../api/UVDATApi';
 import VectorFeatureSearch from '../components/VectorFeatureSearch/VectorFeatureSearch.vue';
+// eslint-disable-next-line import/no-cycle
+import { toggleLayerSelection } from '../map/mapLayers';
 
 export default defineComponent({
   components: {
@@ -30,6 +32,7 @@ export default defineComponent({
   },
   setup() {
     const oauthClient = inject<OAuthClient>('oauthClient');
+    const loading = ref(false);
     const drawerOpen = ref(true);
     if (oauthClient === undefined) {
       throw new Error('Must provide "oauthClient" into component.');
@@ -45,6 +48,13 @@ export default defineComponent({
         oauthClient.redirectToLogin();
       }
     };
+
+    onMounted(async () => {
+      loading.value = true;
+      const layers = await MapStore.getDisplayConfiguration(true);
+      loading.value = false;
+      layers.forEach((layer) => toggleLayerSelection(layer));
+    });
 
     watch(MapStore.userIsStaff, () => {
       if (!MapStore.userIsStaff.value) {
@@ -142,6 +152,7 @@ export default defineComponent({
       activeSideBar: MapStore.activeSideBarCard,
       rightSideBarPadding,
       SideBarHasData,
+      loading,
     };
   },
 });
@@ -278,6 +289,9 @@ export default defineComponent({
       </template>
     </v-tooltip>
     <v-spacer />
+    <v-btn v-if="userIsStaff" to="/admin">
+      Admin
+    </v-btn>
     <v-btn @click="logInOrOut">
       {{ loginText }}
     </v-btn>
@@ -303,7 +317,7 @@ export default defineComponent({
     >
       <source-selection />
     </v-navigation-drawer>
-    <v-row dense class="fill-height">
+    <v-row v-if="!loading" dense class="fill-height">
       <v-col class="d-flex flex-column fill-height" style="min-height: 90vh">
         <MapVue />
         <MapLayerTableGraph v-if="mapLayerVectorGraphsVisible && mapLayerFeatureGraphs.length" />

@@ -5,6 +5,7 @@ from uvdat.core.models import (
     Context,
     Dataset,
     DerivedRegion,
+    DisplayConfiguration,
     FileItem,
     LayerCollection,
     LayerRepresentation,
@@ -212,6 +213,15 @@ class VectorFeatureRowDataAdmin(admin.ModelAdmin):
     list_display = ['id', 'vector_feature_table', 'row_data']
 
 
+class DisplayConfigurationAdmin(admin.ModelAdmin):
+    list_display = [
+        'enabled_ui',
+        'default_tab',
+        'default_displayed_layers',
+        'default_map_settings',
+    ]
+
+
 admin.site.register(Context, ContextAdmin)
 admin.site.register(Dataset, DatasetAdmin)
 admin.site.register(FileItem, FileItemAdmin)
@@ -233,3 +243,4 @@ admin.site.register(NetCDFImage, NetCDFImageAdmin)
 admin.site.register(ProcessingTask, ProcessingTaskAdmin)
 admin.site.register(VectorFeatureTableData, VectorFeatureTableDataAdmin)
 admin.site.register(VectorFeatureRowData, VectorFeatureRowDataAdmin)
+admin.site.register(DisplayConfiguration, DisplayConfigurationAdmin)

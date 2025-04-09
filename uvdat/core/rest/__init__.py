@@ -1,6 +1,7 @@
 from .chart import ChartViewSet
 from .context import ContextViewSet
 from .dataset import DatasetViewSet
+from .display_configuration import DisplayConfigurationViewSet
 from .file_item import FileItemViewSet
 from .filter_metadata import MetadataFilterViewSet
 from .layer_collection import LayerCollectionViewSet
@@ -38,4 +39,5 @@ __all__ = [
     VectorFeatureTableDataViewSet,
     TasksAPIView,
     MetadataFilterViewSet,
+    DisplayConfigurationViewSet,
 ]

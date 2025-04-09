@@ -18,7 +18,7 @@ import MapStore from '../MapStore';
 
 const getLayerDefaultFilter = (type: AnnotationTypes, layer?: VectorMapLayer) => {
   let drawPoints = false;
-  if (type === 'circle' && layer?.default_style.layers && layer.default_style.layers.line) {
+  if (type === 'circle' && layer?.default_style?.layers && layer.default_style.layers.line) {
     if (layer.default_style.layers.line !== true) {
       drawPoints = !!layer.default_style.layers.line.drawPoints;
     }

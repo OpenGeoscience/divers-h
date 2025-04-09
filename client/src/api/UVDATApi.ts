@@ -3,11 +3,13 @@ import { ref } from 'vue';
 import OauthClient from '@girder/oauth-client/dist/oauth-client';
 import {
   AbstractMapLayer,
+  AbstractMapLayerListItem,
   Chart,
   Context,
   ContextWithIds,
   Dataset,
   DerivedRegion,
+  DisplayConfiguration,
   FeatureGraphData,
   FileItem,
   LayerCollection,
@@ -213,7 +215,7 @@ export default class UVdatApi {
     return (await UVdatApi.apiClient.delete(`/files/${fileItemId}/`)).data;
   }
 
-  public static async getGlobalDatasets(filter: { unconnected: boolean }): Promise<(Dataset & { contextCount: number })[]> {
+  public static async getGlobalDatasets(filter?: { unconnected: boolean }): Promise<(Dataset & { contextCount: number })[]> {
     return (await UVdatApi.apiClient.get('datasets', { params: { ...filter } })).data.results;
   }
 
@@ -450,6 +452,12 @@ export default class UVdatApi {
     return (await UVdatApi.apiClient.get(`/datasets/${datasetId}/map_layers`)).data;
   }
 
+  public static async getDatasetsLayers(datasetIds: number[]): Promise<(VectorMapLayer | RasterMapLayer | NetCDFData)[]> {
+    const params = new URLSearchParams();
+    datasetIds.forEach((item) => params.append('datasetIds', item.toString()));
+    return (await UVdatApi.apiClient.get('/datasets/map_layers', { params })).data;
+  }
+
   public static async getProcessingTasks(): Promise<ProcessingTask[]> {
     return (await UVdatApi.apiClient.get('/processing-tasks')).data;
   }
@@ -587,7 +595,32 @@ export default class UVdatApi {
     return (await UVdatApi.apiClient.get('/map-layers/', { params })).data;
   }
 
+  public static async getMapLayerAll(): Promise<AbstractMapLayerListItem[]> {
+    return (await UVdatApi.apiClient.get('/map-layers/all')).data;
+  }
+
   public static async searchVectorFeatures(requestData: SearchableVectorDataRequest): Promise<SearchableVectorFeatureResponse[]> {
     return (await UVdatApi.apiClient.post('/map-layers/search-features/', requestData)).data;
+  }
+
+  public static async getDisplayConfiguration(): Promise<DisplayConfiguration> {
+    const response = await UVdatApi.apiClient.get('display-configuration/');
+    return response.data;
+  }
+
+  // Fully update the display configuration (PUT /display_configuration/)
+  public static async updateDisplayConfiguration(
+    config: DisplayConfiguration,
+  ): Promise<DisplayConfiguration> {
+    const response = await UVdatApi.apiClient.put('display-configuration/', config);
+    return response.data;
+  }
+
+  // Partially update the display configuration (PATCH /display_configuration/)
+  public static async partialUpdateDisplayConfiguration(
+    config: Partial<DisplayConfiguration>,
+  ): Promise<DisplayConfiguration> {
+    const response = await UVdatApi.apiClient.patch('display-configuration/', config);
+    return response.data;
   }
 }
