@@ -172,6 +172,8 @@ class VectorFeatureTableDataViewSet(
 
         table_data = {'tableName': tables.first().name, 'graphs': {}}
         all_x_vals = {}
+        all_x_list = []  # <<< Added
+        all_y_list = []  # <<< Added
 
         for table in tables:
             if y_axis not in table.columns or x_axis not in table.columns:
@@ -204,6 +206,10 @@ class VectorFeatureTableDataViewSet(
             sorted_x_vals = sorted(data.keys())
             x_vals = sorted_x_vals
             y_vals = [np.mean(data[x]) for x in sorted_x_vals]
+
+            # Add x and y values to global list for min/max later
+            all_x_list.extend(x_vals)
+            all_y_list.extend(y_vals)
 
             for x, y in zip(x_vals, y_vals):
                 if x not in all_x_vals:
@@ -251,6 +257,9 @@ class VectorFeatureTableDataViewSet(
             avg_y_vals = [np.mean(all_x_vals[x]) for x in sorted_x_vals]
             aggregate_result = {'indexer': 'all', 'vectorFeatureId': 'all'}
 
+            all_x_list.extend(sorted_x_vals)
+            all_y_list.extend(avg_y_vals)
+
             if 'data' in data_types:
                 aggregate_result['data'] = list(zip(sorted_x_vals, avg_y_vals))
 
@@ -279,6 +288,10 @@ class VectorFeatureTableDataViewSet(
                 aggregate_result['movingAverage'] = list(zip(moving_avg_x, moving_avg))
 
             table_data['graphs'][-1] = aggregate_result
+
+        if all_x_list and all_y_list:
+            table_data['xAxisRange'] = [min(all_x_list), max(all_x_list)]
+            table_data['yAxisRange'] = [min(all_y_list), max(all_y_list)]
 
         return table_data
 

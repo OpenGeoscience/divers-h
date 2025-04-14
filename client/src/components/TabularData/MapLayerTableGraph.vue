@@ -114,7 +114,15 @@ export default defineComponent({
           movingAverageValue.value,
         );
         graphData.value = data;
-
+        let minGraph = Infinity;
+        let maxGraph = -Infinity;
+        Object.keys(data.graphs).forEach((key) => {
+          const index = parseInt(key, 10);
+          const [min, max] = data.graphs[index].xAxisRange;
+          minGraph = Math.min(minGraph, min);
+          maxGraph = Math.max(maxGraph, max);
+        });
+        MapStore.updateChartsMinMax(minGraph, maxGraph);
         if (graphContainer.value) {
           const colorMapping = renderVectorFeatureGraph(
             data,

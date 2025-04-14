@@ -17,6 +17,7 @@ import {
   VectorMapLayer,
 } from './types';
 import UVdatApi from './api/UVDATApi';
+import { visibleNetCDFLayers } from './map/mapNetCDFLayer';
 
 export const VECTOR_PMTILES_URL = '/public/vectortiles/us.pmtiles';
 
@@ -33,6 +34,8 @@ export default class MapStore {
   public static userIsStaff = computed(() => !!UVdatApi.user?.is_staff);
 
   public static proModeButtonEnabled = ref(true);
+
+  public static globalTime = ref(new Date());
 
   public static displayConfiguration: Ref<DisplayConfiguration> = ref(
     { default_displayed_layers: [], enabled_ui: ['Collections', 'Datasets', 'Metadata'], default_tab: 'Scenarios' },
@@ -353,4 +356,38 @@ export default class MapStore {
       }
     }
   };
+
+  // Graph Charts current Min/Max Values in unix_time
+  public static graphChartsMinMax = ref({
+    min: 0,
+    max: 0,
+  });
+
+  public static updateChartsMinMax = (min: number, max: number) => {
+    MapStore.graphChartsMinMax.value.min = min;
+    MapStore.graphChartsMinMax.value.max = max;
+  };
+
+  // Computes in Unix Time
+  public static globalTimeRange = computed(() => {
+    let globalMin = Infinity;
+    let globalMax = -Infinity;
+    MapStore.visibleMapLayers.value.forEach((visibleMapLayer) => {
+      const [type, layerId] = visibleMapLayer.split('_');
+      const foundLayer = MapStore.selectedMapLayers.value.find((layer) => layer.id === parseInt(layerId, 10) && layer.type === type);
+      if (type === 'netcdf' && foundLayer !== undefined) {
+        const netCDFLayer = visibleNetCDFLayers.value.find((item) => item.netCDFLayer === foundLayer.id);
+        if (netCDFLayer && netCDFLayer.sliding) {
+          const { min, max } = netCDFLayer.sliding;
+          globalMin = Math.min(globalMin, min);
+          globalMax = Math.max(globalMax, max);
+        }
+      }
+    });
+    if (MapStore.mapLayerFeatureGraphsVisible.value && MapStore.mapLayerFeatureGraphs.value.length) {
+      globalMin = Math.min(globalMin, MapStore.graphChartsMinMax.value.min);
+      globalMax = Math.max(globalMax, MapStore.graphChartsMinMax.value.max);
+    }
+    return { min: globalMin, max: globalMax };
+  });
 }

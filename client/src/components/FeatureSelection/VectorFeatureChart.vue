@@ -66,7 +66,6 @@ export default defineComponent({
           confidenceLevel.value,
           false,
           movingAverageValue.value,
-
         );
         if (data.graphs && Object.keys(data.graphs).length === 0) {
           noGraphData.value = true;
