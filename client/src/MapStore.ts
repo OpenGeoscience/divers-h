@@ -35,7 +35,7 @@ export default class MapStore {
 
   public static proModeButtonEnabled = ref(true);
 
-  public static globalTime = ref(new Date());
+  public static globalTime = ref(Math.floor(new Date().getTime() / 1000));
 
   public static displayConfiguration: Ref<DisplayConfiguration> = ref(
     { default_displayed_layers: [], enabled_ui: ['Collections', 'Datasets', 'Metadata'], default_tab: 'Scenarios' },
