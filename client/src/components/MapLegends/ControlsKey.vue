@@ -2,8 +2,10 @@
 <script lang="ts">
 import {
   computed, defineComponent,
+  watch,
 } from 'vue';
 import { throttle } from 'lodash';
+import GlobalTime from './GlobalTime.vue';
 import {
   AnnotationTypes,
   NetCDFLayer,
@@ -13,12 +15,15 @@ import {
   VectorMapLayer,
 } from '../../types'; // Import your defined types
 import MapStore from '../../MapStore';
-import { updateNetCDFLayer, visibleNetCDFLayers } from '../../map/mapNetCDFLayer';
+import { updateNetCDFLayer } from '../../map/mapNetCDFLayer';
 import { getRasterLayerDisplayConfig, getVectorLayerDisplayConfig } from '../../utils';
 import { updateLayer } from '../../map/mapLayers';
 
 export default defineComponent({
   name: 'ControlsKey',
+  components: {
+    GlobalTime,
+  },
   props: {
     vectorLayers: {
       type: Array as () => VectorMapLayer[],
@@ -73,7 +78,7 @@ export default defineComponent({
       // Compute NetCDF Layer Keys
       const stepIndexMap: Record<string, { length: number, currentIndex: number }> = {};
       const resamplingMap: Record<string, 'linear' | 'nearest'> = {};
-      visibleNetCDFLayers.value.forEach((item) => {
+      MapStore.visibleNetCDFLayers.value.forEach((item) => {
         const found = props.netcdfLayers.find((layer) => layer.id === item.netCDFLayer);
         if (found) {
           const { opacity } = item;
@@ -123,7 +128,7 @@ export default defineComponent({
 
     const stepMapping = computed(() => {
       const mappedStepMapping: Record<string, Record<number, string | number>> = {};
-      visibleNetCDFLayers.value.forEach((item) => {
+      MapStore.visibleNetCDFLayers.value.forEach((item) => {
         const foundLayer = props.netcdfLayers.find((layer) => layer.id === item.netCDFLayer);
         mappedStepMapping[`netcdf_${foundLayer?.id}`] = {};
         const mapSlicer: Record<number, string | number> = {};
@@ -174,7 +179,7 @@ export default defineComponent({
         });
       }
       if (item.type === 'netcdf') {
-        const found = visibleNetCDFLayers.value.find((layer) => item.id === layer.netCDFLayer);
+        const found = MapStore.visibleNetCDFLayers.value.find((layer) => item.id === layer.netCDFLayer);
         if (found) {
           found.opacity = val;
           updateNetCDFLayer(item.id, { opacity: val });
@@ -194,13 +199,32 @@ export default defineComponent({
     };
 
     const toggleResampling = (id: number) => {
-      const found = visibleNetCDFLayers.value.find((layer) => id === layer.netCDFLayer);
+      const found = MapStore.visibleNetCDFLayers.value.find((layer) => id === layer.netCDFLayer);
       if (found) {
         const val = found.resampling === 'linear' ? 'nearest' : 'linear';
         found.resampling = val;
         updateNetCDFLayer(id, { resampling: val });
       }
     };
+
+    watch(MapStore.globalTime, (newVal) => {
+      if (!MapStore.timeLinked.value) {
+        return;
+      }
+      props.netcdfLayers.forEach((netcdfLayer) => {
+        const found = MapStore.visibleNetCDFLayers.value.find((layer) => layer.netCDFLayer === netcdfLayer.id);
+        if (found) {
+          // now we need to find the closest index to the current time
+          const { min } = found.sliding;
+          const stepSize = found.sliding.step;
+          const currentIndex = Math.round((newVal - min) / stepSize);
+          if (currentIndex >= 0 && currentIndex < found.images.length) {
+            found.currentIndex = currentIndex;
+            throttledUpdateNetCDFLayer(netcdfLayer.id, currentIndex);
+          }
+        }
+      });
+    });
     return {
       processedLayers,
       iconMapper,
@@ -214,6 +238,11 @@ export default defineComponent({
 </script>
 
 <template>
+  <v-card class="pa-0 ma-0 mb-2">
+    <v-card-text class="pa-0 ma-0">
+      <global-time />
+    </v-card-text>
+  </v-card>
   <v-card
     v-for="(item, index) in processedLayers"
     :key="`opacity_${index}`"

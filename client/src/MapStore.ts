@@ -10,6 +10,7 @@ import {
   DisplayConfiguration,
   LayerCollection,
   NetCDFData,
+  NetCDFImageWorking,
   NetCDFLayer,
   RasterMapLayer,
   SearchableVectorData,
@@ -17,7 +18,6 @@ import {
   VectorMapLayer,
 } from './types';
 import UVdatApi from './api/UVDATApi';
-import { visibleNetCDFLayers } from './map/mapNetCDFLayer';
 
 export const VECTOR_PMTILES_URL = '/public/vectortiles/us.pmtiles';
 
@@ -71,6 +71,10 @@ export default class MapStore {
   public static selectedMapLayers = ref<(VectorMapLayer | RasterMapLayer | NetCDFLayer)[]>([]);
 
   public static visibleMapLayers: Ref<Set<string>> = ref(new Set());
+
+  // Net CDF Layers
+
+  public static visibleNetCDFLayers: Ref<NetCDFImageWorking[]> = ref([]);
 
   public static selectedVectorMapLayers: Ref<VectorMapLayer[]> = computed(
     () => MapStore.selectedMapLayers.value.filter((layer) => layer.type === 'vector'),
@@ -361,33 +365,34 @@ export default class MapStore {
   public static graphChartsMinMax = ref({
     min: 0,
     max: 0,
+    stepSize: 0,
   });
 
-  public static updateChartsMinMax = (min: number, max: number) => {
-    MapStore.graphChartsMinMax.value.min = min;
-    MapStore.graphChartsMinMax.value.max = max;
+  public static timeLinked = ref(true);
+
+  public static updateChartsMinMax = (min: number, max: number, stepSize: number) => {
+    MapStore.graphChartsMinMax.value = { min, max, stepSize };
   };
 
   // Computes in Unix Time
-  public static globalTimeRange = computed(() => {
+  public static globalTimeRange: Ref<{ min: number; max: number, stepSize: number }> = computed(() => {
     let globalMin = Infinity;
     let globalMax = -Infinity;
-    MapStore.visibleMapLayers.value.forEach((visibleMapLayer) => {
-      const [type, layerId] = visibleMapLayer.split('_');
-      const foundLayer = MapStore.selectedMapLayers.value.find((layer) => layer.id === parseInt(layerId, 10) && layer.type === type);
-      if (type === 'netcdf' && foundLayer !== undefined) {
-        const netCDFLayer = visibleNetCDFLayers.value.find((item) => item.netCDFLayer === foundLayer.id);
-        if (netCDFLayer && netCDFLayer.sliding) {
-          const { min, max } = netCDFLayer.sliding;
-          globalMin = Math.min(globalMin, min);
-          globalMax = Math.max(globalMax, max);
-        }
+    let stepSize = Infinity;
+    MapStore.visibleNetCDFLayers.value.forEach((layer) => {
+      if (layer.sliding) {
+        const { min, max } = layer.sliding;
+        const stepsize = layer.images.length;
+        stepSize = Math.min(stepSize, (max - min) / stepsize);
+        globalMin = Math.min(globalMin, min);
+        globalMax = Math.max(globalMax, max);
       }
     });
     if (MapStore.mapLayerFeatureGraphsVisible.value && MapStore.mapLayerFeatureGraphs.value.length) {
       globalMin = Math.min(globalMin, MapStore.graphChartsMinMax.value.min);
       globalMax = Math.max(globalMax, MapStore.graphChartsMinMax.value.max);
+      stepSize = Math.min(stepSize, MapStore.graphChartsMinMax.value.stepSize);
     }
-    return { min: globalMin, max: globalMax };
+    return { min: globalMin, max: globalMax, stepSize };
   });
 }
