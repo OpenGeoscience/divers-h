@@ -1,0 +1,779 @@
+[
+  {
+    "type": "Context",
+    "name": "StreamTemperature",
+    "default_map_center": [
+      37.5,
+      -95.5
+    ],
+    "default_map_zoom": 5,
+    "datasets": [
+      {
+        "name": "StreamTemperature Data",
+        "category": "stream_temperature",
+        "action": "replace",
+        "description": "Tabular and geojson stream temperature data",
+        "files": [
+          {
+            "name": "StreamTemperature",
+            "type": "geojson",
+            "path": "./data/StreamTemperature/stream_temperature.geojson",
+            "url": "https://data.kitware.com/api/v1/file/68028a5135301b4faa0432cd/download",
+            "metadata": {
+              "tabular": {
+                "name": "StreamTemperature_data",
+                "path": "./data/StreamTemperature/stream_temperature_tabular.json",
+                "url": "https://data.kitware.com/api/v1/file/68028a5235301b4faa0432d0/download",
+                "featurePropertyMatcher": "Site Number"
+              },
+              "default_style": {
+                "layers": {
+                  "fill": {
+                    "color": "#888888",
+                    "enabled": false
+                  },
+                  "line": {
+                    "size": 1,
+                    "color": "#000000",
+                    "enabled": false
+                  },
+                  "text": {
+                    "color": "#888888",
+                    "enabled": false
+                  },
+                  "circle": {
+                    "color": {
+                      "type": "ColorCategoricalString",
+                      "attribute": "Site Number",
+                      "colorPairs": {
+                        "02205522": "#ffe080",
+                        "02208130": "#ff0050",
+                        "02208150": "#86702d",
+                        "02217274": "#90ff00",
+                        "02218565": "#c7ff80",
+                        "02330450": "#ff00e0",
+                        "02334430": "#ffc200",
+                        "02334480": "#5f862d",
+                        "02334578": "#6f00ff",
+                        "02334885": "#ff80ef",
+                        "02335000": "#86442d",
+                        "02335350": "#ff80a7",
+                        "02336000": "#532d86",
+                        "02336030": "#862d7b",
+                        "02336120": "#862d49",
+                        "02336240": "#ffa180",
+                        "02336300": "#b780ff",
+                        "02336313": "#ff4400",
+                        "02336360": "#ffe080",
+                        "02336410": "#ff0050",
+                        "02336526": "#86702d",
+                        "02336728": "#90ff00",
+                        "02337170": "#c7ff80",
+                        "02397000": "#ff00e0",
+                        "02397530": "#ffc200",
+                        "02423130": "#5f862d",
+                        "02423397": "#6f00ff",
+                        "02423496": "#ff80ef",
+                        "02455980": "#86442d",
+                        "02457595": "#ff80a7",
+                        "02458450": "#532d86",
+                        "03306000": "#862d7b",
+                        "03307000": "#862d49",
+                        "03313000": "#ffa180",
+                        "03428200": "#b780ff",
+                        "03430200": "#ff4400",
+                        "03431083": "#ffe080",
+                        "03431091": "#ff0050",
+                        "03431514": "#86702d",
+                        "0351706800": "#90ff00"
+                      },
+                      "defaultColor": "#FFFFFF"
+                    },
+                    "legend": true,
+                    "enabled": true,
+                    "selectable": "singleSelect",
+                    "selectColor": "#00FFFF"
+                  },
+                  "fill-extrusion": {
+                    "color": "#888888",
+                    "enabled": false
+                  }
+                },
+                "properties": {
+                  "availableProperties": {
+                    "Site Number": {
+                      "key": "Site Number",
+                      "type": "string",
+                      "values": [
+                        "02205522",
+                        "02208130",
+                        "02208150",
+                        "02217274",
+                        "02218565",
+                        "02330450",
+                        "02334430",
+                        "02334480",
+                        "02334578",
+                        "02334885",
+                        "02335000",
+                        "02335350",
+                        "02336000",
+                        "02336030",
+                        "02336120",
+                        "02336240",
+                        "02336300",
+                        "02336313",
+                        "02336360",
+                        "02336410",
+                        "02336526",
+                        "02336728",
+                        "02337170",
+                        "02397000",
+                        "02397530",
+                        "02423130",
+                        "02423397",
+                        "02423496",
+                        "02455980",
+                        "02457595",
+                        "02458450",
+                        "03306000",
+                        "03307000",
+                        "03313000",
+                        "03428200",
+                        "03430200",
+                        "03431083",
+                        "03431091",
+                        "03431514",
+                        "0351706800"
+                      ],
+                      "display": false,
+                      "tooltip": false,
+                      "description": "",
+                      "displayName": "Site Number"
+                    }
+                  }
+                },
+                "vectorFeatureTableGraphs": [
+                  {
+                    "name": "Predicted_SSP245 r4i1p1f1 Linear Regression",
+                    "type": "Predicted_SSP245",
+                    "xAxis": "unix_time",
+                    "yAxis": "r4i1p1f1 Linear Regression",
+                    "xAxisLabel": "Date",
+                    "yAxisLabel": "r4i1p1f1 Linear Regression"
+                  },
+                  {
+                    "name": "Predicted_SSP245 r4i1p1f1 Ridge Regression",
+                    "type": "Predicted_SSP245",
+                    "xAxis": "unix_time",
+                    "yAxis": "r4i1p1f1 Ridge Regression",
+                    "xAxisLabel": "Date",
+                    "yAxisLabel": "r4i1p1f1 Ridge Regression"
+                  },
+                  {
+                    "name": "Predicted_SSP245 r4i1p1f1 Random Forest",
+                    "type": "Predicted_SSP245",
+                    "xAxis": "unix_time",
+                    "yAxis": "r4i1p1f1 Random Forest",
+                    "xAxisLabel": "Date",
+                    "yAxisLabel": "r4i1p1f1 Random Forest"
+                  },
+                  {
+                    "name": "Predicted_SSP245 r4i1p1f1 Support Vector Regression",
+                    "type": "Predicted_SSP245",
+                    "xAxis": "unix_time",
+                    "yAxis": "r4i1p1f1 Support Vector Regression",
+                    "xAxisLabel": "Date",
+                    "yAxisLabel": "r4i1p1f1 Support Vector Regression"
+                  },
+                  {
+                    "name": "Predicted_SSP245 r10i1p1f1 Linear Regression",
+                    "type": "Predicted_SSP245",
+                    "xAxis": "unix_time",
+                    "yAxis": "r10i1p1f1 Linear Regression",
+                    "xAxisLabel": "Date",
+                    "yAxisLabel": "r10i1p1f1 Linear Regression"
+                  },
+                  {
+                    "name": "Predicted_SSP245 r10i1p1f1 Ridge Regression",
+                    "type": "Predicted_SSP245",
+                    "xAxis": "unix_time",
+                    "yAxis": "r10i1p1f1 Ridge Regression",
+                    "xAxisLabel": "Date",
+                    "yAxisLabel": "r10i1p1f1 Ridge Regression"
+                  },
+                  {
+                    "name": "Predicted_SSP245 r10i1p1f1 Random Forest",
+                    "type": "Predicted_SSP245",
+                    "xAxis": "unix_time",
+                    "yAxis": "r10i1p1f1 Random Forest",
+                    "xAxisLabel": "Date",
+                    "yAxisLabel": "r10i1p1f1 Random Forest"
+                  },
+                  {
+                    "name": "Predicted_SSP245 r10i1p1f1 Support Vector Regression",
+                    "type": "Predicted_SSP245",
+                    "xAxis": "unix_time",
+                    "yAxis": "r10i1p1f1 Support Vector Regression",
+                    "xAxisLabel": "Date",
+                    "yAxisLabel": "r10i1p1f1 Support Vector Regression"
+                  },
+                  {
+                    "name": "Predicted_SSP245 r11i1p1f1 Linear Regression",
+                    "type": "Predicted_SSP245",
+                    "xAxis": "unix_time",
+                    "yAxis": "r11i1p1f1 Linear Regression",
+                    "xAxisLabel": "Date",
+                    "yAxisLabel": "r11i1p1f1 Linear Regression"
+                  },
+                  {
+                    "name": "Predicted_SSP245 r11i1p1f1 Ridge Regression",
+                    "type": "Predicted_SSP245",
+                    "xAxis": "unix_time",
+                    "yAxis": "r11i1p1f1 Ridge Regression",
+                    "xAxisLabel": "Date",
+                    "yAxisLabel": "r11i1p1f1 Ridge Regression"
+                  },
+                  {
+                    "name": "Predicted_SSP245 r11i1p1f1 Random Forest",
+                    "type": "Predicted_SSP245",
+                    "xAxis": "unix_time",
+                    "yAxis": "r11i1p1f1 Random Forest",
+                    "xAxisLabel": "Date",
+                    "yAxisLabel": "r11i1p1f1 Random Forest"
+                  },
+                  {
+                    "name": "Predicted_SSP245 r11i1p1f1 Support Vector Regression",
+                    "type": "Predicted_SSP245",
+                    "xAxis": "unix_time",
+                    "yAxis": "r11i1p1f1 Support Vector Regression",
+                    "xAxisLabel": "Date",
+                    "yAxisLabel": "r11i1p1f1 Support Vector Regression"
+                  },
+                  {
+                    "name": "Predicted_SSP585 r4i1p1f1 Linear Regression",
+                    "type": "Predicted_SSP585",
+                    "xAxis": "unix_time",
+                    "yAxis": "r4i1p1f1 Linear Regression",
+                    "xAxisLabel": "Date",
+                    "yAxisLabel": "r4i1p1f1 Linear Regression"
+                  },
+                  {
+                    "name": "Predicted_SSP585 r4i1p1f1 Ridge Regression",
+                    "type": "Predicted_SSP585",
+                    "xAxis": "unix_time",
+                    "yAxis": "r4i1p1f1 Ridge Regression",
+                    "xAxisLabel": "Date",
+                    "yAxisLabel": "r4i1p1f1 Ridge Regression"
+                  },
+                  {
+                    "name": "Predicted_SSP585 r4i1p1f1 Random Forest",
+                    "type": "Predicted_SSP585",
+                    "xAxis": "unix_time",
+                    "yAxis": "r4i1p1f1 Random Forest",
+                    "xAxisLabel": "Date",
+                    "yAxisLabel": "r4i1p1f1 Random Forest"
+                  },
+                  {
+                    "name": "Predicted_SSP585 r4i1p1f1 Support Vector Regression",
+                    "type": "Predicted_SSP585",
+                    "xAxis": "unix_time",
+                    "yAxis": "r4i1p1f1 Support Vector Regression",
+                    "xAxisLabel": "Date",
+                    "yAxisLabel": "r4i1p1f1 Support Vector Regression"
+                  },
+                  {
+                    "name": "Predicted_SSP585 r10i1p1f1 Linear Regression",
+                    "type": "Predicted_SSP585",
+                    "xAxis": "unix_time",
+                    "yAxis": "r10i1p1f1 Linear Regression",
+                    "xAxisLabel": "Date",
+                    "yAxisLabel": "r10i1p1f1 Linear Regression"
+                  },
+                  {
+                    "name": "Predicted_SSP585 r10i1p1f1 Ridge Regression",
+                    "type": "Predicted_SSP585",
+                    "xAxis": "unix_time",
+                    "yAxis": "r10i1p1f1 Ridge Regression",
+                    "xAxisLabel": "Date",
+                    "yAxisLabel": "r10i1p1f1 Ridge Regression"
+                  },
+                  {
+                    "name": "Predicted_SSP585 r10i1p1f1 Random Forest",
+                    "type": "Predicted_SSP585",
+                    "xAxis": "unix_time",
+                    "yAxis": "r10i1p1f1 Random Forest",
+                    "xAxisLabel": "Date",
+                    "yAxisLabel": "r10i1p1f1 Random Forest"
+                  },
+                  {
+                    "name": "Predicted_SSP585 r10i1p1f1 Support Vector Regression",
+                    "type": "Predicted_SSP585",
+                    "xAxis": "unix_time",
+                    "yAxis": "r10i1p1f1 Support Vector Regression",
+                    "xAxisLabel": "Date",
+                    "yAxisLabel": "r10i1p1f1 Support Vector Regression"
+                  },
+                  {
+                    "name": "Predicted_SSP585 r11i1p1f1 Linear Regression",
+                    "type": "Predicted_SSP585",
+                    "xAxis": "unix_time",
+                    "yAxis": "r11i1p1f1 Linear Regression",
+                    "xAxisLabel": "Date",
+                    "yAxisLabel": "r11i1p1f1 Linear Regression"
+                  },
+                  {
+                    "name": "Predicted_SSP585 r11i1p1f1 Ridge Regression",
+                    "type": "Predicted_SSP585",
+                    "xAxis": "unix_time",
+                    "yAxis": "r11i1p1f1 Ridge Regression",
+                    "xAxisLabel": "Date",
+                    "yAxisLabel": "r11i1p1f1 Ridge Regression"
+                  },
+                  {
+                    "name": "Predicted_SSP585 r11i1p1f1 Random Forest",
+                    "type": "Predicted_SSP585",
+                    "xAxis": "unix_time",
+                    "yAxis": "r11i1p1f1 Random Forest",
+                    "xAxisLabel": "Date",
+                    "yAxisLabel": "r11i1p1f1 Random Forest"
+                  },
+                  {
+                    "name": "Predicted_SSP585 r11i1p1f1 Support Vector Regression",
+                    "type": "Predicted_SSP585",
+                    "xAxis": "unix_time",
+                    "yAxis": "r11i1p1f1 Support Vector Regression",
+                    "xAxisLabel": "Date",
+                    "yAxisLabel": "r11i1p1f1 Support Vector Regression"
+                  },
+                  {
+                    "name": "Predicted_SSP126 r4i1p1f1 Linear Regression",
+                    "type": "Predicted_SSP126",
+                    "xAxis": "unix_time",
+                    "yAxis": "r4i1p1f1 Linear Regression",
+                    "xAxisLabel": "Date",
+                    "yAxisLabel": "r4i1p1f1 Linear Regression"
+                  },
+                  {
+                    "name": "Predicted_SSP126 r4i1p1f1 Ridge Regression",
+                    "type": "Predicted_SSP126",
+                    "xAxis": "unix_time",
+                    "yAxis": "r4i1p1f1 Ridge Regression",
+                    "xAxisLabel": "Date",
+                    "yAxisLabel": "r4i1p1f1 Ridge Regression"
+                  },
+                  {
+                    "name": "Predicted_SSP126 r4i1p1f1 Random Forest",
+                    "type": "Predicted_SSP126",
+                    "xAxis": "unix_time",
+                    "yAxis": "r4i1p1f1 Random Forest",
+                    "xAxisLabel": "Date",
+                    "yAxisLabel": "r4i1p1f1 Random Forest"
+                  },
+                  {
+                    "name": "Predicted_SSP126 r4i1p1f1 Support Vector Regression",
+                    "type": "Predicted_SSP126",
+                    "xAxis": "unix_time",
+                    "yAxis": "r4i1p1f1 Support Vector Regression",
+                    "xAxisLabel": "Date",
+                    "yAxisLabel": "r4i1p1f1 Support Vector Regression"
+                  },
+                  {
+                    "name": "Predicted_SSP126 r10i1p1f1 Linear Regression",
+                    "type": "Predicted_SSP126",
+                    "xAxis": "unix_time",
+                    "yAxis": "r10i1p1f1 Linear Regression",
+                    "xAxisLabel": "Date",
+                    "yAxisLabel": "r10i1p1f1 Linear Regression"
+                  },
+                  {
+                    "name": "Predicted_SSP126 r10i1p1f1 Ridge Regression",
+                    "type": "Predicted_SSP126",
+                    "xAxis": "unix_time",
+                    "yAxis": "r10i1p1f1 Ridge Regression",
+                    "xAxisLabel": "Date",
+                    "yAxisLabel": "r10i1p1f1 Ridge Regression"
+                  },
+                  {
+                    "name": "Predicted_SSP126 r10i1p1f1 Random Forest",
+                    "type": "Predicted_SSP126",
+                    "xAxis": "unix_time",
+                    "yAxis": "r10i1p1f1 Random Forest",
+                    "xAxisLabel": "Date",
+                    "yAxisLabel": "r10i1p1f1 Random Forest"
+                  },
+                  {
+                    "name": "Predicted_SSP126 r10i1p1f1 Support Vector Regression",
+                    "type": "Predicted_SSP126",
+                    "xAxis": "unix_time",
+                    "yAxis": "r10i1p1f1 Support Vector Regression",
+                    "xAxisLabel": "Date",
+                    "yAxisLabel": "r10i1p1f1 Support Vector Regression"
+                  },
+                  {
+                    "name": "Predicted_SSP126 r11i1p1f1 Linear Regression",
+                    "type": "Predicted_SSP126",
+                    "xAxis": "unix_time",
+                    "yAxis": "r11i1p1f1 Linear Regression",
+                    "xAxisLabel": "Date",
+                    "yAxisLabel": "r11i1p1f1 Linear Regression"
+                  },
+                  {
+                    "name": "Predicted_SSP126 r11i1p1f1 Ridge Regression",
+                    "type": "Predicted_SSP126",
+                    "xAxis": "unix_time",
+                    "yAxis": "r11i1p1f1 Ridge Regression",
+                    "xAxisLabel": "Date",
+                    "yAxisLabel": "r11i1p1f1 Ridge Regression"
+                  },
+                  {
+                    "name": "Predicted_SSP126 r11i1p1f1 Random Forest",
+                    "type": "Predicted_SSP126",
+                    "xAxis": "unix_time",
+                    "yAxis": "r11i1p1f1 Random Forest",
+                    "xAxisLabel": "Date",
+                    "yAxisLabel": "r11i1p1f1 Random Forest"
+                  },
+                  {
+                    "name": "Predicted_SSP126 r11i1p1f1 Support Vector Regression",
+                    "type": "Predicted_SSP126",
+                    "xAxis": "unix_time",
+                    "yAxis": "r11i1p1f1 Support Vector Regression",
+                    "xAxisLabel": "Date",
+                    "yAxisLabel": "r11i1p1f1 Support Vector Regression"
+                  }
+                ],
+                "mapLayerFeatureTableGraphs": [
+                  {
+                    "name": "Predicted_SSP245 r4i1p1f1 Linear Regression",
+                    "type": "Predicted_SSP245",
+                    "xAxis": "unix_time",
+                    "yAxis": "r4i1p1f1 Linear Regression",
+                    "indexer": "site_no",
+                    "xAxisLabel": "Date",
+                    "yAxisLabel": "r4i1p1f1 Linear Regression"
+                  },
+                  {
+                    "name": "Predicted_SSP245 r4i1p1f1 Ridge Regression",
+                    "type": "Predicted_SSP245",
+                    "xAxis": "unix_time",
+                    "yAxis": "r4i1p1f1 Ridge Regression",
+                    "indexer": "site_no",
+                    "xAxisLabel": "Date",
+                    "yAxisLabel": "r4i1p1f1 Ridge Regression"
+                  },
+                  {
+                    "name": "Predicted_SSP245 r4i1p1f1 Random Forest",
+                    "type": "Predicted_SSP245",
+                    "xAxis": "unix_time",
+                    "yAxis": "r4i1p1f1 Random Forest",
+                    "indexer": "site_no",
+                    "xAxisLabel": "Date",
+                    "yAxisLabel": "r4i1p1f1 Random Forest"
+                  },
+                  {
+                    "name": "Predicted_SSP245 r4i1p1f1 Support Vector Regression",
+                    "type": "Predicted_SSP245",
+                    "xAxis": "unix_time",
+                    "yAxis": "r4i1p1f1 Support Vector Regression",
+                    "indexer": "site_no",
+                    "xAxisLabel": "Date",
+                    "yAxisLabel": "r4i1p1f1 Support Vector Regression"
+                  },
+                  {
+                    "name": "Predicted_SSP245 r10i1p1f1 Linear Regression",
+                    "type": "Predicted_SSP245",
+                    "xAxis": "unix_time",
+                    "yAxis": "r10i1p1f1 Linear Regression",
+                    "indexer": "site_no",
+                    "xAxisLabel": "Date",
+                    "yAxisLabel": "r10i1p1f1 Linear Regression"
+                  },
+                  {
+                    "name": "Predicted_SSP245 r10i1p1f1 Ridge Regression",
+                    "type": "Predicted_SSP245",
+                    "xAxis": "unix_time",
+                    "yAxis": "r10i1p1f1 Ridge Regression",
+                    "indexer": "site_no",
+                    "xAxisLabel": "Date",
+                    "yAxisLabel": "r10i1p1f1 Ridge Regression"
+                  },
+                  {
+                    "name": "Predicted_SSP245 r10i1p1f1 Random Forest",
+                    "type": "Predicted_SSP245",
+                    "xAxis": "unix_time",
+                    "yAxis": "r10i1p1f1 Random Forest",
+                    "indexer": "site_no",
+                    "xAxisLabel": "Date",
+                    "yAxisLabel": "r10i1p1f1 Random Forest"
+                  },
+                  {
+                    "name": "Predicted_SSP245 r10i1p1f1 Support Vector Regression",
+                    "type": "Predicted_SSP245",
+                    "xAxis": "unix_time",
+                    "yAxis": "r10i1p1f1 Support Vector Regression",
+                    "indexer": "site_no",
+                    "xAxisLabel": "Date",
+                    "yAxisLabel": "r10i1p1f1 Support Vector Regression"
+                  },
+                  {
+                    "name": "Predicted_SSP245 r11i1p1f1 Linear Regression",
+                    "type": "Predicted_SSP245",
+                    "xAxis": "unix_time",
+                    "yAxis": "r11i1p1f1 Linear Regression",
+                    "indexer": "site_no",
+                    "xAxisLabel": "Date",
+                    "yAxisLabel": "r11i1p1f1 Linear Regression"
+                  },
+                  {
+                    "name": "Predicted_SSP245 r11i1p1f1 Ridge Regression",
+                    "type": "Predicted_SSP245",
+                    "xAxis": "unix_time",
+                    "yAxis": "r11i1p1f1 Ridge Regression",
+                    "indexer": "site_no",
+                    "xAxisLabel": "Date",
+                    "yAxisLabel": "r11i1p1f1 Ridge Regression"
+                  },
+                  {
+                    "name": "Predicted_SSP245 r11i1p1f1 Random Forest",
+                    "type": "Predicted_SSP245",
+                    "xAxis": "unix_time",
+                    "yAxis": "r11i1p1f1 Random Forest",
+                    "indexer": "site_no",
+                    "xAxisLabel": "Date",
+                    "yAxisLabel": "r11i1p1f1 Random Forest"
+                  },
+                  {
+                    "name": "Predicted_SSP245 r11i1p1f1 Support Vector Regression",
+                    "type": "Predicted_SSP245",
+                    "xAxis": "unix_time",
+                    "yAxis": "r11i1p1f1 Support Vector Regression",
+                    "indexer": "site_no",
+                    "xAxisLabel": "Date",
+                    "yAxisLabel": "r11i1p1f1 Support Vector Regression"
+                  },
+                  {
+                    "name": "Predicted_SSP585 r4i1p1f1 Linear Regression",
+                    "type": "Predicted_SSP585",
+                    "xAxis": "unix_time",
+                    "yAxis": "r4i1p1f1 Linear Regression",
+                    "indexer": "site_no",
+                    "xAxisLabel": "Date",
+                    "yAxisLabel": "r4i1p1f1 Linear Regression"
+                  },
+                  {
+                    "name": "Predicted_SSP585 r4i1p1f1 Ridge Regression",
+                    "type": "Predicted_SSP585",
+                    "xAxis": "unix_time",
+                    "yAxis": "r4i1p1f1 Ridge Regression",
+                    "indexer": "site_no",
+                    "xAxisLabel": "Date",
+                    "yAxisLabel": "r4i1p1f1 Ridge Regression"
+                  },
+                  {
+                    "name": "Predicted_SSP585 r4i1p1f1 Random Forest",
+                    "type": "Predicted_SSP585",
+                    "xAxis": "unix_time",
+                    "yAxis": "r4i1p1f1 Random Forest",
+                    "indexer": "site_no",
+                    "xAxisLabel": "Date",
+                    "yAxisLabel": "r4i1p1f1 Random Forest"
+                  },
+                  {
+                    "name": "Predicted_SSP585 r4i1p1f1 Support Vector Regression",
+                    "type": "Predicted_SSP585",
+                    "xAxis": "unix_time",
+                    "yAxis": "r4i1p1f1 Support Vector Regression",
+                    "indexer": "site_no",
+                    "xAxisLabel": "Date",
+                    "yAxisLabel": "r4i1p1f1 Support Vector Regression"
+                  },
+                  {
+                    "name": "Predicted_SSP585 r10i1p1f1 Linear Regression",
+                    "type": "Predicted_SSP585",
+                    "xAxis": "unix_time",
+                    "yAxis": "r10i1p1f1 Linear Regression",
+                    "indexer": "site_no",
+                    "xAxisLabel": "Date",
+                    "yAxisLabel": "r10i1p1f1 Linear Regression"
+                  },
+                  {
+                    "name": "Predicted_SSP585 r10i1p1f1 Ridge Regression",
+                    "type": "Predicted_SSP585",
+                    "xAxis": "unix_time",
+                    "yAxis": "r10i1p1f1 Ridge Regression",
+                    "indexer": "site_no",
+                    "xAxisLabel": "Date",
+                    "yAxisLabel": "r10i1p1f1 Ridge Regression"
+                  },
+                  {
+                    "name": "Predicted_SSP585 r10i1p1f1 Random Forest",
+                    "type": "Predicted_SSP585",
+                    "xAxis": "unix_time",
+                    "yAxis": "r10i1p1f1 Random Forest",
+                    "indexer": "site_no",
+                    "xAxisLabel": "Date",
+                    "yAxisLabel": "r10i1p1f1 Random Forest"
+                  },
+                  {
+                    "name": "Predicted_SSP585 r10i1p1f1 Support Vector Regression",
+                    "type": "Predicted_SSP585",
+                    "xAxis": "unix_time",
+                    "yAxis": "r10i1p1f1 Support Vector Regression",
+                    "indexer": "site_no",
+                    "xAxisLabel": "Date",
+                    "yAxisLabel": "r10i1p1f1 Support Vector Regression"
+                  },
+                  {
+                    "name": "Predicted_SSP585 r11i1p1f1 Linear Regression",
+                    "type": "Predicted_SSP585",
+                    "xAxis": "unix_time",
+                    "yAxis": "r11i1p1f1 Linear Regression",
+                    "indexer": "site_no",
+                    "xAxisLabel": "Date",
+                    "yAxisLabel": "r11i1p1f1 Linear Regression"
+                  },
+                  {
+                    "name": "Predicted_SSP585 r11i1p1f1 Ridge Regression",
+                    "type": "Predicted_SSP585",
+                    "xAxis": "unix_time",
+                    "yAxis": "r11i1p1f1 Ridge Regression",
+                    "indexer": "site_no",
+                    "xAxisLabel": "Date",
+                    "yAxisLabel": "r11i1p1f1 Ridge Regression"
+                  },
+                  {
+                    "name": "Predicted_SSP585 r11i1p1f1 Random Forest",
+                    "type": "Predicted_SSP585",
+                    "xAxis": "unix_time",
+                    "yAxis": "r11i1p1f1 Random Forest",
+                    "indexer": "site_no",
+                    "xAxisLabel": "Date",
+                    "yAxisLabel": "r11i1p1f1 Random Forest"
+                  },
+                  {
+                    "name": "Predicted_SSP585 r11i1p1f1 Support Vector Regression",
+                    "type": "Predicted_SSP585",
+                    "xAxis": "unix_time",
+                    "yAxis": "r11i1p1f1 Support Vector Regression",
+                    "indexer": "site_no",
+                    "xAxisLabel": "Date",
+                    "yAxisLabel": "r11i1p1f1 Support Vector Regression"
+                  },
+                  {
+                    "name": "Predicted_SSP126 r4i1p1f1 Linear Regression",
+                    "type": "Predicted_SSP126",
+                    "xAxis": "unix_time",
+                    "yAxis": "r4i1p1f1 Linear Regression",
+                    "indexer": "site_no",
+                    "xAxisLabel": "Date",
+                    "yAxisLabel": "r4i1p1f1 Linear Regression"
+                  },
+                  {
+                    "name": "Predicted_SSP126 r4i1p1f1 Ridge Regression",
+                    "type": "Predicted_SSP126",
+                    "xAxis": "unix_time",
+                    "yAxis": "r4i1p1f1 Ridge Regression",
+                    "indexer": "site_no",
+                    "xAxisLabel": "Date",
+                    "yAxisLabel": "r4i1p1f1 Ridge Regression"
+                  },
+                  {
+                    "name": "Predicted_SSP126 r4i1p1f1 Random Forest",
+                    "type": "Predicted_SSP126",
+                    "xAxis": "unix_time",
+                    "yAxis": "r4i1p1f1 Random Forest",
+                    "indexer": "site_no",
+                    "xAxisLabel": "Date",
+                    "yAxisLabel": "r4i1p1f1 Random Forest"
+                  },
+                  {
+                    "name": "Predicted_SSP126 r4i1p1f1 Support Vector Regression",
+                    "type": "Predicted_SSP126",
+                    "xAxis": "unix_time",
+                    "yAxis": "r4i1p1f1 Support Vector Regression",
+                    "indexer": "site_no",
+                    "xAxisLabel": "Date",
+                    "yAxisLabel": "r4i1p1f1 Support Vector Regression"
+                  },
+                  {
+                    "name": "Predicted_SSP126 r10i1p1f1 Linear Regression",
+                    "type": "Predicted_SSP126",
+                    "xAxis": "unix_time",
+                    "yAxis": "r10i1p1f1 Linear Regression",
+                    "indexer": "site_no",
+                    "xAxisLabel": "Date",
+                    "yAxisLabel": "r10i1p1f1 Linear Regression"
+                  },
+                  {
+                    "name": "Predicted_SSP126 r10i1p1f1 Ridge Regression",
+                    "type": "Predicted_SSP126",
+                    "xAxis": "unix_time",
+                    "yAxis": "r10i1p1f1 Ridge Regression",
+                    "indexer": "site_no",
+                    "xAxisLabel": "Date",
+                    "yAxisLabel": "r10i1p1f1 Ridge Regression"
+                  },
+                  {
+                    "name": "Predicted_SSP126 r10i1p1f1 Random Forest",
+                    "type": "Predicted_SSP126",
+                    "xAxis": "unix_time",
+                    "yAxis": "r10i1p1f1 Random Forest",
+                    "indexer": "site_no",
+                    "xAxisLabel": "Date",
+                    "yAxisLabel": "r10i1p1f1 Random Forest"
+                  },
+                  {
+                    "name": "Predicted_SSP126 r10i1p1f1 Support Vector Regression",
+                    "type": "Predicted_SSP126",
+                    "xAxis": "unix_time",
+                    "yAxis": "r10i1p1f1 Support Vector Regression",
+                    "indexer": "site_no",
+                    "xAxisLabel": "Date",
+                    "yAxisLabel": "r10i1p1f1 Support Vector Regression"
+                  },
+                  {
+                    "name": "Predicted_SSP126 r11i1p1f1 Linear Regression",
+                    "type": "Predicted_SSP126",
+                    "xAxis": "unix_time",
+                    "yAxis": "r11i1p1f1 Linear Regression",
+                    "indexer": "site_no",
+                    "xAxisLabel": "Date",
+                    "yAxisLabel": "r11i1p1f1 Linear Regression"
+                  },
+                  {
+                    "name": "Predicted_SSP126 r11i1p1f1 Ridge Regression",
+                    "type": "Predicted_SSP126",
+                    "xAxis": "unix_time",
+                    "yAxis": "r11i1p1f1 Ridge Regression",
+                    "indexer": "site_no",
+                    "xAxisLabel": "Date",
+                    "yAxisLabel": "r11i1p1f1 Ridge Regression"
+                  },
+                  {
+                    "name": "Predicted_SSP126 r11i1p1f1 Random Forest",
+                    "type": "Predicted_SSP126",
+                    "xAxis": "unix_time",
+                    "yAxis": "r11i1p1f1 Random Forest",
+                    "indexer": "site_no",
+                    "xAxisLabel": "Date",
+                    "yAxisLabel": "r11i1p1f1 Random Forest"
+                  },
+                  {
+                    "name": "Predicted_SSP126 r11i1p1f1 Support Vector Regression",
+                    "type": "Predicted_SSP126",
+                    "xAxis": "unix_time",
+                    "yAxis": "r11i1p1f1 Support Vector Regression",
+                    "indexer": "site_no",
+                    "xAxisLabel": "Date",
+                    "yAxisLabel": "r11i1p1f1 Support Vector Regression"
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+]

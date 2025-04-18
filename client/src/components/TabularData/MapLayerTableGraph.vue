@@ -119,7 +119,7 @@ export default defineComponent({
         let steps = Infinity;
         Object.keys(data.graphs).forEach((key) => {
           const index = parseInt(key, 10);
-          const [min, max] = data.graphs[index].xAxisRange;
+          const [min, max] = data.xAxisRange;
           minGraph = Math.min(minGraph, min);
           maxGraph = Math.max(maxGraph, max);
           const stepChartSize = (max - min) / data.graphs[index].data.length;

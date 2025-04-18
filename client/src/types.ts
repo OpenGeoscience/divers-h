@@ -802,9 +802,9 @@ export interface FeatureGraphData {
     trendLine?:[number, number][];
     confidenceIntervals?:[number, number, number][];
     movingAverage?:[number, number][];
-    xAxisRange:[number, number];
-    yAxisRange:[number, number];
   }>
+  xAxisRange:[number, number];
+  yAxisRange:[number, number];
 }
 
 export interface ColorFilterCategorical {
