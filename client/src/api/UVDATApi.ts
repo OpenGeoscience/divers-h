@@ -11,6 +11,8 @@ import {
   DerivedRegion,
   DisplayConfiguration,
   FeatureGraphData,
+  FeatureGraphs,
+  FeatureGraphsRequest,
   FileItem,
   LayerCollection,
   LayerCollectionLayer,
@@ -535,6 +537,44 @@ export default class UVdatApi {
     }
 
     const response = await UVdatApi.apiClient.get('/vectorfeature/tabledata/feature-graph/', { params });
+    return response.data;
+  }
+
+  public static async getFeatureGraphsData(
+    payload: FeatureGraphsRequest,
+  ): Promise<FeatureGraphs[]> {
+    const {
+      tableTypes,
+      vectorFeatureId,
+      xAxes = ['index'],
+      yAxes = ['mean_va'],
+      indexers = [],
+      display = ['data', 'trendLine'],
+      confidenceLevel = 95,
+      aggregate = false,
+      movingAverage,
+    } = payload;
+
+    const params = new URLSearchParams();
+
+    tableTypes.forEach((type) => params.append('tableType', type));
+    xAxes.forEach((x) => params.append('xAxis', x));
+    yAxes.forEach((y) => params.append('yAxis', y));
+    indexers.forEach((indexer) => params.append('indexer', indexer));
+    display.forEach((d) => params.append('display', d));
+
+    params.append('vectorFeatureId', vectorFeatureId.toString());
+    params.append('confidenceLevel', confidenceLevel.toString());
+    params.append('aggregate', aggregate.toString());
+    if (movingAverage !== undefined) {
+      params.append('movingAverage', movingAverage.toString());
+    }
+
+    const response = await UVdatApi.apiClient.get<FeatureGraphs[]>(
+      '/vectorfeature/tabledata/feature-graphs/',
+      { params },
+    );
+
     return response.data;
   }
 

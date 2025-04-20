@@ -320,6 +320,47 @@ class VectorFeatureTableDataViewSet(
         )
         return Response(graphs, status=status.HTTP_200_OK)
 
+@action(detail=False, methods=['get'], url_path='feature-graphs')
+def feature_graphs(self, request, *args, **kwargs):
+    table_types = request.query_params.getlist('tableType')  # List of table types
+    vector_feature = request.query_params.get('vectorFeatureId')
+    x_axes = request.query_params.getlist('xAxis') or ['index']
+    y_axes = request.query_params.getlist('yAxis') or ['00060']
+    indexers = request.query_params.getlist('indexer') or ['vectorFeatureId']
+    moving_average_window = request.query_params.get('movingAverage', None)
+    confidence_interval = request.query_params.get('confidenceLevel', 95)
+    display = request.query_params.getlist('display', ['data'])
+
+    if not table_types:
+        return Response({'error': 'tableType is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+    # Pad indexers if not all provided
+    while len(indexers) < len(table_types):
+        indexers.append('vectorFeatureId')
+
+    result = []
+
+    for i, (table_type, x_axis, y_axis, indexer) in enumerate(zip(table_types, x_axes, y_axes, indexers)):
+        graphs = self.get_graphs(
+            table_type=table_type,
+            vector_ids=[vector_feature],
+            x_axis=x_axis,
+            y_axis=y_axis,
+            indexer=indexer,
+            moving_avg_window=moving_average_window,
+            confidence_level=confidence_interval,
+            data_types=display,
+        )
+        result.append({
+            'tableType': table_type,
+            'xAxis': x_axis,
+            'yAxis': y_axis,
+            'indexer': indexer,
+            'graphs': graphs,
+        })
+
+    return Response(result, status=status.HTTP_200_OK)
+
     @action(detail=False, methods=['get'], url_path='map-layer-feature-graph')
     def map_layer_feature_graph(self, request, *args, **kwargs):
         table_type = request.query_params.get('tableType')  # Required

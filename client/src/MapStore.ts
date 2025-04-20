@@ -178,6 +178,26 @@ export default class MapStore {
 
   public static mapLayerFeatureGraphsVisible = ref(false);
 
+  public static vectorFeatureTableGraphVisible = ref(false);
+
+  public static vectorFeatureTableData: Ref<{ layerId: number, vectorFeatureId: number } | null> = ref(null);
+
+  public static setVectorFeatureTableData = (layerId: number, vectorFeatureId: number) => {
+    if (MapStore.mapLayerFeatureGraphsVisible.value) {
+      MapStore.mapLayerFeatureGraphsVisible.value = false;
+    }
+    MapStore.vectorFeatureTableData.value = {
+      layerId,
+      vectorFeatureId,
+    };
+    MapStore.vectorFeatureTableGraphVisible.value = true;
+  };
+
+  public static clearVectorFeatureTableData = () => {
+    MapStore.vectorFeatureTableData.value = null;
+    MapStore.vectorFeatureTableGraphVisible.value = false;
+  };
+
   // Graph color mapping implementation
   public static enabledMapLayerFeatureColorMapping = ref(false);
 

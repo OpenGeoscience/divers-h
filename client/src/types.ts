@@ -792,10 +792,30 @@ export interface VectorFeatureTableGraph {
 
 export type VectorFeatureTableGraphSelected = VectorFeatureTableGraph & { expanded: boolean };
 
+export interface FeatureGraphs {
+  tableType: string;
+  xAxis: string;
+  yAxis: string;
+  indexer: string;
+  graph: FeatureGraphData; // You can replace `any` with your actual graph structure interface
+}
+
+export interface FeatureGraphsRequest {
+  tableTypes: string[];
+  vectorFeatureId: number;
+  xAxes?: string[];
+  yAxes?: string[];
+  indexers?: string[];
+  display?: ('data' | 'trendLine' | 'confidenceInterval' | 'movingAverage')[];
+  confidenceLevel?: number;
+  aggregate?: boolean;
+  movingAverage?: number;
+}
+
 export interface FeatureGraphData {
   table_name: string;
   graphs:
-  Record<number | 'all', {
+  Record<number | string | 'all', {
     data:[number, number][];
     vectorFeatureId: number;
     indexer: string | number;
