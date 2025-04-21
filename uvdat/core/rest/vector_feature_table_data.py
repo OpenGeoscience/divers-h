@@ -340,7 +340,9 @@ class VectorFeatureTableDataViewSet(
 
         result = []
 
-        for i, (table_type, x_axis, y_axis, indexer) in enumerate(zip(table_types, x_axes, y_axes, indexers)):
+        for _i, (table_type, x_axis, y_axis, indexer) in enumerate(
+            zip(table_types, x_axes, y_axes, indexers)
+        ):
             graphs = self.get_graphs(
                 table_type=table_type,
                 vector_ids=[vector_feature],
@@ -351,13 +353,15 @@ class VectorFeatureTableDataViewSet(
                 confidence_level=confidence_interval,
                 data_types=display,
             )
-            result.append({
-                'tableType': table_type,
-                'xAxis': x_axis,
-                'yAxis': y_axis,
-                'indexer': indexer,
-                'graphs': graphs,
-            })
+            result.append(
+                {
+                    'tableType': table_type,
+                    'xAxis': x_axis,
+                    'yAxis': y_axis,
+                    'indexer': indexer,
+                    'graphs': graphs,
+                }
+            )
 
         return Response(result, status=status.HTTP_200_OK)
 

@@ -1,7 +1,6 @@
 <script lang="ts">
 import { computed, defineComponent } from 'vue';
 import MapStore from '../../MapStore';
-import { min } from 'd3';
 
 export default defineComponent({
   name: 'GlobalTime',

@@ -9,7 +9,7 @@ import {
   ref,
   watch,
 } from 'vue';
-import { first, throttle } from 'lodash';
+import { throttle } from 'lodash';
 import UVdatApi from '../../api/UVDATApi';
 import { FeatureGraphData, FeatureGraphs, FeatureGraphsRequest } from '../../types';
 import MapStore from '../../MapStore';
@@ -160,7 +160,6 @@ export default defineComponent({
             steps = Math.min(steps, stepChartSize);
           });
         });
-        console.log('minGraph', minGraph, 'maxGraph', maxGraph, 'steps', steps);
         MapStore.updateChartsMinMax(minGraph, maxGraph, steps);
         const graphRenderData: FeatureGraphData = {
           table_name: 'Multiple Graphs',
