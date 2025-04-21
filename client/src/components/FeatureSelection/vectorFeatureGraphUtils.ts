@@ -7,7 +7,7 @@ const renderVectorFeatureGraph = (
   container: SVGSVGElement,
   options?: {
     specificGraphKey?: number;
-    colors?: Record<number, string>;
+    colors?: Record<number | string, string>;
     xAxisLabel?: string;
     yAxisLabel?: string;
     showXYValuesOnHover?: boolean;
@@ -21,10 +21,11 @@ const renderVectorFeatureGraph = (
     showTrendline?: boolean;
     showMovingAverage?: boolean;
     showConfidenceInterval?: boolean;
+    useKeyTooltip?: boolean;
   },
   baseHeight = 400,
 ) => {
-  const outputColorMapping: Record<number, string> = {};
+  const outputColorMapping: Record<number | string, string> = {};
   const localContainer = container;
   if (!localContainer || !data) return outputColorMapping;
 
@@ -94,7 +95,12 @@ const renderVectorFeatureGraph = (
   const g = svg.append('g').attr('transform', `translate(${margin.left},${margin.top})`);
 
   const colorScale = d3.scaleOrdinal(d3.schemeCategory10);
-  const graphKeys = Object.keys(graphsToRender).map(Number);
+  const graphKeys = Object.keys(graphsToRender).map((item) => {
+    if (!Number.isNaN(parseInt(item, 10))) {
+      return parseInt(item, 10);
+    }
+    return item;
+  });
   const tooltipGroup = g.append('g')
     .attr('opacity', 0)
     .attr('pointer-events', 'none');
@@ -148,7 +154,7 @@ const renderVectorFeatureGraph = (
         .on('mousemove', (event) => {
           const [mouseX, mouseY] = d3.pointer(event);
 
-          const tooltipTextContent = graph.indexer.toString();
+          const tooltipTextContent = options?.useKeyTooltip ? key.toString() : graph.indexer.toString();
           tooltipText.text(tooltipTextContent)
             .call((text) => {
               // Adjust the background size based on text width

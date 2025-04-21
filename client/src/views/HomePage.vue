@@ -328,11 +328,14 @@ export default defineComponent({
       <v-col class="d-flex flex-column fill-height" style="min-height: 90vh">
         <MapVue />
         <MapLayerTableGraph
-          v-if="mapLayerVectorGraphsVisible && mapLayerFeatureGraphs.length" />
+          v-if="mapLayerVectorGraphsVisible && mapLayerFeatureGraphs.length"
+        />
         <VectorFeatureTableGraph
           v-else-if="vectorFeatureTableGraphVisible && vectorFeatureTableData"
           :map-layer-id="vectorFeatureTableData.layerId"
-          :vector-feature-id="vectorFeatureTableData.vectorFeatureId" />
+          :vector-feature-id="vectorFeatureTableData.vectorFeatureId"
+          :default-graphs="vectorFeatureTableData.defaultGraphs"
+        />
       </v-col>
     </v-row>
     <selected-feature-list />

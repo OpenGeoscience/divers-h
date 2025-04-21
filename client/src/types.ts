@@ -797,7 +797,7 @@ export interface FeatureGraphs {
   xAxis: string;
   yAxis: string;
   indexer: string;
-  graph: FeatureGraphData; // You can replace `any` with your actual graph structure interface
+  graphs: FeatureGraphData; // You can replace `any` with your actual graph structure interface
 }
 
 export interface FeatureGraphsRequest {

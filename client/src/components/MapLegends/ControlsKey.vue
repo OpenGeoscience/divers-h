@@ -225,6 +225,17 @@ export default defineComponent({
         }
       });
     });
+
+    const globalTimeEnabled = computed(() => {
+      let enabled = false;
+      if (props.netcdfLayers.length > 0) {
+        enabled = props.netcdfLayers.some((layer) => layer.sliding !== undefined && layer.sliding.variable === 'time');
+      }
+      if (MapStore.vectorFeatureTableGraphVisible.value || MapStore.mapLayerFeatureGraphsVisible.value) {
+        enabled = true;
+      }
+      return enabled;
+    });
     return {
       processedLayers,
       iconMapper,
@@ -232,13 +243,14 @@ export default defineComponent({
       throttledUpdateNetCDFLayer,
       stepMapping,
       toggleResampling,
+      globalTimeEnabled,
     };
   },
 });
 </script>
 
 <template>
-  <v-card class="pa-0 ma-0 mb-2">
+  <v-card v-if="globalTimeEnabled" class="pa-0 ma-0 mb-2">
     <v-card-text class="pa-0 ma-0">
       <global-time />
     </v-card-text>

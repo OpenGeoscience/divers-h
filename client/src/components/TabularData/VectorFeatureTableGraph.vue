@@ -5,15 +5,17 @@ import {
   Ref,
   computed,
   defineComponent,
+  onMounted,
   ref,
   watch,
 } from 'vue';
-import { throttle } from 'lodash';
+import { first, throttle } from 'lodash';
 import UVdatApi from '../../api/UVDATApi';
 import { FeatureGraphData, FeatureGraphs, FeatureGraphsRequest } from '../../types';
 import MapStore from '../../MapStore';
 import { renderVectorFeatureGraph } from '../FeatureSelection/vectorFeatureGraphUtils';
 
+const colorScale = d3.scaleOrdinal(d3.schemeCategory10);
 export default defineComponent({
   name: 'VectorFeatureTableGraph',
   props: {
@@ -24,6 +26,10 @@ export default defineComponent({
     mapLayerId: {
       type: Number,
       required: true,
+    },
+    defaultGraphs: {
+      type: Array as PropType<string[]>,
+      default: () => [],
     },
   },
 
@@ -46,8 +52,8 @@ export default defineComponent({
       if (graphData.value) {
         let max = -Infinity;
         graphData.value.forEach((graphFeature) => {
-          if (graphFeature.graph.graphs) {
-            Object.values(graphFeature.graph.graphs).forEach((graph) => {
+          if (graphFeature.graphs.graphs) {
+            Object.values(graphFeature.graphs.graphs).forEach((graph) => {
               const { data } = graph;
               for (let i = 0; i < data.length; i += 1) {
                 max = Math.max(max, Math.floor(data[i].length / 4));
@@ -69,15 +75,13 @@ export default defineComponent({
     });
     const assignGraphColors = () => {
       graphColorMap.value = {};
-      const colorScale = d3.scaleOrdinal(d3.schemeCategory10);
       availableVectorGraphs.value.forEach((graph) => {
         if (!graphColorMap.value[graph.name]) {
           graphColorMap.value[graph.name] = colorScale(graph.name);
         }
       });
     };
-    watch(availableVectorGraphs, () => assignGraphColors());
-
+    watch(availableVectorGraphs, () => assignGraphColors(), { immediate: true });
     // Fetch chart data based on selected layer and chart
     const fetchMapLayerFeatureGraphData = async () => {
       const display: ('data' | 'trendLine' | 'confidenceInterval' | 'movingAverage')[] = ['data'];
@@ -107,6 +111,13 @@ export default defineComponent({
         movingAverage: movingAverageValue.value,
 
       };
+      const graphNames: { name: string, type: string, xAxis: string, yAxis: string }[] = [];
+      if (selectedGraphs.value.length === 0) {
+        graphContainer.value?.setAttribute('style', 'display: none;');
+        return;
+      }
+      graphContainer.value?.setAttribute('style', 'display: inline;');
+
       selectedGraphs.value.forEach((name) => {
         const data = availableVectorGraphs.value.find((graph) => graph.name === name);
         if (data) {
@@ -116,6 +127,12 @@ export default defineComponent({
             baseRequestPayload.indexers?.push(data.indexer);
           }
           baseRequestPayload.tableTypes.push(data.type);
+          graphNames.push({
+            name: data.name,
+            type: data.type,
+            xAxis: data.xAxis,
+            yAxis: data.yAxis,
+          });
         }
       });
 
@@ -130,19 +147,20 @@ export default defineComponent({
 
         let steps = Infinity;
         data.forEach((featureGraph) => {
-          Object.keys(featureGraph.graph).forEach((key) => {
+          Object.keys(featureGraph.graphs.graphs).forEach((key) => {
             const index = parseInt(key, 10);
-            const [min, max] = featureGraph.graph.xAxisRange;
-            const [minY, maxY] = featureGraph.graph.xAxisRange;
+            const [min, max] = featureGraph.graphs.xAxisRange;
+            const [minY, maxY] = featureGraph.graphs.xAxisRange;
 
             minGraph = Math.min(minGraph, min);
             maxGraph = Math.max(maxGraph, max);
             minGraphY = Math.min(minGraphY, minY);
             maxGraphY = Math.max(maxGraphY, maxY);
-            const stepChartSize = (max - min) / featureGraph.graph.graphs[index].data.length;
+            const stepChartSize = (max - min) / featureGraph.graphs.graphs[index].data.length;
             steps = Math.min(steps, stepChartSize);
           });
         });
+        console.log('minGraph', minGraph, 'maxGraph', maxGraph, 'steps', steps);
         MapStore.updateChartsMinMax(minGraph, maxGraph, steps);
         const graphRenderData: FeatureGraphData = {
           table_name: 'Multiple Graphs',
@@ -153,8 +171,14 @@ export default defineComponent({
         let xAxisLabel = '';
         let yAxisLabel = '';
         data.forEach((featureGraph, index) => {
-          const firstGraph = Object.values(featureGraph.graph.graphs)[0];
-          graphRenderData.graphs[index] = firstGraph;
+          const firstGraph = Object.values(featureGraph.graphs.graphs)[0];
+          const { xAxis, yAxis, tableType } = featureGraph;
+          const foundName = graphNames.find((name) => name.xAxis === xAxis && name.yAxis === yAxis && name.type === tableType);
+          let name: string | number = index;
+          if (foundName) {
+            name = foundName.name;
+          }
+          graphRenderData.graphs[name] = firstGraph;
           xAxisLabel = featureGraph.xAxis;
           yAxisLabel = featureGraph.yAxis;
         });
@@ -166,10 +190,12 @@ export default defineComponent({
               xAxisIsTime: xAxisLabel === 'unix_time',
               xAxisLabel,
               yAxisLabel,
+              colors: graphColorMap.value,
               hideBaseData: hideBaseData.value,
               showTrendline: trendLine.value,
               showConfidenceInterval: confidenceIntervalEnabled.value,
               showMovingAverage: movingAverageEnabled.value,
+              useKeyTooltip: true,
             },
             300,
           );
@@ -183,11 +209,26 @@ export default defineComponent({
       }
     };
 
+    onMounted(() => {
+      assignGraphColors();
+      if (availableVectorGraphs.value.length > 0 && props.defaultGraphs.length > 0) {
+        selectedGraphs.value = props.defaultGraphs;
+      }
+      fetchMapLayerFeatureGraphData();
+    });
+
+    watch(() => props.defaultGraphs, (newValue) => {
+      if (newValue.length > 0) {
+        selectedGraphs.value = newValue;
+      }
+      fetchMapLayerFeatureGraphData();
+    }, { immediate: true });
+
     // Watch for chart selection change and fetch data automatically
 
     watch(selectedGraphs, () => {
       fetchMapLayerFeatureGraphData();
-    });
+    }, { deep: true });
 
     const throttledUpateGraph = throttle(fetchMapLayerFeatureGraphData, 500);
     watch([
@@ -199,6 +240,18 @@ export default defineComponent({
       movingAverageEnabled,
       movingAverageValue,
     ], throttledUpateGraph);
+
+    const removeChip = (item: { raw: { name: string } }) => {
+      const index = selectedGraphs.value.indexOf(item.raw.name);
+      if (index > -1) {
+        selectedGraphs.value.splice(index, 1);
+      }
+      fetchMapLayerFeatureGraphData();
+    };
+
+    const closeVectorFeatureGraph = () => {
+      MapStore.clearVectorFeatureTableData();
+    };
 
     return {
       selectedGraphs,
@@ -216,6 +269,8 @@ export default defineComponent({
       movingAverageValue,
       aggregate,
       maxMovingAverage,
+      removeChip,
+      closeVectorFeatureGraph,
     };
   },
 });
@@ -236,6 +291,7 @@ export default defineComponent({
               multiple
               chips
               closable-chips
+              clearable
               dense
               outlined
               :menu-props="{ maxHeight: 400 }"
@@ -245,12 +301,20 @@ export default defineComponent({
                   :style="{ backgroundColor: graphColorMap[item.raw.name], color: 'white' }"
                   size="small"
                   label
+                  @click:close="removeChip(item)"
                 >
                   {{ item.raw.name }}
                 </v-chip>
               </template>
             </v-select>
           </v-col>
+          <v-spacer />
+          <v-icon
+            size="x-large"
+            @click="closeVectorFeatureGraph()"
+          >
+            mdi-close
+          </v-icon>
         </v-row>
         <v-row v-if="aggregate" dense>
           <v-col>

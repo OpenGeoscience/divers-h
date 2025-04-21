@@ -180,15 +180,16 @@ export default class MapStore {
 
   public static vectorFeatureTableGraphVisible = ref(false);
 
-  public static vectorFeatureTableData: Ref<{ layerId: number, vectorFeatureId: number } | null> = ref(null);
+  public static vectorFeatureTableData: Ref<{ layerId: number, vectorFeatureId: number, defaultGraphs?: string[] } | null> = ref(null);
 
-  public static setVectorFeatureTableData = (layerId: number, vectorFeatureId: number) => {
+  public static setVectorFeatureTableData = (layerId: number, vectorFeatureId: number, defaultGraphs?: string[]) => {
     if (MapStore.mapLayerFeatureGraphsVisible.value) {
       MapStore.mapLayerFeatureGraphsVisible.value = false;
     }
     MapStore.vectorFeatureTableData.value = {
       layerId,
       vectorFeatureId,
+      defaultGraphs,
     };
     MapStore.vectorFeatureTableGraphVisible.value = true;
   };
@@ -408,7 +409,7 @@ export default class MapStore {
         globalMax = Math.max(globalMax, max);
       }
     });
-    if (MapStore.mapLayerFeatureGraphsVisible.value && MapStore.mapLayerFeatureGraphs.value.length) {
+    if ((MapStore.mapLayerFeatureGraphsVisible.value && MapStore.mapLayerFeatureGraphs.value.length) || MapStore.vectorFeatureTableGraphVisible.value) {
       globalMin = Math.min(globalMin, MapStore.graphChartsMinMax.value.min);
       globalMax = Math.max(globalMax, MapStore.graphChartsMinMax.value.max);
       stepSize = Math.min(stepSize, MapStore.graphChartsMinMax.value.stepSize);

@@ -158,7 +158,7 @@ export default defineComponent({
     ], throttledUpateDialogGraph);
 
     const openBottomGraph = () => {
-      MapStore.setVectorFeatureTableData(props.mapLayerId, props.vectorFeatureId);
+      MapStore.setVectorFeatureTableData(props.mapLayerId, props.vectorFeatureId, [props.graphInfo.name]);
     };
 
     return {
@@ -189,11 +189,8 @@ export default defineComponent({
       </v-alert>
     </div>
     <div v-if="graphData">
-      <v-btn color="primary" size="x-small" @click="openDialog">
-        View Larger Graph
-      </v-btn>
       <v-btn color="primary" size="x-small" @click="openBottomGraph">
-        Bottom Graph
+        View Larger Graph
       </v-btn>
     </div>
     <svg ref="graphContainer" width="100%" :height="graphData ? 400 : 0" class="selectedFeatureSVG" />
