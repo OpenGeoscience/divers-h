@@ -172,6 +172,8 @@ class VectorFeatureTableDataViewSet(
 
         table_data = {'tableName': tables.first().name, 'graphs': {}}
         all_x_vals = {}
+        all_x_list = []  # <<< Added
+        all_y_list = []  # <<< Added
 
         for table in tables:
             if y_axis not in table.columns or x_axis not in table.columns:
@@ -204,6 +206,10 @@ class VectorFeatureTableDataViewSet(
             sorted_x_vals = sorted(data.keys())
             x_vals = sorted_x_vals
             y_vals = [np.mean(data[x]) for x in sorted_x_vals]
+
+            # Add x and y values to global list for min/max later
+            all_x_list.extend(x_vals)
+            all_y_list.extend(y_vals)
 
             for x, y in zip(x_vals, y_vals):
                 if x not in all_x_vals:
@@ -251,6 +257,9 @@ class VectorFeatureTableDataViewSet(
             avg_y_vals = [np.mean(all_x_vals[x]) for x in sorted_x_vals]
             aggregate_result = {'indexer': 'all', 'vectorFeatureId': 'all'}
 
+            all_x_list.extend(sorted_x_vals)
+            all_y_list.extend(avg_y_vals)
+
             if 'data' in data_types:
                 aggregate_result['data'] = list(zip(sorted_x_vals, avg_y_vals))
 
@@ -280,6 +289,10 @@ class VectorFeatureTableDataViewSet(
 
             table_data['graphs'][-1] = aggregate_result
 
+        if all_x_list and all_y_list:
+            table_data['xAxisRange'] = [min(all_x_list), max(all_x_list)]
+            table_data['yAxisRange'] = [min(all_y_list), max(all_y_list)]
+
         return table_data
 
     @action(detail=False, methods=['get'], url_path='feature-graph')
@@ -306,6 +319,51 @@ class VectorFeatureTableDataViewSet(
             display,
         )
         return Response(graphs, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=['get'], url_path='feature-graphs')
+    def feature_graphs(self, request, *args, **kwargs):
+        table_types = request.query_params.getlist('tableType')  # List of table types
+        vector_feature = request.query_params.get('vectorFeatureId')
+        x_axes = request.query_params.getlist('xAxis') or ['index']
+        y_axes = request.query_params.getlist('yAxis') or ['00060']
+        indexers = request.query_params.getlist('indexer') or ['vectorFeatureId']
+        moving_average_window = request.query_params.get('movingAverage', None)
+        confidence_interval = request.query_params.get('confidenceLevel', 95)
+        display = request.query_params.getlist('display', ['data'])
+
+        if not table_types:
+            return Response({'error': 'tableType is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Pad indexers if not all provided
+        while len(indexers) < len(table_types):
+            indexers.append('vectorFeatureId')
+
+        result = []
+
+        for _i, (table_type, x_axis, y_axis, indexer) in enumerate(
+            zip(table_types, x_axes, y_axes, indexers)
+        ):
+            graphs = self.get_graphs(
+                table_type=table_type,
+                vector_ids=[vector_feature],
+                x_axis=x_axis,
+                y_axis=y_axis,
+                indexer=indexer,
+                moving_avg_window=moving_average_window,
+                confidence_level=confidence_interval,
+                data_types=display,
+            )
+            result.append(
+                {
+                    'tableType': table_type,
+                    'xAxis': x_axis,
+                    'yAxis': y_axis,
+                    'indexer': indexer,
+                    'graphs': graphs,
+                }
+            )
+
+        return Response(result, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=['get'], url_path='map-layer-feature-graph')
     def map_layer_feature_graph(self, request, *args, **kwargs):

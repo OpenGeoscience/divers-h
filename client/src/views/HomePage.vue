@@ -13,6 +13,7 @@ import MapTypePicker from '../components/MapTypePicker.vue';
 import SelectedFeatureList from '../components/FeatureSelection/SelectedFeatureList.vue';
 import Charts from '../components/Charts/Charts.vue';
 import MapLayerTableGraph from '../components/TabularData/MapLayerTableGraph.vue';
+import VectorFeatureTableGraph from '../components/TabularData/VectorFeatureTableGraph.vue';
 import UVdatApi from '../api/UVDATApi';
 import VectorFeatureSearch from '../components/VectorFeatureSearch/VectorFeatureSearch.vue';
 // eslint-disable-next-line import/no-cycle
@@ -28,6 +29,7 @@ export default defineComponent({
     SelectedFeatureList,
     Charts,
     MapLayerTableGraph,
+    VectorFeatureTableGraph,
     VectorFeatureSearch,
   },
   setup() {
@@ -81,6 +83,9 @@ export default defineComponent({
     const toggleMapLayerVectorGraphs = () => {
       if (MapStore.mapLayerFeatureGraphs.value.length) {
         MapStore.mapLayerFeatureGraphsVisible.value = !MapStore.mapLayerFeatureGraphsVisible.value;
+        if (MapStore.mapLayerFeatureGraphsVisible.value) {
+          MapStore.vectorFeatureTableGraphVisible.value = false;
+        }
       }
     };
 
@@ -143,6 +148,8 @@ export default defineComponent({
       hasMapLayerVectorGraphs,
       toggleMapLayerVectorGraphs,
       mapLayerVectorGraphsVisible: MapStore.mapLayerFeatureGraphsVisible,
+      vectorFeatureTableGraphVisible: MapStore.vectorFeatureTableGraphVisible,
+      vectorFeatureTableData: MapStore.vectorFeatureTableData,
       mapLayerFeatureGraphs: MapStore.mapLayerFeatureGraphs,
       mapLayerVectorSearch: MapStore.mapLayerVectorSearchable,
       hasVectorFeatureSearch,
@@ -320,7 +327,15 @@ export default defineComponent({
     <v-row v-if="!loading" dense class="fill-height">
       <v-col class="d-flex flex-column fill-height" style="min-height: 90vh">
         <MapVue />
-        <MapLayerTableGraph v-if="mapLayerVectorGraphsVisible && mapLayerFeatureGraphs.length" />
+        <MapLayerTableGraph
+          v-if="mapLayerVectorGraphsVisible && mapLayerFeatureGraphs.length"
+        />
+        <VectorFeatureTableGraph
+          v-else-if="vectorFeatureTableGraphVisible && vectorFeatureTableData"
+          :map-layer-id="vectorFeatureTableData.layerId"
+          :vector-feature-id="vectorFeatureTableData.vectorFeatureId"
+          :default-graphs="vectorFeatureTableData.defaultGraphs"
+        />
       </v-col>
     </v-row>
     <selected-feature-list />

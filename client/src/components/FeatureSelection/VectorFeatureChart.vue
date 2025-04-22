@@ -6,6 +6,7 @@ import { throttle } from 'lodash';
 import UVdatApi from '../../api/UVDATApi';
 import { FeatureGraphData, VectorFeatureTableGraph } from '../../types';
 import { renderVectorFeatureGraph } from './vectorFeatureGraphUtils';
+import MapStore from '../../MapStore';
 
 export default defineComponent({
   name: 'FeatureGraph',
@@ -66,7 +67,6 @@ export default defineComponent({
           confidenceLevel.value,
           false,
           movingAverageValue.value,
-
         );
         if (data.graphs && Object.keys(data.graphs).length === 0) {
           noGraphData.value = true;
@@ -157,6 +157,10 @@ export default defineComponent({
       movingAverageValue,
     ], throttledUpateDialogGraph);
 
+    const openBottomGraph = () => {
+      MapStore.setVectorFeatureTableData(props.mapLayerId, props.vectorFeatureId, [props.graphInfo.name]);
+    };
+
     return {
       graphContainer,
       graphDialogContainer,
@@ -171,6 +175,7 @@ export default defineComponent({
       movingAverageEnabled,
       movingAverageValue,
       maxMovingAverage,
+      openBottomGraph,
     };
   },
 });
@@ -184,7 +189,7 @@ export default defineComponent({
       </v-alert>
     </div>
     <div v-if="graphData">
-      <v-btn color="primary" size="x-small" @click="openDialog">
+      <v-btn color="primary" size="x-small" @click="openBottomGraph">
         View Larger Graph
       </v-btn>
     </div>

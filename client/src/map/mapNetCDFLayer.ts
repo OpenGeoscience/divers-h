@@ -4,7 +4,6 @@ import UVdatApi from '../api/UVDATApi';
 import MapStore from '../MapStore';
 import { MapLibreCoordinates, NetCDFImageWorking, NetCDFLayer } from '../types';
 
-const visibleNetCDFLayers: Ref<NetCDFImageWorking[]> = ref([]);
 const internalMap: Ref<maplibregl.Map | null> = ref(null);
 
 const setNetCDFInternalMap = (map: Ref<maplibregl.Map>) => {
@@ -20,14 +19,14 @@ const toggleNetCDFMapLayers = async (map: maplibregl.Map) => {
   });
   for (let i = 0; i < addLayers.length; i += 1) {
     const addLayer = addLayers[i];
-    const index = visibleNetCDFLayers.value.findIndex((item) => item.netCDFLayer === addLayer.id);
+    const index = MapStore.visibleNetCDFLayers.value.findIndex((item) => item.netCDFLayer === addLayer.id);
     if (index === -1) {
       // eslint-disable-next-line no-await-in-loop
       const newData = await UVdatApi.getNetCDFLayerImages(addLayer.id);
       const modifiedData: NetCDFImageWorking = {
         ...newData, currentIndex: 0, opacity: 0.75, name: addLayer.name, resampling: 'linear',
       };
-      visibleNetCDFLayers.value.push(modifiedData);
+      MapStore.visibleNetCDFLayers.value.push(modifiedData);
       // Coordinates need to be top-left then clockwise
       const baseCoordinates = modifiedData.parent_bounds[0].slice(0, 4);
       const coordinates = [baseCoordinates[3], baseCoordinates[2], baseCoordinates[1], baseCoordinates[0]] as MapLibreCoordinates;
@@ -48,11 +47,11 @@ const toggleNetCDFMapLayers = async (map: maplibregl.Map) => {
     }
   }
   // Remove any extra items that are no longer visible
-  for (let i = 0; i < visibleNetCDFLayers.value.length; i += 1) {
-    const visibleLayer = visibleNetCDFLayers.value[i];
+  for (let i = 0; i < MapStore.visibleNetCDFLayers.value.length; i += 1) {
+    const visibleLayer = MapStore.visibleNetCDFLayers.value[i];
     const index = addLayers.findIndex((item) => visibleLayer.netCDFLayer === item.id);
     if (index === -1) {
-      visibleNetCDFLayers.value.splice(i, 1);
+      MapStore.visibleNetCDFLayers.value.splice(i, 1);
       map.removeLayer(`NetCDFLayer_${visibleLayer.netCDFLayer}`);
       map.removeSource(`NetCDFSource_${visibleLayer.netCDFLayer}`);
     }
@@ -61,7 +60,7 @@ const toggleNetCDFMapLayers = async (map: maplibregl.Map) => {
 
 const updateNetCDFLayer = (layer: number, data: { index?: number, opacity?: number, resampling?: 'nearest' | 'linear' }) => {
   const { index, opacity, resampling } = data;
-  const foundLayer = visibleNetCDFLayers.value.find((item) => item.netCDFLayer === layer);
+  const foundLayer = MapStore.visibleNetCDFLayers.value.find((item) => item.netCDFLayer === layer);
   if (foundLayer && internalMap.value) {
     if (index !== undefined) {
       const source = internalMap.value.getSource(`NetCDFSource_${layer}`);
@@ -83,9 +82,9 @@ const updateNetCDFLayer = (layer: number, data: { index?: number, opacity?: numb
       internalMap.value.setPaintProperty(`NetCDFLayer_${layer}`, 'raster-resampling', resampling);
     }
   }
-  visibleNetCDFLayers.value = visibleNetCDFLayers.value.map((item) => item);
+  MapStore.visibleNetCDFLayers.value = MapStore.visibleNetCDFLayers.value.map((item) => item);
 };
 
 export {
-  toggleNetCDFMapLayers, updateNetCDFLayer, setNetCDFInternalMap, visibleNetCDFLayers,
+  toggleNetCDFMapLayers, updateNetCDFLayer, setNetCDFInternalMap,
 };

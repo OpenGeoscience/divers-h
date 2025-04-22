@@ -10,6 +10,7 @@ import {
   DisplayConfiguration,
   LayerCollection,
   NetCDFData,
+  NetCDFImageWorking,
   NetCDFLayer,
   RasterMapLayer,
   SearchableVectorData,
@@ -33,6 +34,8 @@ export default class MapStore {
   public static userIsStaff = computed(() => !!UVdatApi.user?.is_staff);
 
   public static proModeButtonEnabled = ref(true);
+
+  public static globalTime = ref(Math.floor(new Date().getTime() / 1000));
 
   public static displayConfiguration: Ref<DisplayConfiguration> = ref(
     { default_displayed_layers: [], enabled_ui: ['Collections', 'Datasets', 'Metadata'], default_tab: 'Scenarios' },
@@ -68,6 +71,10 @@ export default class MapStore {
   public static selectedMapLayers = ref<(VectorMapLayer | RasterMapLayer | NetCDFLayer)[]>([]);
 
   public static visibleMapLayers: Ref<Set<string>> = ref(new Set());
+
+  // Net CDF Layers
+
+  public static visibleNetCDFLayers: Ref<NetCDFImageWorking[]> = ref([]);
 
   public static selectedVectorMapLayers: Ref<VectorMapLayer[]> = computed(
     () => MapStore.selectedMapLayers.value.filter((layer) => layer.type === 'vector'),
@@ -170,6 +177,27 @@ export default class MapStore {
   });
 
   public static mapLayerFeatureGraphsVisible = ref(false);
+
+  public static vectorFeatureTableGraphVisible = ref(false);
+
+  public static vectorFeatureTableData: Ref<{ layerId: number, vectorFeatureId: number, defaultGraphs?: string[] } | null> = ref(null);
+
+  public static setVectorFeatureTableData = (layerId: number, vectorFeatureId: number, defaultGraphs?: string[]) => {
+    if (MapStore.mapLayerFeatureGraphsVisible.value) {
+      MapStore.mapLayerFeatureGraphsVisible.value = false;
+    }
+    MapStore.vectorFeatureTableData.value = {
+      layerId,
+      vectorFeatureId,
+      defaultGraphs,
+    };
+    MapStore.vectorFeatureTableGraphVisible.value = true;
+  };
+
+  public static clearVectorFeatureTableData = () => {
+    MapStore.vectorFeatureTableData.value = null;
+    MapStore.vectorFeatureTableGraphVisible.value = false;
+  };
 
   // Graph color mapping implementation
   public static enabledMapLayerFeatureColorMapping = ref(false);
@@ -353,4 +381,39 @@ export default class MapStore {
       }
     }
   };
+
+  // Graph Charts current Min/Max Values in unix_time
+  public static graphChartsMinMax = ref({
+    min: 0,
+    max: 0,
+    stepSize: 0,
+  });
+
+  public static timeLinked = ref(true);
+
+  public static updateChartsMinMax = (min: number, max: number, stepSize: number) => {
+    MapStore.graphChartsMinMax.value = { min, max, stepSize };
+  };
+
+  // Computes in Unix Time
+  public static globalTimeRange: Ref<{ min: number; max: number, stepSize: number }> = computed(() => {
+    let globalMin = Infinity;
+    let globalMax = -Infinity;
+    let stepSize = Infinity;
+    MapStore.visibleNetCDFLayers.value.forEach((layer) => {
+      if (layer.sliding) {
+        const { min, max } = layer.sliding;
+        const stepsize = layer.images.length;
+        stepSize = Math.min(stepSize, (max - min) / stepsize);
+        globalMin = Math.min(globalMin, min);
+        globalMax = Math.max(globalMax, max);
+      }
+    });
+    if ((MapStore.mapLayerFeatureGraphsVisible.value && MapStore.mapLayerFeatureGraphs.value.length) || MapStore.vectorFeatureTableGraphVisible.value) {
+      globalMin = Math.min(globalMin, MapStore.graphChartsMinMax.value.min);
+      globalMax = Math.max(globalMax, MapStore.graphChartsMinMax.value.max);
+      stepSize = Math.min(stepSize, MapStore.graphChartsMinMax.value.stepSize);
+    }
+    return { min: globalMin, max: globalMax, stepSize };
+  });
 }
