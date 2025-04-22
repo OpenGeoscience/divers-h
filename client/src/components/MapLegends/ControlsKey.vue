@@ -229,9 +229,6 @@ export default defineComponent({
     const globalTimeEnabled = computed(() => {
       let enabled = false;
       if (props.netcdfLayers.length > 0) {
-        enabled = props.netcdfLayers.some((layer) => layer.sliding !== undefined && layer.sliding.variable === 'time');
-      }
-      if (MapStore.vectorFeatureTableGraphVisible.value || MapStore.mapLayerFeatureGraphsVisible.value) {
         enabled = true;
       }
       return enabled;
