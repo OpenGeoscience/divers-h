@@ -20,6 +20,12 @@ services:
       - rabbitmq:/var/lib/rabbitmq/mnesia
     logging:
       driver: none
+  redis:
+    image: redis:latest
+    volumes:
+      - redis-data:/redis/data
+    ports:
+      - ${DOCKER_REDIS_PORT-6379}:6379
 
   minio:
     image: minio/minio:latest
@@ -47,3 +53,4 @@ volumes:
   postgres:
   minio:
   rabbitmq:
+  redis-data:
