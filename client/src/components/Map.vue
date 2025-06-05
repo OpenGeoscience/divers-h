@@ -3,7 +3,7 @@ import maplibregl, { Map, VectorTileSource } from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { Protocol as PMTilesProtocol } from 'pmtiles';
 import {
-  Ref, defineComponent, onMounted, ref, watch,
+  Ref, defineComponent, onMounted, ref, shallowRef, watch,
 } from 'vue';
 import MapStore from '../MapStore';
 import {
@@ -53,7 +53,7 @@ export default defineComponent({
   },
   setup() {
     const mapContainer: Ref<HTMLDivElement | null> = ref(null);
-    const map: Ref<null | Map> = ref(null);
+    const map: Ref<null | Map> = shallowRef(null);
     const mapAlert = ref(false);
     const mapAlertMessage = ref('');
 
