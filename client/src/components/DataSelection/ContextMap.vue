@@ -2,7 +2,7 @@
 import maplibregl, { Map } from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import {
-  PropType, Ref, defineComponent, onMounted, ref, watch,
+  PropType, Ref, defineComponent, onMounted, ref, shallowRef, watch,
 } from 'vue';
 
 export default defineComponent({
@@ -20,7 +20,7 @@ export default defineComponent({
   emits: ['update'],
   setup(props, { emit }) {
     const mapContainer: Ref<HTMLDivElement | null> = ref(null);
-    const map: Ref<null | Map> = ref(null);
+    const map: Ref<null | Map> = shallowRef(null);
     const mapLoaded = ref(false);
     const emitData = () => {
       if (map.value) {
