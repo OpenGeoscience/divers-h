@@ -21,6 +21,8 @@ from uvdat.core.models import (
     RasterMapLayer,
     VectorFeature,
     VectorMapLayer,
+    FMVLayer,
+    FMVVectorFeature,
 )
 from uvdat.core.rest.serializers import (
     AbstractMapLayerSerializer,
@@ -28,6 +30,7 @@ from uvdat.core.rest.serializers import (
     RasterMapLayerSerializer,
     VectorMapLayerDetailSerializer,
     VectorMapLayerSerializer,
+    FMVLayerSerializer,
 )
 
 from .permissions import DefaultPermission
@@ -466,7 +469,8 @@ class MapLayerViewSet(GenericViewSet):
             raster_layer = RasterMapLayer.objects.filter(id=layer_id).first()
             vector_layer = VectorMapLayer.objects.filter(id=layer_id).first()
             netcdf_layer = NetCDFLayer.objects.filter(id=layer_id).first()
-            map_layer = raster_layer or vector_layer or netcdf_layer
+            fmv_layer = FMVLayer.objects.filter(id=layer_id).first()
+            map_layer = raster_layer or vector_layer or netcdf_layer or fmv_layer
 
             if map_layer is None:
                 continue  # Skip if no layer is found for the provided ID
@@ -478,6 +482,8 @@ class MapLayerViewSet(GenericViewSet):
                 serializer = VectorMapLayerSerializer(map_layer)
             elif isinstance(map_layer, NetCDFLayer):
                 serializer = NetCDFLayerSerializer(map_layer)
+            elif isinstance(map_layer, FMVLayer):
+                serializer = FMVLayerSerializer(map_layer)
             # Get the serialized data
             layer_response = serializer.data
             if raster_layer:
@@ -486,6 +492,8 @@ class MapLayerViewSet(GenericViewSet):
                 layer_response['type'] = 'vector'
             elif netcdf_layer:
                 layer_response['type'] = 'netcdf'
+            elif fmv_layer:
+                layer_response['type'] = 'fmv'
 
             # Check for LayerRepresentation if provided
             if layer_representation_id is not None:
@@ -525,12 +533,14 @@ class MapLayerViewSet(GenericViewSet):
         raster_layers = RasterMapLayer.objects.all()
         vector_layers = VectorMapLayer.objects.all()
         netcdf_layers = NetCDFLayer.objects.all()
+        fmv_layers = FMVLayer.objects.all()
 
         # Serialize layers
         for map_layer, _serializer, layer_type in [
             (raster_layers, RasterMapLayerSerializer, 'raster'),
             (vector_layers, VectorMapLayerSerializer, 'vector'),
             (netcdf_layers, NetCDFLayerSerializer, 'netcdf'),
+            (fmv_layers, FMVLayer, 'fmv'),
         ]:
             for layer in map_layer:
                 serializer = AbstractMapLayerSerializer(layer)
@@ -577,6 +587,9 @@ class MapLayerViewSet(GenericViewSet):
             if not map_layer and 'netcdf' == layer_type:
                 map_layer = NetCDFLayer.objects.filter(id=layer_id).first()
                 serializer_class = NetCDFLayerSerializer
+            if not map_layer and 'fmv' == layer_type:
+                map_layer = FMVLayer.objects.filter(id=layer_id).first()
+                serializer_class = FMVLayerSerializer
 
             if not map_layer:
                 continue  # Skip if no matching layer is found
@@ -619,6 +632,7 @@ class MapLayerViewSet(GenericViewSet):
         raster_map_layer_ids = request.query_params.getlist('rasterMapLayerIds')
         vector_map_layer_ids = request.query_params.getlist('vectorMapLayerIds')
         netcdf_map_layer_ids = request.query_params.getlist('netCDFMapLayerIds')
+        fmv_map_layer_ids = request.query_params.getlist('fmvMapLayerIds')
 
         # Initialize variables to track the overall bounding box
         overall_bbox = {
@@ -663,6 +677,17 @@ class MapLayerViewSet(GenericViewSet):
                 overall_bbox['ymin'] = min(overall_bbox['ymin'], netcdf_bbox[1])
                 overall_bbox['xmax'] = max(overall_bbox['xmax'], netcdf_bbox[2])
                 overall_bbox['ymax'] = max(overall_bbox['ymax'], netcdf_bbox[3])
+        if fmv_map_layer_ids:
+            fmv_bboxes = FMVVectorFeature.objects.filter(
+                map_layer_id__in=fmv_map_layer_ids
+            ).aggregate(extent=Extent('geometry'))['extent']
+
+            if vector_bboxes:
+                overall_bbox['xmin'] = min(overall_bbox['xmin'], vector_bboxes[0])
+                overall_bbox['ymin'] = min(overall_bbox['ymin'], vector_bboxes[1])
+                overall_bbox['xmax'] = max(overall_bbox['xmax'], vector_bboxes[2])
+                overall_bbox['ymax'] = max(overall_bbox['ymax'], vector_bboxes[3])
+
         # Check if the bbox values were updated; if not, return an error message
         if overall_bbox['xmin'] == float('inf'):
             return JsonResponse(
@@ -697,6 +722,8 @@ class MapLayerViewSet(GenericViewSet):
                 RasterMapLayer.objects.filter(id=layer_id).update(name=new_name)
             elif layer_type == 'netcdf':
                 NetCDFData.objects.filter(id=layer_id).update(name=new_name)
+            elif layer_type == 'fmv':
+                FMVLayer.objects.filter(id=layer_id).update(name=new_name)
             else:
                 return Response(
                     {'error': 'Invalid layer type. Must be "vector" or "raster".'},

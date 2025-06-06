@@ -24,6 +24,8 @@ from uvdat.core.models import (
     VectorFeatureRowData,
     VectorFeatureTableData,
     VectorMapLayer,
+    FMVLayer,
+    FMVVectorFeature,
 )
 
 
@@ -185,6 +187,11 @@ class RasterMapLayerSerializer(serializers.ModelSerializer, AbstractMapLayerSeri
 class VectorMapLayerSerializer(serializers.ModelSerializer, AbstractMapLayerSerializer):
     class Meta:
         model = VectorMapLayer
+        exclude = ['geojson_file']
+
+class FMVLayerSerializer(serializers.ModelSerializer, AbstractMapLayerSerializer):
+    class Meta:
+        model = FMVLayer
         exclude = ['geojson_file']
 
 

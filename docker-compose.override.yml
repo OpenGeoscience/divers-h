@@ -16,6 +16,7 @@ services:
       - postgres
       - rabbitmq
       - minio
+    platform: 'linux/amd64'
 
   celery:
     build:

@@ -136,18 +136,21 @@ class FMVLayer(AbstractMapLayer):
             geom = feature.geometry
 
             if geom.geom_type == "Polygon":
-                coords = list(geom.exterior.coords)
-                if len(coords) >= 4:
-                    # Return first 4 unique corners, not repeating the closing point
-                    result[frame_id] = coords[:4]
+                # Access first ring (exterior) without using .exterior
+                if len(geom) > 0:
+                    coords = list(geom[0].coords)
+                    if len(coords) >= 4:
+                        result[frame_id] = coords[:4]
+
             elif geom.geom_type == "MultiPolygon":
-                # Pick the largest polygon by area, then return its first 4 corners
-                largest = max(geom, key=lambda p: p.area)
-                coords = list(largest.exterior.coords)
-                if len(coords) >= 4:
-                    result[frame_id] = coords[:4]
+                # Find largest polygon and access its first ring
+                largest = max(geom.geoms, key=lambda p: p.area)
+                if len(largest) > 0:
+                    coords = list(largest[0].coords)
+                    if len(coords) >= 4:
+                        result[frame_id] = coords[:4]
+
             else:
-                # Optional: log or skip unexpected geometries
                 continue
 
         return result
