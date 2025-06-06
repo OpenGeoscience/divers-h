@@ -23,6 +23,8 @@ from uvdat.core.models import (
     VectorFeatureRowData,
     VectorFeatureTableData,
     VectorMapLayer,
+    FMVLayer,
+    FMVVectorFeature
 )
 
 
@@ -64,6 +66,23 @@ class VectorMapLayerAdmin(admin.ModelAdmin):
 
 
 class VectorFeatureAdmin(admin.ModelAdmin):
+    list_display = ['id', 'get_dataset_name', 'get_map_layer_index']
+
+    def get_dataset_name(self, obj):
+        return obj.map_layer.dataset.name
+
+    def get_map_layer_index(self, obj):
+        return obj.map_layer.index
+
+
+class FMVLayerAdmin(admin.ModelAdmin):
+    list_display = ['id', 'name', 'dataset', 'get_dataset_name', 'index', 'geojson_file', 'fmv_video', 'bounds']
+
+    def get_dataset_name(self, obj):
+        return obj.dataset.name
+
+
+class FMVVectorFeatureAdmin(admin.ModelAdmin):
     list_display = ['id', 'get_dataset_name', 'get_map_layer_index']
 
     def get_dataset_name(self, obj):
@@ -229,6 +248,8 @@ admin.site.register(Chart, ChartAdmin)
 admin.site.register(RasterMapLayer, RasterMapLayerAdmin)
 admin.site.register(VectorMapLayer, VectorMapLayerAdmin)
 admin.site.register(VectorFeature, VectorFeatureAdmin)
+admin.site.register(FMVLayer, FMVLayerAdmin)
+admin.site.register(FMVVectorFeature, FMVVectorFeatureAdmin)
 admin.site.register(SourceRegion, SourceRegionAdmin)
 admin.site.register(DerivedRegion, DerivedRegionAdmin)
 admin.site.register(Network, NetworkAdmin)

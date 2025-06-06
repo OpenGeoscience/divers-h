@@ -2,7 +2,8 @@ services:
   django:
     build:
       context: .
-      dockerfile: ./dev/Dockerfile
+      dockerfile: ./dev/kwiver.Dockerfile
+    entrypoint: ["python3.10"]
     command: [ "./manage.py", "runserver", "0.0.0.0:8000" ]
     # Log printing via Rich is enhanced by a TTY
     tty: true
@@ -15,12 +16,12 @@ services:
       - postgres
       - rabbitmq
       - minio
-    platform: linux/amd64
 
   celery:
     build:
       context: .
-      dockerfile: ./dev/Dockerfile
+      dockerfile: ./dev/kwiver.Dockerfile
+    entrypoint: ["python3.10" , "-m"]
     command:
       [
         "celery",

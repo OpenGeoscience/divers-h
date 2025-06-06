@@ -1,0 +1,28 @@
+[{
+    "type": "Context",
+    "name": "FMV",
+    "default_map_center": [
+        34.8019,
+        -86.1794
+    ],
+    "default_map_zoom": 6,
+    "datasets": [
+        {
+            "name": "FMV",
+            "description": "FMV Testing",
+            "category": "fmv",
+            "metadata": {},
+            "files": [
+                {
+                    "path": "./data/FMV/fmv.mpg",
+                    "url": "https://data.kitware.com/api/v1/file/604a5a532fa25629b931c673/download",
+                    "name": "FMV Test Video",
+                    "type": "fmv",
+                    "action": "replace",
+                    "metadata": {
+                    }
+                }
+            ]
+        }
+    ]
+}]

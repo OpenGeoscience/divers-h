@@ -39,7 +39,7 @@ class AbstractMapLayer(TimeStampedModel):
                 self.bounds = Polygon.from_bbox(
                     (bbox['xmin'], bbox['ymin'], bbox['xmax'], bbox['ymax'])
                 )
-        elif isinstance(self, VectorMapLayer):
+        elif isinstance(self, (VectorMapLayer, FMVLayer)):
             geojson_data = self.read_geojson_data()
             if 'features' in geojson_data:
                 geometries = [shape(feature['geometry']) for feature in geojson_data['features']]
@@ -102,6 +102,66 @@ class VectorMapLayer(AbstractMapLayer):
     def read_geojson_data(self) -> dict:
         """Read and load the data from geojson_file into a dict."""
         return json.load(self.geojson_file.open())
+
+
+class FMVLayer(AbstractMapLayer):
+    fmv_source_video = S3FileField(null=True)
+    fmv_video = S3FileField(null=True)
+    geojson_file = S3FileField(null=True)
+
+    def write_geojson_data(self, content: str | dict):
+        if isinstance(content, str):
+            data = content
+        elif isinstance(content, dict):
+            data = json.dumps(content)
+        else:
+            raise Exception(f'Invalid content type supplied: {type(content)}')
+
+        self.geojson_file.save('vectordata.geojson', ContentFile(data.encode()))
+
+    def read_geojson_data(self) -> dict:
+        """Read and load the data from geojson_file into a dict."""
+        return json.load(self.geojson_file.open())
+    
+    def get_ground_frame_mapping(self) -> dict:
+        """Return a mapping from frameId -> 4-point polygon coordinates."""
+        result = {}
+        features = FMVVectorFeature.objects.filter(
+            map_layer=self,
+            properties__type='ground_frame',
+        ).exclude(properties__frameId__isnull=True)
+
+        for feature in features:
+            frame_id = feature.properties.get("frameId")
+            geom = feature.geometry
+
+            if geom.geom_type == "Polygon":
+                coords = list(geom.exterior.coords)
+                if len(coords) >= 4:
+                    # Return first 4 unique corners, not repeating the closing point
+                    result[frame_id] = coords[:4]
+            elif geom.geom_type == "MultiPolygon":
+                # Pick the largest polygon by area, then return its first 4 corners
+                largest = max(geom, key=lambda p: p.area)
+                coords = list(largest.exterior.coords)
+                if len(coords) >= 4:
+                    result[frame_id] = coords[:4]
+            else:
+                # Optional: log or skip unexpected geometries
+                continue
+
+        return result
+        
+
+@receiver(models.signals.pre_delete, sender=FMVLayer)
+def delete__fmvvectorcontent(sender, instance, **kwargs):
+    if instance.geojson_file:
+        instance.geojson_file.delete(save=False)
+
+class FMVVectorFeature(models.Model):
+    map_layer = models.ForeignKey(FMVLayer, on_delete=models.CASCADE)
+    geometry = geomodels.GeometryField()
+    properties = models.JSONField()
 
 
 @receiver(models.signals.pre_delete, sender=VectorMapLayer)
