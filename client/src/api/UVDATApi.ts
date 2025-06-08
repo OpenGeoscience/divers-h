@@ -14,6 +14,8 @@ import {
   FeatureGraphs,
   FeatureGraphsRequest,
   FileItem,
+  FMVLayer,
+  FMVLayerData,
   LayerCollection,
   LayerCollectionLayer,
   LayerRepresentation,
@@ -363,7 +365,7 @@ export default class UVdatApi {
   public static async getMapLayerCollectionList(
     layers: LayerCollectionLayer[],
     enabled? : boolean,
-  ): Promise<(VectorMapLayer | RasterMapLayer | NetCDFLayer)[]> {
+  ): Promise<(VectorMapLayer | RasterMapLayer | NetCDFLayer | FMVLayer)[]> {
     return (await UVdatApi.apiClient.post('/map-layers/', { layers }, { params: { enabled } })).data;
   }
 
@@ -373,6 +375,10 @@ export default class UVdatApi {
 
   public static async getVectorBbox(mapLayerId: number): Promise<Bounds> {
     return (await UVdatApi.apiClient.get(`/vectors/${mapLayerId}/bbox`)).data;
+  }
+
+  public static async getFMVBbox(mapLayerId: number): Promise<Bounds> {
+    return (await UVdatApi.apiClient.get(`/fmv-layer/${mapLayerId}/bbox`)).data;
   }
 
   public static async getMapLayersBoundingBox(
@@ -626,7 +632,7 @@ export default class UVdatApi {
   public static async getMapLayerList(
     layerIds: number[],
     layerTypes : AbstractMapLayer['type'][],
-  ): Promise<(VectorMapLayer | RasterMapLayer | NetCDFLayer)[]> {
+  ): Promise<(VectorMapLayer | RasterMapLayer | NetCDFLayer | FMVLayer)[]> {
     const params = new URLSearchParams();
 
     layerIds.forEach((id) => params.append('mapLayerIds', id.toString()));
@@ -662,5 +668,9 @@ export default class UVdatApi {
   ): Promise<DisplayConfiguration> {
     const response = await UVdatApi.apiClient.patch('display-configuration/', config);
     return response.data;
+  }
+
+  public static async getFMVLayerData(layerId: number): Promise<FMVLayerData> {
+    return (await UVdatApi.apiClient.get(`/fmv-layer/${layerId}/`)).data;
   }
 }

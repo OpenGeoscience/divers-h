@@ -2,10 +2,12 @@ from django.db import connection
 from django.http import HttpResponse
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework.viewsets import ViewSet
+from rest_framework.viewsets import ModelViewSet
 from django.core.files.storage import default_storage
 
 from uvdat.core.models import FMVLayer
+from uvdat.core.rest.serializers import FMVLayerSerializer
+from django.http import HttpResponse, JsonResponse
 
 FMV_TILE_SQL = """
 WITH tile_bounds AS (
@@ -55,10 +57,13 @@ vector_features AS (
 SELECT ST_AsMVT(vector_features.*) AS mvt FROM vector_features;
 """
 
-class FMVLayerViewSet(ViewSet):
+class FMVLayerViewSet(ModelViewSet):
     """
     ViewSet for accessing FMVLayer data and tiles.
     """
+    queryset = FMVLayer.objects.select_related('dataset').all()
+    serializer_class = FMVLayerSerializer
+
     def retrieve(self, request, pk=None):
         try:
             layer = FMVLayer.objects.get(pk=pk)
@@ -68,14 +73,19 @@ class FMVLayerViewSet(ViewSet):
         presigned_url = None
         if layer.fmv_video and hasattr(layer.fmv_video, 'name'):
             presigned_url = default_storage.url(layer.fmv_video.name)
-        else:
-            presigned_url = None
+
+        # Get bbox as [xmin, ymin, xmax, ymax]
+        bbox = list(layer.bounds.extent) if layer.bounds else None
+
         data = {
-            "id": layer.id,
             "name": layer.name,
-            "bbox": list(layer.bounds.extent) if layer.bounds else None,
-            "frameId_to_bbox": layer.get_ground_frame_mapping(),
-            "fmv_video_url": presigned_url
+            "fmvVideoUrl": presigned_url,
+            "fmvFps": layer.fmv_fps,
+            "fmvFrameCount": layer.fmv_frame_count,
+            "fmvFrameWidth": layer.fmv_video_width,
+            "fmvFrameHeight": layer.fmv_video_height,
+            "bbox": bbox,
+            "frameIdToBBox": layer.get_ground_frame_mapping(),
         }
         return Response(data)
 
@@ -104,3 +114,21 @@ class FMVLayerViewSet(ViewSet):
             content_type='application/octet-stream',
             status=200 if tile else 204,
         )
+
+    @action(
+        detail=True,
+        methods=['get'],
+        url_path='bbox',
+        url_name='bbox',
+    )
+    def get_fmv_bbox(self, request, **kwargs):
+        fmv_map_layer = self.get_object()
+
+        if fmv_map_layer.bounds:
+            bounds = fmv_map_layer.bounds.extent
+            bbox_dict = {'xmin': bounds[0], 'ymin': bounds[1], 'xmax': bounds[2], 'ymax': bounds[3]}
+            return JsonResponse(bbox_dict)
+
+        data = fmv_map_layer.get_bbox()
+        return JsonResponse(data, status=200, safe=False)
+

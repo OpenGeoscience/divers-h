@@ -14,6 +14,7 @@ from uvdat.core.models import (
     NetworkNode,
     RasterMapLayer,
     VectorMapLayer,
+    FMVLayer,
 )
 from uvdat.core.rest import serializers as uvdat_serializers
 from uvdat.core.tasks.chart import add_gcc_chart_datum
@@ -66,8 +67,12 @@ class DatasetViewSet(ModelViewSet):
             [layer for layer in map_layers if isinstance(layer, NetCDFData)], many=True
         ).data
 
+        fmv_layers = uvdat_serializers.FMVLayerSerializer(
+            [layer for layer in map_layers if isinstance(layer, FMVLayer)], many=True
+        ).data
+
         # Combine both serialized data
-        combined_layers = raster_layers + vector_layers + netcdf_data
+        combined_layers = raster_layers + vector_layers + netcdf_data + fmv_layers
 
         # Return response with combined data
         return Response(combined_layers, status=200)
@@ -93,8 +98,12 @@ class DatasetViewSet(ModelViewSet):
                 [layer for layer in map_layers if isinstance(layer, NetCDFData)], many=True
             ).data
 
+            fmv_layers = uvdat_serializers.FMVLayerSerializer(
+                [layer for layer in map_layers if isinstance(layer, FMVLayer)], many=True
+            ).data
+
             # Combine both serialized data
-            combined_layers = raster_layers + vector_layers + netcdf_data
+            combined_layers = raster_layers + vector_layers + netcdf_data + fmv_layers
             total_layers += combined_layers
 
         # Return response with combined data

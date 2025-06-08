@@ -5,7 +5,9 @@ import {
   onUnmounted,
   ref,
 } from 'vue';
-import { NetCDFData, RasterMapLayer, VectorMapLayer } from '../../types';
+import {
+  FMVLayer, NetCDFData, RasterMapLayer, VectorMapLayer,
+} from '../../types';
 import { toggleLayerSelection } from '../../map/mapLayers';
 import MapStore from '../../MapStore';
 import NetCDFDataConfigurator from './NetCDFDataConfigurator.vue';
@@ -16,7 +18,7 @@ export default defineComponent({
   },
   props: {
     layer: {
-      type: Object as PropType<RasterMapLayer | VectorMapLayer | NetCDFData>,
+      type: Object as PropType<RasterMapLayer | VectorMapLayer | NetCDFData | FMVLayer>,
       required: true,
     },
   },
@@ -71,7 +73,7 @@ export default defineComponent({
 
 <template>
   <v-checkbox
-    v-if="layer.type === 'raster' || layer.type === 'vector'"
+    v-if="layer.type === 'raster' || layer.type === 'vector' || layer.type === 'fmv'"
     :model-value="!!selectedLayers.find((item) => (item.id === layer.id))"
     class="layer-checkbox"
     density="compact"

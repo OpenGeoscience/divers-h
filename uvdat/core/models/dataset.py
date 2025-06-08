@@ -49,5 +49,5 @@ class Dataset(TimeStampedModel):
 
     def get_map_layers(self):
         return chain(
-            self.rastermaplayer_set.all(), self.vectormaplayer_set.all(), self.netcdfdata_set.all()
+            self.rastermaplayer_set.all(), self.vectormaplayer_set.all(), self.netcdfdata_set.all(), self.fmvlayer_set.all()
         )

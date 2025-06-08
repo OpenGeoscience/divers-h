@@ -108,6 +108,31 @@ class FMVLayer(AbstractMapLayer):
     fmv_source_video = S3FileField(null=True)
     fmv_video = S3FileField(null=True)
     geojson_file = S3FileField(null=True)
+    fmv_fps = models.FloatField(
+        null=True,
+        blank=True,
+        help_text='Frames per second of the FMV video.'
+    )
+    fmv_frame_count = models.IntegerField(
+        null=True,
+        blank=True,
+        help_text='Total number of frames in the FMV video.'
+    )
+    fmv_video_duration = models.FloatField(
+        null=True,
+        blank=True,
+        help_text='Duration of the FMV video in seconds.'
+    )
+    fmv_video_width = models.IntegerField(
+        null=True,
+        blank=True,
+        help_text='Width of the FMV video in pixels.'
+    )
+    fmv_video_height = models.IntegerField(
+        null=True,
+        blank=True,
+        help_text='Height of the FMV video in pixels.'
+    )
 
     def write_geojson_data(self, content: str | dict):
         if isinstance(content, str):
@@ -128,7 +153,7 @@ class FMVLayer(AbstractMapLayer):
         result = {}
         features = FMVVectorFeature.objects.filter(
             map_layer=self,
-            properties__type='ground_frame',
+            properties__fmvType='ground_frame',
         ).exclude(properties__frameId__isnull=True)
 
         for feature in features:

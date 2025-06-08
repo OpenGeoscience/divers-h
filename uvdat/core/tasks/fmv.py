@@ -1,5 +1,3 @@
-
-
 from collections import defaultdict
 from functools import partial
 import json
@@ -91,6 +89,36 @@ def create_fmv_layer(file_item, style_options, file_name, index=None, metadata=N
             logger.error(f'Error during video transcoding: {e}')
             return
 
+        # Get the metadata from the video file using ffprobe
+        ffprobe_cmd = [
+            'ffprobe',
+            '-v', 'error',
+            '-select_streams', 'v:0',
+            '-show_entries', 'stream=width,height,avg_frame_rate,nb_frames',
+            '-of', 'json',
+            str(transcoded_path)
+        ]
+        try:
+            ffprobe_result = subprocess.run(
+                ffprobe_cmd, capture_output=True, text=True, check=True
+            )
+            ffprobe_data = json.loads(ffprobe_result.stdout)
+            stream = ffprobe_data['streams'][0]
+            width = int(stream.get('width', 0))
+            height = int(stream.get('height', 0))
+            # avg_frame_rate is like "25/1"
+            avg_frame_rate = stream.get('avg_frame_rate', '0/1')
+            if '/' in avg_frame_rate:
+                num, denom = avg_frame_rate.split('/')
+                fps = float(num) / float(denom) if float(denom) != 0 else 0
+            else:
+                fps = float(avg_frame_rate)
+            frame_count = int(stream.get('nb_frames', 0))
+        except Exception as e:
+            logger.error(f'Error extracting video metadata: {e}')
+            width = height = frame_count = 0
+            fps = 0.0
+
         # Read video and GeoJSON into Django content fields
         with open(transcoded_path, 'rb') as f:
             fmv_video_file = ContentFile(f.read(), name='video.mp4')
@@ -109,7 +137,11 @@ def create_fmv_layer(file_item, style_options, file_name, index=None, metadata=N
             geojson_file=geojson_file,
             default_style=style_options,
             metadata=metadata,
-            name=file_name
+            name=file_name,
+            fmv_fps=fps,
+            fmv_frame_count=frame_count,
+            fmv_video_width=width,
+            fmv_video_height=height,
         )
 
         # Set bounds from GeoJSON
@@ -170,8 +202,8 @@ def create_geojson_and_bbox(frames,):
                 "type": "Feature",
                 "geometry": mapping(point),
                 "properties": {
-                    "frameId": frame_id,
-                    "type": "flight_path",
+                    "frameId": int(frame_id),
+                    "fmvType": "flight_path",
                     "Platform Ground Speed": frame.get("Platform Ground Speed (m/s)"),
                     "Platform Vertical Speed": frame.get("Platform Vertical Speed (m/s)")
                 }
@@ -189,7 +221,7 @@ def create_geojson_and_bbox(frames,):
             "type": "Feature",
             "geometry": mapping(merged),
             "properties": {
-                "type": "ground_union"
+                "fmvType": "ground_union"
             }
         })
 
@@ -200,8 +232,8 @@ def create_geojson_and_bbox(frames,):
             "type": "Feature",
             "geometry": mapping(poly),
             "properties": {
-                "frameId": frame_id,
-                "type": "ground_frame",
+                "frameId": int(frame_id),
+                "fmvType": "ground_frame",
             }
         }
         features.append(feature)

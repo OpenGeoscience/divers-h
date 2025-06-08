@@ -83,7 +83,7 @@ class FMVLayerAdmin(admin.ModelAdmin):
 
 
 class FMVVectorFeatureAdmin(admin.ModelAdmin):
-    list_display = ['id', 'get_dataset_name', 'get_map_layer_index']
+    list_display = ['id', 'get_dataset_name', 'get_map_layer_index', 'properties']
 
     def get_dataset_name(self, obj):
         return obj.map_layer.dataset.name
