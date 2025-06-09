@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Ref, ref } from 'vue';
 import {
   DataDrivenPropertyValueSpecification,
@@ -259,6 +260,7 @@ const toggleFMVMapLayers = async (map: maplibregl.Map) => {
       source: `FMVVideoSource_${layer.id}`,
       paint: {
         'raster-opacity': 1,
+        'raster-fade-duration': 0,
       },
     });
     map.on('sourcedata', function handleVideoSourceLoad(e) {
@@ -269,7 +271,7 @@ const toggleFMVMapLayers = async (map: maplibregl.Map) => {
       ) {
         const videoSource = map.getSource(e.sourceId) as VideoSource;
         const video = videoSource.getVideo();
-        fmvStore.setVideoElement(video);
+        fmvStore.setVideoSource(videoSource);
 
         if (video) {
           // Remove this listener after it's done
@@ -321,7 +323,7 @@ const updateFrameFilter = async (layer: FMVLayer) => {
 
   // Filter to specific frameId
   if (fmvStore.filterFrameStatus.value) {
-    baseFilters.push(['==', ['get', 'frameId'], fmvStore.frameId.value]);
+    baseFilters.push(['any', ['==', ['get', 'fmvType'], 'ground_union'], ['==', ['get', 'frameId'], fmvStore.frameId.value]]);
   }
 
   // Filter to visible fmvTypes
@@ -358,6 +360,36 @@ const updateFrameFilter = async (layer: FMVLayer) => {
   }
 };
 
+type LatLon = [number, number]; // [longitude, latitude]
+type Bounds = [LatLon, LatLon, LatLon, LatLon];
+
+function boundsToBBoxWithMultiplier(
+  bounds: [[number, number], [number, number], [number, number], [number, number]],
+  sizeMultiplier: number = 1
+): [number, number, number, number] {
+  // Extract all lats and lons
+  const lons = bounds.map(([lon, _]) => lon);
+  const lats = bounds.map(([_, lat]) => lat);
+
+  const minLon = Math.min(...lons);
+  const maxLon = Math.max(...lons);
+  const minLat = Math.min(...lats);
+  const maxLat = Math.max(...lats);
+
+  const centerLon = (minLon + maxLon) / 2;
+  const centerLat = (minLat + maxLat) / 2;
+
+  const halfWidth = (maxLon - minLon) / 2 * sizeMultiplier;
+  const halfHeight = (maxLat - minLat) / 2 * sizeMultiplier;
+
+  return [
+    centerLon - halfWidth, // minLon
+    centerLat - halfHeight, // minLat
+    centerLon + halfWidth, // maxLon
+    centerLat + halfHeight // maxLat
+  ];
+}
+
 const updateFMVVideoMapping = (layer: FMVLayer) => {
   if (!internalMap.value) return;
   const fmvStore = fmvStoreMap[layer.id];
@@ -366,6 +398,10 @@ const updateFMVVideoMapping = (layer: FMVLayer) => {
     const source = internalMap.value.getSource(`FMVVideoSource_${layer.id}`);
     if (source) {
       (source as maplibregl.VideoSource).setCoordinates(coordinates);
+    }
+    if (fmvStore.lockZoom.value) {
+      const bounds = boundsToBBoxWithMultiplier(coordinates, fmvStore.zoomBounds.value);
+      internalMap.value.fitBounds(bounds, { linear: false });
     }
   }
 };
@@ -384,6 +420,16 @@ const updateFMVLayer = (layer: FMVLayer) => {
       );
     }
   });
+  const fmvStore = fmvStoreMap[layer.id];
+  if (fmvStore && internalMap.value) {
+    const videoLayerName = `FMVLayer_${layer.id}_video`;
+    if (!fmvStore.visibleProperties.value.includes('video')) {
+      internalMap.value.setLayoutProperty(videoLayerName, 'visibility', 'none');
+    } else {
+      internalMap.value.setLayoutProperty(videoLayerName, 'visibility', 'visible');
+      internalMap.value.setPaintProperty(videoLayerName, 'raster-opacity', fmvStore.opacity.value);
+    }
+  }
   updateFrameFilter(layer);
 };
 

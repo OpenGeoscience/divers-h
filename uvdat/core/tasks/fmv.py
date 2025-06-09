@@ -33,11 +33,12 @@ from uvdat.core.models import (
 
 logger = logging.getLogger(__name__)
 
-def create_fmv_layer(file_item, style_options, file_name, index=None, metadata=None):
+def create_fmv_layer(file_item, style_options, file_name, metadata=None):
     # First we grab the video file
     with tempfile.TemporaryDirectory() as temp_dir:
         video_ext = os.path.splitext(file_name)[1]
         logger.info(f'file_name: {file_name} extension: {video_ext}')
+        layer_name = metadata.get('name', file_name)
         raw_data_path = Path(temp_dir, f'video{video_ext}')
         logger.info(f'RAW DATA PATH {raw_data_path}')
         with open(raw_data_path, 'wb') as raw_data:
@@ -137,7 +138,7 @@ def create_fmv_layer(file_item, style_options, file_name, index=None, metadata=N
             geojson_file=geojson_file,
             default_style=style_options,
             metadata=metadata,
-            name=file_name,
+            name=layer_name,
             fmv_fps=fps,
             fmv_frame_count=frame_count,
             fmv_video_width=width,

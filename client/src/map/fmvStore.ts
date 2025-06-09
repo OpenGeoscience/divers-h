@@ -1,17 +1,36 @@
-import { ref, reactive, computed, toRefs, Ref } from 'vue';
+/* eslint-disable no-underscore-dangle */
+import { Ref, reactive, toRefs } from 'vue';
+import { VideoSource } from 'maplibre-gl';
 import UVdatApi from '../api/UVDATApi';
 
 export type FMVVectorTypes = 'flight_path' | 'ground_frame' | 'ground_union';
-
+export interface FMVVideoState {
+  frameId: number;
+  videoFrame: number;
+  videoElement: HTMLVideoElement | null;
+  frameIdToBounds: Record<number, [[number, number], [number, number], [number, number], [number, number]]>
+  visibleProperties: (FMVVectorTypes | 'video')[];
+  filterFrameStatus: boolean;
+  videoState: 'pause' | 'playing';
+  opacity: number;
+  lockZoom: boolean;
+  zoomBounds: number;
+}
 const createFMVStore = () => {
-  const state = reactive({
+  const state: FMVVideoState = reactive({
     frameId: 0,
     videoFrame: 0,
-    videoSource: null as HTMLVideoElement | null,
+    videoElement: null as HTMLVideoElement | null,
     frameIdToBounds: {} as Record<number, [[number, number], [number, number], [number, number], [number, number]]>,
-    filterFrameStatus: false,
+    filterFrameStatus: true,
     visibleProperties: ['flight_path', 'video'] as (FMVVectorTypes | 'video')[],
+    videoState: 'pause',
+    opacity: 0.85,
+    lockZoom: false,
+    zoomBounds: 2,
   });
+
+  let videoSource: VideoSource | null = null;
 
   const videoData = reactive({
     frameFps: 30,
@@ -59,32 +78,44 @@ const createFMVStore = () => {
   const setVideoFrame = (frame: number) => {
     if (frame >= 0 && frame < videoData.totalFrames) {
       state.videoFrame = frame;
-      const video = state.videoSource;
+      const video = state.videoElement;
       if (video) {
         video.currentTime = frame / videoData.frameFps;
       }
+      videoSource?.seek(frame / videoData.frameFps);
       state.frameId = frame;
     } else {
       console.error(`Frame ${frame} is out of bounds. Total frames: ${videoData.totalFrames}`);
     }
   };
 
-  const seekFrames = (offset: number) => {
+  const seekToFrame = (frame: number) => {
+    const setTime = frame / videoData.frameFps;
+    if (state.videoElement) {
+      state.videoFrame = frame;
+      videoSource?.seek(setTime);
+    }
+  };
+
+  const seekOffset = (offset: number) => {
     const newFrame = Math.max(0, Math.min(videoData.totalFrames - 1, state.videoFrame + offset));
-    setVideoFrame(newFrame);
+    seekToFrame(newFrame);
   };
 
   const startAnimationLoop = () => {
-    const video = state.videoSource;
+    const video = state.videoElement;
     if (!video) return;
 
     const updateFrame = () => {
       if (!video.paused && !video.ended) {
         const currentFrame = Math.floor(video.currentTime * videoData.frameFps);
         state.videoFrame = currentFrame;
+        state.frameId = state.videoFrame;
         animationFrameId = requestAnimationFrame(updateFrame);
       } else {
-        animationFrameId && cancelAnimationFrame(animationFrameId);
+        if (animationFrameId) {
+          cancelAnimationFrame(animationFrameId);
+        }
         animationFrameId = null;
       }
     };
@@ -92,27 +123,42 @@ const createFMVStore = () => {
     updateFrame();
   };
 
-  const setVideoElement = (videoElement: HTMLVideoElement | null) => {
-    if (state.videoSource && animationFrameId) {
+  const setVideoSource = (baseSource: VideoSource) => {
+    if (state.videoElement && animationFrameId) {
       cancelAnimationFrame(animationFrameId);
     }
+    videoSource = baseSource;
+    state.videoElement = baseSource.getVideo();
 
-    state.videoSource = videoElement;
+    if (state.videoElement) {
+      state.videoElement.autoplay = false;
+      state.videoElement.pause();
 
-    if (state.videoSource) {
-      state.videoSource.autoplay = false;
-      state.videoSource.pause();
-
-      state.videoSource.onplay = () => {
+      state.videoElement.onplay = () => {
         startAnimationLoop();
+        state.videoState = 'playing';
       };
 
-      state.videoSource.onpause = () => {
+      state.videoElement.onpause = () => {
         if (animationFrameId) {
           cancelAnimationFrame(animationFrameId);
           animationFrameId = null;
+          state.videoState = 'pause';
         }
       };
+    }
+  };
+
+  const setVideoState = (val: 'playing' | 'pause') => {
+    if (val === 'pause') {
+      state.videoElement?.pause();
+      state.videoState = val;
+    } else if (val === 'playing') {
+      if (state.videoElement) {
+        state.videoElement.currentTime = state.frameId / videoData.frameFps;
+      }
+      state.videoElement?.play();
+      state.videoState = 'pause';
     }
   };
 
@@ -131,8 +177,10 @@ const createFMVStore = () => {
     getBoundsAtFrame,
     getFMVLayerInfo,
     setVideoFrame,
-    setVideoElement,
-    seekFrames,
+    setVideoSource,
+    seekOffset,
+    seekToFrame,
+    setVideoState,
   };
 };
 
@@ -152,10 +200,14 @@ export const getFMVStore = async (mapLayerId: number) => {
 export interface FMVStore {
   frameId: Ref<number>;
   videoFrame: Ref<number>;
-  videoSource: Ref<HTMLVideoElement | null>;
+  videoElement: Ref<HTMLVideoElement | null>;
   frameIdToBounds: Ref<Record<number, [[number, number], [number, number], [number, number], [number, number]]>>;
   visibleProperties: Ref<(FMVVectorTypes | 'video')[]>;
   filterFrameStatus: Ref<boolean>;
+  videoState: Ref<'pause' | 'playing'>;
+  opacity: Ref<number>;
+  lockZoom: Ref<boolean>;
+  zoomBounds: Ref<number>;
 
   videoData: {
     frameFps: number;
@@ -168,10 +220,12 @@ export interface FMVStore {
   baseVectorTypes: FMVVectorTypes[];
   layerTypeVectorTypeMap: Record<FMVVectorTypes, 'circle' | 'fill'>;
 
-  setVideoElement: (el: HTMLVideoElement | null) => void;
+  setVideoSource: (baseSource: VideoSource) => void;
   setVideoFrame: (frame: number) => void;
-  seekFrames: (offset: number) => void;
+  seekOffset: (offset: number) => void;
+  seekToFrame: (offset: number) => void;
   getFMVLayerInfo: (id: number) => Promise<void>;
+  setVideoState: (val: 'playing' | 'pause') => void;
   getBoundsAtFrame: (
     id: number
   ) => [[number, number], [number, number], [number, number], [number, number]];
