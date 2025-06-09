@@ -11,6 +11,7 @@ import MapStore from '../MapStore';
 import { getLayerDefaultFilter } from './mapFilters';
 import { subLayerMapping } from './mapHeatmap';
 import { FMVStore, getFMVStore } from './fmvStore';
+import { chainSelected } from './mapColors';
 
 const addedLayers: Ref<FMVLayer[]> = ref([]);
 const defaultAnnotationColor = 'black';
@@ -93,9 +94,14 @@ const getCircleRadius = () => {
 };
 
 // As selectedIds change we modify how they are drawn
-const updateSelected = (map: maplibregl.Map) => {
+// TODO:  UPDATE SELECTED ID COLORS
+const updateFMVFlightPathSelected = (map: maplibregl.Map) => {
   MapStore.selectedFMVMapLayers.value.forEach((layer) => {
-    console.log('need to implement selection coloring toggling');
+    const layerName = `FMVLayer_${layer.id}_circle`;
+    const colorFilter = chainSelected([], '#00FFFF', 'gray');
+    if (internalMap.value) {
+      internalMap.value.setPaintProperty(layerName, 'circle-color', colorFilter);
+    }
   });
 };
 
@@ -365,7 +371,7 @@ type Bounds = [LatLon, LatLon, LatLon, LatLon];
 
 function boundsToBBoxWithMultiplier(
   bounds: [[number, number], [number, number], [number, number], [number, number]],
-  sizeMultiplier: number = 1
+  sizeMultiplier: number = 1,
 ): [number, number, number, number] {
   // Extract all lats and lons
   const lons = bounds.map(([lon, _]) => lon);
@@ -379,14 +385,14 @@ function boundsToBBoxWithMultiplier(
   const centerLon = (minLon + maxLon) / 2;
   const centerLat = (minLat + maxLat) / 2;
 
-  const halfWidth = (maxLon - minLon) / 2 * sizeMultiplier;
-  const halfHeight = (maxLat - minLat) / 2 * sizeMultiplier;
+  const halfWidth = ((maxLon - minLon) / 2) * sizeMultiplier;
+  const halfHeight = ((maxLat - minLat) / 2) * sizeMultiplier;
 
   return [
     centerLon - halfWidth, // minLon
     centerLat - halfHeight, // minLat
     centerLon + halfWidth, // maxLon
-    centerLat + halfHeight // maxLat
+    centerLat + halfHeight, // maxLat
   ];
 }
 
@@ -463,7 +469,7 @@ export {
   toggleVisibility,
   toggleLayerTypeVisibility,
   setLayerProperty,
-  updateSelected,
+  updateFMVFlightPathSelected,
   updateFMVLayer,
   updateFrameFilter,
   centerAndZoom,

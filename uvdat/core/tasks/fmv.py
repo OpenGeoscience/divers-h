@@ -1,30 +1,16 @@
-from collections import defaultdict
-from functools import partial
+import csv
 import json
 import logging
 import os
 from pathlib import Path
 import subprocess
 import tempfile
-import zipfile
-import csv
 
-from django.contrib.gis.geos import GEOSGeometry, LineString, MultiLineString
+from django.contrib.gis.geos import GEOSGeometry
 from django.core.files.base import ContentFile
-import fiona
-import geopandas
-import pandas
-import rasterio
-from rasterio.enums import ColorInterp  # Import ColorInterp from rasterio
-import shapefile
-from shapely.geometry import Point
-from shapely.wkt import loads as wkt_loads
-import subprocess
-
+import pyproj
 from shapely.geometry import Point, Polygon, mapping
 from shapely.ops import unary_union
-import pyproj
-
 
 from uvdat.core.models import (
     FMVLayer,
@@ -32,6 +18,7 @@ from uvdat.core.models import (
 )
 
 logger = logging.getLogger(__name__)
+
 
 def create_fmv_layer(file_item, style_options, file_name, metadata=None):
     # First we grab the video file
@@ -46,7 +33,16 @@ def create_fmv_layer(file_item, style_options, file_name, metadata=None):
                 raw_data.write(raw_data_archive.read())
         # Now lets see if the FMV file has FMV data
         output_csv = Path(temp_dir, 'output.csv')
-        cmd = ['bash', '/entrypoint.sh', 'dump-klv', str(raw_data_path), '-l', str(output_csv), '-e', 'csv']
+        cmd = [
+            'bash',
+            '/entrypoint.sh',
+            'dump-klv',
+            str(raw_data_path),
+            '-l',
+            str(output_csv),
+            '-e',
+            'csv',
+        ]
         # cmd = [
         #     '/opt/kitware/kwiver/bin/kwiver',
         #     'dump-klv', str(raw_data_path),
@@ -72,17 +68,21 @@ def create_fmv_layer(file_item, style_options, file_name, metadata=None):
 
         logger.info(f'JSON output written to {output_json}')
 
-        logger.info("Creating the GeoJSON from the FMV Data")
+        logger.info('Creating the GeoJSON from the FMV Data')
         frame_geojson = create_geojson_and_bbox(frames)
 
         transcoded_path = Path(temp_dir, 'transcoded.mp4')
         transcode_cmd = [
             'ffmpeg',
-            '-i', str(raw_data_path),
-            '-c:v', 'libx264',
-            '-preset', 'fast',
-            '-crf', '23',
-            str(transcoded_path)
+            '-i',
+            str(raw_data_path),
+            '-c:v',
+            'libx264',
+            '-preset',
+            'fast',
+            '-crf',
+            '23',
+            str(transcoded_path),
         ]
         try:
             subprocess.run(transcode_cmd, check=True)
@@ -93,16 +93,18 @@ def create_fmv_layer(file_item, style_options, file_name, metadata=None):
         # Get the metadata from the video file using ffprobe
         ffprobe_cmd = [
             'ffprobe',
-            '-v', 'error',
-            '-select_streams', 'v:0',
-            '-show_entries', 'stream=width,height,avg_frame_rate,nb_frames',
-            '-of', 'json',
-            str(transcoded_path)
+            '-v',
+            'error',
+            '-select_streams',
+            'v:0',
+            '-show_entries',
+            'stream=width,height,avg_frame_rate,nb_frames',
+            '-of',
+            'json',
+            str(transcoded_path),
         ]
         try:
-            ffprobe_result = subprocess.run(
-                ffprobe_cmd, capture_output=True, text=True, check=True
-            )
+            ffprobe_result = subprocess.run(ffprobe_cmd, capture_output=True, text=True, check=True)
             ffprobe_data = json.loads(ffprobe_result.stdout)
             stream = ffprobe_data['streams'][0]
             width = int(stream.get('width', 0))
@@ -149,41 +151,41 @@ def create_fmv_layer(file_item, style_options, file_name, metadata=None):
         fmv_layer.set_bounds()
 
         # Create FMVVectorFeature entries
-        for feature in frame_geojson["features"]:
-            geometry = GEOSGeometry(json.dumps(feature["geometry"]))
+        for feature in frame_geojson['features']:
+            geometry = GEOSGeometry(json.dumps(feature['geometry']))
             FMVVectorFeature.objects.create(
-                map_layer=fmv_layer,
-                geometry=geometry,
-                properties=feature["properties"]
+                map_layer=fmv_layer, geometry=geometry, properties=feature['properties']
             )
 
-        logger.info(f'Successfully created FMVLayer: {fmv_layer.id} with {len(frame_geojson["features"])} features')
+        logger.info(
+            f'Successfully created FMVLayer: {fmv_layer.id} with {len(frame_geojson["features"])} features'
+        )
         return fmv_layer
 
 
-
-def create_geojson_and_bbox(frames,):
+def create_geojson_and_bbox(
+    frames,
+):
     geod = pyproj.Geod(ellps='WGS84')
     features = []
     polygons = []
     frame_polygons = []
     frame_to_bbox = {}
-    total = len(frames)
 
     for frame in frames:
         try:
-            frame_id = frame.get("Frame ID", None)
+            frame_id = frame.get('Frame ID', None)
             if frame_id is None:
                 continue
 
             # Sensor location
-            sensor_lat = float(frame["Sensor Geodetic Latitude (EPSG:4326)"])
-            sensor_lon = float(frame["Sensor Geodetic Longitude (EPSG:4326)"])
+            sensor_lat = float(frame['Sensor Geodetic Latitude (EPSG:4326)'])
+            sensor_lon = float(frame['Sensor Geodetic Longitude (EPSG:4326)'])
 
             # Frame center and bounding
-            center_lat = float(frame["Geodetic Frame Center Latitude (EPSG:4326)"])
-            center_lon = float(frame["Geodetic Frame Center Longitude (EPSG:4326)"])
-            width = float(frame["Target Width (meters)"])
+            center_lat = float(frame['Geodetic Frame Center Latitude (EPSG:4326)'])
+            center_lon = float(frame['Geodetic Frame Center Longitude (EPSG:4326)'])
+            width = float(frame['Target Width (meters)'])
 
             # Compute bounding box corners around center
             corners = []
@@ -199,50 +201,45 @@ def create_geojson_and_bbox(frames,):
 
             # Point feature at sensor location
             point = Point(sensor_lon, sensor_lat)
+            properties = {'fmvType': 'flight_path'}
+            properties['frameId'] = int(frame_id)
+            for key, value in frame.items():
+                properties[key] = value
+
             feature = {
-                "type": "Feature",
-                "geometry": mapping(point),
-                "properties": {
-                    "frameId": int(frame_id),
-                    "fmvType": "flight_path",
-                    "Platform Ground Speed": frame.get("Platform Ground Speed (m/s)"),
-                    "Platform Vertical Speed": frame.get("Platform Vertical Speed (m/s)")
-                }
+                'type': 'Feature',
+                'geometry': mapping(point),
+                'properties': properties,
             }
             features.append(feature)
 
         except (KeyError, ValueError) as e:
-            print(f"Skipping frame due to error: {e}")
+            print(f'Skipping frame due to error: {e}')
             continue
 
     # Add unioned polygon
     if polygons:
         merged = unary_union(polygons)
-        features.append({
-            "type": "Feature",
-            "geometry": mapping(merged),
-            "properties": {
-                "fmvType": "ground_union"
+        features.append(
+            {
+                'type': 'Feature',
+                'geometry': mapping(merged),
+                'properties': {'fmvType': 'ground_union'},
             }
-        })
-
+        )
 
     # Individual frame bbox polygons with styling
-    for idx, (frame_id, poly) in enumerate(frame_polygons):
+    for _idx, (frame_id, poly) in enumerate(frame_polygons):
         feature = {
-            "type": "Feature",
-            "geometry": mapping(poly),
-            "properties": {
-                "frameId": int(frame_id),
-                "fmvType": "ground_frame",
-            }
+            'type': 'Feature',
+            'geometry': mapping(poly),
+            'properties': {
+                'frameId': int(frame_id),
+                'fmvType': 'ground_frame',
+            },
         }
         features.append(feature)
 
-    geojson = {
-        "type": "FeatureCollection",
-        "features": features
-    }
+    geojson = {'type': 'FeatureCollection', 'features': features}
 
     return geojson
-

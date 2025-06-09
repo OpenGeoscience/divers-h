@@ -109,29 +109,19 @@ class FMVLayer(AbstractMapLayer):
     fmv_video = S3FileField(null=True)
     geojson_file = S3FileField(null=True)
     fmv_fps = models.FloatField(
-        null=True,
-        blank=True,
-        help_text='Frames per second of the FMV video.'
+        null=True, blank=True, help_text='Frames per second of the FMV video.'
     )
     fmv_frame_count = models.IntegerField(
-        null=True,
-        blank=True,
-        help_text='Total number of frames in the FMV video.'
+        null=True, blank=True, help_text='Total number of frames in the FMV video.'
     )
     fmv_video_duration = models.FloatField(
-        null=True,
-        blank=True,
-        help_text='Duration of the FMV video in seconds.'
+        null=True, blank=True, help_text='Duration of the FMV video in seconds.'
     )
     fmv_video_width = models.IntegerField(
-        null=True,
-        blank=True,
-        help_text='Width of the FMV video in pixels.'
+        null=True, blank=True, help_text='Width of the FMV video in pixels.'
     )
     fmv_video_height = models.IntegerField(
-        null=True,
-        blank=True,
-        help_text='Height of the FMV video in pixels.'
+        null=True, blank=True, help_text='Height of the FMV video in pixels.'
     )
 
     def write_geojson_data(self, content: str | dict):
@@ -147,7 +137,7 @@ class FMVLayer(AbstractMapLayer):
     def read_geojson_data(self) -> dict:
         """Read and load the data from geojson_file into a dict."""
         return json.load(self.geojson_file.open())
-    
+
     def get_ground_frame_mapping(self) -> dict:
         """Return a mapping from frameId -> 4-point polygon coordinates."""
         result = {}
@@ -157,17 +147,17 @@ class FMVLayer(AbstractMapLayer):
         ).exclude(properties__frameId__isnull=True)
 
         for feature in features:
-            frame_id = feature.properties.get("frameId")
+            frame_id = feature.properties.get('frameId')
             geom = feature.geometry
 
-            if geom.geom_type == "Polygon":
+            if geom.geom_type == 'Polygon':
                 # Access first ring (exterior) without using .exterior
                 if len(geom) > 0:
                     coords = list(geom[0].coords)
                     if len(coords) >= 4:
                         result[frame_id] = coords[:4]
 
-            elif geom.geom_type == "MultiPolygon":
+            elif geom.geom_type == 'MultiPolygon':
                 # Find largest polygon and access its first ring
                 largest = max(geom.geoms, key=lambda p: p.area)
                 if len(largest) > 0:
@@ -179,12 +169,13 @@ class FMVLayer(AbstractMapLayer):
                 continue
 
         return result
-        
+
 
 @receiver(models.signals.pre_delete, sender=FMVLayer)
 def delete__fmvvectorcontent(sender, instance, **kwargs):
     if instance.geojson_file:
         instance.geojson_file.delete(save=False)
+
 
 class FMVVectorFeature(models.Model):
     map_layer = models.ForeignKey(FMVLayer, on_delete=models.CASCADE)

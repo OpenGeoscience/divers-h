@@ -1,13 +1,12 @@
+from django.core.files.storage import default_storage
 from django.db import connection
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
-from django.core.files.storage import default_storage
 
 from uvdat.core.models import FMVLayer
 from uvdat.core.rest.serializers import FMVLayerSerializer
-from django.http import HttpResponse, JsonResponse
 
 FMV_TILE_SQL = """
 WITH tile_bounds AS (
@@ -48,7 +47,7 @@ vector_features AS (
             ST_Transform((SELECT geom from bounds), 3857)
         ) as geom,
         map_layer_id,
-        id as fmvvectorfeatureid,
+        id as vectorfeatureid,
         properties
     FROM core_fmvvectorfeature
     WHERE ST_Intersects(geometry, (SELECT geom from bounds))
@@ -57,10 +56,8 @@ vector_features AS (
 SELECT ST_AsMVT(vector_features.*) AS mvt FROM vector_features;
 """
 
+
 class FMVLayerViewSet(ModelViewSet):
-    """
-    ViewSet for accessing FMVLayer data and tiles.
-    """
     queryset = FMVLayer.objects.select_related('dataset').all()
     serializer_class = FMVLayerSerializer
 
@@ -68,7 +65,7 @@ class FMVLayerViewSet(ModelViewSet):
         try:
             layer = FMVLayer.objects.get(pk=pk)
         except FMVLayer.DoesNotExist:
-            return Response({"detail": "Not found."}, status=404)
+            return Response({'detail': 'Not found.'}, status=404)
 
         presigned_url = None
         if layer.fmv_video and hasattr(layer.fmv_video, 'name'):
@@ -78,20 +75,20 @@ class FMVLayerViewSet(ModelViewSet):
         bbox = list(layer.bounds.extent) if layer.bounds else None
 
         data = {
-            "name": layer.name,
-            "fmvVideoUrl": presigned_url,
-            "fmvFps": layer.fmv_fps,
-            "fmvFrameCount": layer.fmv_frame_count,
-            "fmvFrameWidth": layer.fmv_video_width,
-            "fmvFrameHeight": layer.fmv_video_height,
-            "bbox": bbox,
-            "frameIdToBBox": layer.get_ground_frame_mapping(),
+            'name': layer.name,
+            'fmvVideoUrl': presigned_url,
+            'fmvFps': layer.fmv_fps,
+            'fmvFrameCount': layer.fmv_frame_count,
+            'fmvFrameWidth': layer.fmv_video_width,
+            'fmvFrameHeight': layer.fmv_video_height,
+            'bbox': bbox,
+            'frameIdToBBox': layer.get_ground_frame_mapping(),
         }
         return Response(data)
 
     @action(
         detail=True,
-        methods=["get"],
+        methods=['get'],
         url_path=r'tiles/(?P<z>\d+)/(?P<x>\d+)/(?P<y>\d+)',
         url_name='fmv_tiles',
     )
@@ -131,4 +128,3 @@ class FMVLayerViewSet(ModelViewSet):
 
         data = fmv_map_layer.get_bbox()
         return JsonResponse(data, status=200, safe=False)
-

@@ -5,7 +5,14 @@ from .display_configuration import DisplayConfiguration
 from .file_item import FileItem
 from .layer_collection import LayerCollection
 from .layer_representation import LayerRepresentation
-from .map_layers import AbstractMapLayer, RasterMapLayer, VectorFeature, VectorMapLayer, FMVLayer, FMVVectorFeature
+from .map_layers import (
+    AbstractMapLayer,
+    FMVLayer,
+    FMVVectorFeature,
+    RasterMapLayer,
+    VectorFeature,
+    VectorMapLayer,
+)
 from .netcdf import NetCDFData, NetCDFImage, NetCDFLayer
 from .networks import Network, NetworkEdge, NetworkNode
 from .processing_task import ProcessingTask
@@ -38,5 +45,5 @@ __all__ = [
     VectorFeatureRowData,
     DisplayConfiguration,
     FMVVectorFeature,
-    FMVLayer
+    FMVLayer,
 ]

@@ -4,6 +4,7 @@ from .dataset import DatasetViewSet
 from .display_configuration import DisplayConfigurationViewSet
 from .file_item import FileItemViewSet
 from .filter_metadata import MetadataFilterViewSet
+from .fmv import FMVLayerViewSet
 from .layer_collection import LayerCollectionViewSet
 from .layer_representation import LayerRepresentationViewSet
 from .map_layers import MapLayerViewSet, RasterMapLayerViewSet, VectorMapLayerViewSet
@@ -15,7 +16,6 @@ from .simulations import SimulationViewSet
 from .tasks import TasksAPIView
 from .user import UserViewSet
 from .vector_feature_table_data import VectorFeatureTableDataViewSet
-from .fmv import FMVLayerViewSet
 
 __all__ = [
     ContextViewSet,

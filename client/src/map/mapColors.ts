@@ -228,4 +228,4 @@ const calculateColors = (map: maplibregl.Map, layer: VectorMapLayer) => {
   }
 };
 
-export { calculateColors, colorGenerator };
+export { calculateColors, colorGenerator, chainSelected };

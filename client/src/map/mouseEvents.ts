@@ -256,6 +256,24 @@ const setPopupEvents = (localMap: Map) => {
         click: clickFunc,
       });
     }
+    for (let i = 0; i < MapStore.selectedFMVMapLayers.value.length; i += 1) {
+      const layer = MapStore.selectedFMVMapLayers.value[i];
+      const { id } = layer;
+      const clickFunc = singleClick;
+      const FMVAnnotationType = ['circle'];
+      // Other layers select and hover is used based on config
+      FMVAnnotationType.forEach((annotationType) => {
+        localMap.on('click', `FMVLayer_${id}_${annotationType}`, clickFunc);
+      });
+      localMap.off('click', clickOutside);
+      localMap.on('click', clickOutside);
+      loadedFunctions.push({
+        id,
+        mouseenter,
+        mouseleave,
+        click: clickFunc,
+      });
+    }
   }
 };
 

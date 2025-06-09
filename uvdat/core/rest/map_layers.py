@@ -15,22 +15,22 @@ from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet, ModelViewSet
 
 from uvdat.core.models import (
+    FMVLayer,
+    FMVVectorFeature,
     LayerRepresentation,
     NetCDFData,
     NetCDFLayer,
     RasterMapLayer,
     VectorFeature,
     VectorMapLayer,
-    FMVLayer,
-    FMVVectorFeature,
 )
 from uvdat.core.rest.serializers import (
     AbstractMapLayerSerializer,
+    FMVLayerSerializer,
     NetCDFLayerSerializer,
     RasterMapLayerSerializer,
     VectorMapLayerDetailSerializer,
     VectorMapLayerSerializer,
-    FMVLayerSerializer,
 )
 
 from .permissions import DefaultPermission
@@ -683,10 +683,10 @@ class MapLayerViewSet(GenericViewSet):
             ).aggregate(extent=Extent('geometry'))['extent']
 
             if vector_bboxes:
-                overall_bbox['xmin'] = min(overall_bbox['xmin'], vector_bboxes[0])
-                overall_bbox['ymin'] = min(overall_bbox['ymin'], vector_bboxes[1])
-                overall_bbox['xmax'] = max(overall_bbox['xmax'], vector_bboxes[2])
-                overall_bbox['ymax'] = max(overall_bbox['ymax'], vector_bboxes[3])
+                overall_bbox['xmin'] = min(overall_bbox['xmin'], fmv_bboxes[0])
+                overall_bbox['ymin'] = min(overall_bbox['ymin'], fmv_bboxes[1])
+                overall_bbox['xmax'] = max(overall_bbox['xmax'], fmv_bboxes[2])
+                overall_bbox['ymax'] = max(overall_bbox['ymax'], fmv_bboxes[3])
 
         # Check if the bbox values were updated; if not, return an error message
         if overall_bbox['xmin'] == float('inf'):

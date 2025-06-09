@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /* eslint-disable no-underscore-dangle */
 import { Ref, reactive, toRefs } from 'vue';
 import { VideoSource } from 'maplibre-gl';

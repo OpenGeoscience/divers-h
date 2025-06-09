@@ -7,6 +7,8 @@ from uvdat.core.models import (
     DerivedRegion,
     DisplayConfiguration,
     FileItem,
+    FMVLayer,
+    FMVVectorFeature,
     LayerCollection,
     LayerRepresentation,
     NetCDFData,
@@ -23,8 +25,6 @@ from uvdat.core.models import (
     VectorFeatureRowData,
     VectorFeatureTableData,
     VectorMapLayer,
-    FMVLayer,
-    FMVVectorFeature
 )
 
 
@@ -76,7 +76,16 @@ class VectorFeatureAdmin(admin.ModelAdmin):
 
 
 class FMVLayerAdmin(admin.ModelAdmin):
-    list_display = ['id', 'name', 'dataset', 'get_dataset_name', 'index', 'geojson_file', 'fmv_video', 'bounds']
+    list_display = [
+        'id',
+        'name',
+        'dataset',
+        'get_dataset_name',
+        'index',
+        'geojson_file',
+        'fmv_video',
+        'bounds',
+    ]
 
     def get_dataset_name(self, obj):
         return obj.dataset.name

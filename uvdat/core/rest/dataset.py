@@ -9,12 +9,12 @@ from rest_framework.viewsets import ModelViewSet
 from uvdat.core.models import (
     Dataset,
     FileItem,
+    FMVLayer,
     NetCDFData,
     NetworkEdge,
     NetworkNode,
     RasterMapLayer,
     VectorMapLayer,
-    FMVLayer,
 )
 from uvdat.core.rest import serializers as uvdat_serializers
 from uvdat.core.tasks.chart import add_gcc_chart_datum

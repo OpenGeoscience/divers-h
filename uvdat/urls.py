@@ -12,6 +12,7 @@ from uvdat.core.rest import (
     DerivedRegionViewSet,
     DisplayConfigurationViewSet,
     FileItemViewSet,
+    FMVLayerViewSet,
     LayerCollectionViewSet,
     LayerRepresentationViewSet,
     MapLayerViewSet,
@@ -28,7 +29,6 @@ from uvdat.core.rest import (
     UserViewSet,
     VectorFeatureTableDataViewSet,
     VectorMapLayerViewSet,
-    FMVLayerViewSet,
 )
 
 router = routers.SimpleRouter()

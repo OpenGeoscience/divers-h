@@ -78,12 +78,16 @@ def main(video, output_dir):
 
     click.secho(f'JSON output written to {output_json}', fg='green')
 
-    create_geojson_and_bbox(frames, geojson_out, bbox_out, bbox_geojson_out)
+    geojson_data = create_geojson_and_bbox(frames)
+    with open(geojson_out, 'w') as f:
+        json.dump(geojson_data, f, indent=2)
+    click.secho(f'GeoJSON data created with {len(geojson_data["features"])} features.', fg='green')
     click.secho(f'GeoJSON written to {geojson_out}', fg='cyan')
-    click.secho(f'Bounding box mapping written to {bbox_out}', fg='cyan')
 
 
-def create_geojson_and_bbox(frames, geojson_out, bbox_out, bbox_geojson_out):
+def create_geojson_and_bbox(
+    frames,
+):
     geod = pyproj.Geod(ellps='WGS84')
     features = []
     polygons = []
@@ -120,14 +124,15 @@ def create_geojson_and_bbox(frames, geojson_out, bbox_out, bbox_geojson_out):
 
             # Point feature at sensor location
             point = Point(sensor_lon, sensor_lat)
+            properties = {"fmvType": "flight_path"}
+            properties["frameId"] = int(frame_id)
+            for key, value in frame.items():
+                properties[key] = value
+
             feature = {
                 "type": "Feature",
                 "geometry": mapping(point),
-                "properties": {
-                    "Frame ID": frame_id,
-                    "Platform Ground Speed": frame.get("Platform Ground Speed (m/s)"),
-                    "Platform Vertical Speed": frame.get("Platform Vertical Speed (m/s)")
-                }
+                "properties": properties,
             }
             features.append(feature)
 
@@ -138,58 +143,29 @@ def create_geojson_and_bbox(frames, geojson_out, bbox_out, bbox_geojson_out):
     # Add unioned polygon
     if polygons:
         merged = unary_union(polygons)
-        features.append({
-            "type": "Feature",
-            "geometry": mapping(merged),
-            "properties": {
-                "type": "Unioned Bounding Box"
+        features.append(
+            {
+                "type": "Feature",
+                "geometry": mapping(merged),
+                "properties": {"fmvType": "ground_union"},
             }
-        })
-
-    # Save GeoJSON
-    geojson = {
-        "type": "FeatureCollection",
-        "features": features
-    }
-
-    with open(geojson_out, 'w') as f:
-        json.dump(geojson, f, indent=2)
-
-    # Save bbox mapping
-    with open(bbox_out, 'w') as f:
-        json.dump(frame_to_bbox, f, indent=2)
-
-    def get_gradient_color(idx, total):
-        r = int(255 * (idx / (total - 1)))
-        b = int(255 * (1 - idx / (total - 1)))
-        return f"#{r:02x}00{b:02x}"
+        )
 
     # Individual frame bbox polygons with styling
-    bbox_features = []
     for idx, (frame_id, poly) in enumerate(frame_polygons):
-        color = get_gradient_color(idx, total)
         feature = {
             "type": "Feature",
             "geometry": mapping(poly),
             "properties": {
-                "frame_id": frame_id,
-                "type": "Unioned Bounding Box",
-                "stroke": color,
-                "stroke-width": 2,
-                "stroke-opacity": 1,
-                "fill": "#ff0000",
-                "fill-opacity": 0.5
-            }
+                "frameId": int(frame_id),
+                "fmvType": "ground_frame",
+            },
         }
-        bbox_features.append(feature)
+        features.append(feature)
 
-    bbox_geojson = {
-        "type": "FeatureCollection",
-        "features": bbox_features
-    }
+    geojson = {"type": "FeatureCollection", "features": features}
 
-    with open(bbox_geojson_out, 'w') as f:
-        json.dump(bbox_geojson, f, indent=2)
+    return geojson
 
 if __name__ == '__main__':
     main()

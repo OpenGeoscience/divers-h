@@ -8,13 +8,13 @@ from uvdat.core.models import Dataset, FileItem, ProcessingTask
 from uvdat.core.tasks.map_layers import save_vector_features
 
 from .csv_to_heatmap import process_file_item_to_heatmap
+from .fmv import create_fmv_layer
 from .map_layers import (
     create_raster_map_layer,
     create_vector_map_layer,
     process_geopackage,
     process_tabular_vector_feature_data,
 )
-from .fmv import create_fmv_layer
 from .netcdf import create_netcdf_data_layer
 from .networks import create_network
 from .regions import create_source_regions
@@ -23,17 +23,18 @@ logger = logging.getLogger(__name__)
 
 
 valid_video_format = (
-    "mp4",
-    "webm",
-    "avi",
-    "mov",
-    "wmv",
-    "mpg",
-    "mpeg",
-    "mp2",
-    "ogg",
-    "flv",
+    'mp4',
+    'webm',
+    'avi',
+    'mov',
+    'wmv',
+    'mpg',
+    'mpeg',
+    'mp2',
+    'ogg',
+    'flv',
 )
+
 
 @shared_task
 def convert_dataset(
@@ -195,7 +196,7 @@ def process_file_item(self, file_item_id):
                     'raster_map_layers': [rml.id for rml in raster_map_layers],
                     'vector_map_layers': [vml.id for vml in vector_map_layers],
                     'net_cdf_map_layers': netcdf_map_layers,
-                    'fmv_map_layers': [fmv.id for fmv in fmv_map_layers]
+                    'fmv_map_layers': [fmv.id for fmv in fmv_map_layers],
                 }
             },
         )
