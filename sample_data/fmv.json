@@ -20,6 +20,7 @@
                     "type": "fmv",
                     "action": "replace",
                     "metadata": {
+                        "name": "FMV Testing Layer"
                     }
                 }
             ]
@@ -35,8 +36,8 @@
                     "url": "https://data.kitware.com/api/v1/file/604a547c2fa25629b93176d2/download",
                     "name": "FMV Large Video",
                     "type": "fmv",
-                    "action": "replace",
                     "metadata": {
+                        "name":"FMV Large Video Layer"
                     }
                 }
             ]

@@ -186,11 +186,26 @@ def create_geojson_and_bbox(
             center_lat = float(frame['Geodetic Frame Center Latitude (EPSG:4326)'])
             center_lon = float(frame['Geodetic Frame Center Longitude (EPSG:4326)'])
             width = float(frame['Target Width (meters)'])
+            platform_heading = float(frame['Platform Heading Angle (degrees)'])
+            sensor_heading = float(frame['Sensor Relative Azimuth Angle (degrees)'])
+            heading = platform_heading + sensor_heading
+            # Build a rectangular footprint centered at the center point, rotated by heading
+            # Assume the footprint is square for now (or width x width)
+            half = width / 2
 
-            # Compute bounding box corners around center
+            # Define rectangle in heading-relative azimuths (clockwise from north)
+            rotation_offset = 0  # degrees (CCW)
+            rotated_heading = (heading + rotation_offset) % 360
+
+            angles = [
+                rotated_heading - 45,   # Top-left
+                rotated_heading + 45,   # Top-right
+                rotated_heading + 135,  # Bottom-right
+                rotated_heading - 135,  # Bottom-left
+            ]
             corners = []
-            for az in (0, 90, 180, 270):
-                lon, lat, _ = geod.fwd(center_lon, center_lat, az, width / 2)
+            for az in angles:
+                lon, lat, _ = geod.fwd(center_lon, center_lat, az % 360, half * (2 ** 0.5))
                 corners.append((lon, lat))
             corners.append(corners[0])  # close the polygon
 
