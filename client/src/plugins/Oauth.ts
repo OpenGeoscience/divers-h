@@ -1,5 +1,5 @@
 /* eslint-disable vue/max-len */
-import OauthClient from '@girder/oauth-client';
+import OauthClient from '@resonant/oauth-client';
 import { ref } from 'vue';
 import UVdatApi from '../api/UVDATApi';
 import { createS3ffClient } from './S3FileField';
