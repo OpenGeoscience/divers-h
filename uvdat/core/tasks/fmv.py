@@ -198,14 +198,14 @@ def create_geojson_and_bbox(
             rotated_heading = (heading + rotation_offset) % 360
 
             angles = [
-                rotated_heading - 45,   # Top-left
-                rotated_heading + 45,   # Top-right
+                rotated_heading - 45,  # Top-left
+                rotated_heading + 45,  # Top-right
                 rotated_heading + 135,  # Bottom-right
                 rotated_heading - 135,  # Bottom-left
             ]
             corners = []
             for az in angles:
-                lon, lat, _ = geod.fwd(center_lon, center_lat, az % 360, half * (2 ** 0.5))
+                lon, lat, _ = geod.fwd(center_lon, center_lat, az % 360, half * (2**0.5))
                 corners.append((lon, lat))
             corners.append(corners[0])  # close the polygon
 
