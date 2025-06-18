@@ -3,7 +3,7 @@ import {
   computed, defineComponent, inject, onMounted, ref,
   watch,
 } from 'vue';
-import OAuthClient from '@girder/oauth-client';
+import OAuthClient from '@resonant/oauth-client';
 import MapVue from '../components/Map.vue';
 import SourceSelection from './SourceSelection.vue';
 import MapStore from '../MapStore';

@@ -1,6 +1,6 @@
 import axios, { AxiosInstance, AxiosRequestHeaders } from 'axios';
 import { ref } from 'vue';
-import OauthClient from '@girder/oauth-client/dist/oauth-client';
+import OauthClient from '@resonant/oauth-client/dist/oauth-client';
 import {
   AbstractMapLayer,
   AbstractMapLayerListItem,
