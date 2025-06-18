@@ -13,9 +13,9 @@
     "type": "vue-tsc --noEmit"
   },
   "dependencies": {
-    "@girder/oauth-client": "^0.8.0",
     "@mapbox/mapbox-gl-draw": "^1.5.0",
     "@mdi/font": "^7.4.47",
+    "@resonant/oauth-client": "^1.0.3",
     "@turf/bearing": "^7.1.0",
     "@turf/center": "^7.1.0",
     "@turf/centroid": "^7.1.0",
