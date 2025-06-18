@@ -407,7 +407,7 @@ const updateFMVVideoMapping = (layer: FMVLayer) => {
     }
     if (fmvStore.lockZoom.value) {
       const bounds = boundsToBBoxWithMultiplier(coordinates, fmvStore.zoomBounds.value);
-      internalMap.value.fitBounds(bounds, { linear: false });
+      internalMap.value.fitBounds(bounds, { linear: false, maxDuration: 0, animate: false });
     }
   }
 };

@@ -170,6 +170,12 @@ const createFMVStore = () => {
     ground_union: 'fill',
   };
 
+  const setPlaybackSpeed = (speed: number) => {
+    if (state.videoElement) {
+      state.videoElement.playbackRate = speed;
+    }
+  };
+
   return {
     ...toRefs(state),
     videoData,
@@ -182,6 +188,7 @@ const createFMVStore = () => {
     seekOffset,
     seekToFrame,
     setVideoState,
+    setPlaybackSpeed,
   };
 };
 
@@ -223,6 +230,7 @@ export interface FMVStore {
 
   setVideoSource: (baseSource: VideoSource) => void;
   setVideoFrame: (frame: number) => void;
+  setPlaybackSpeed: (speed: number) => void;
   seekOffset: (offset: number) => void;
   seekToFrame: (offset: number) => void;
   getFMVLayerInfo: (id: number) => Promise<void>;

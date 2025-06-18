@@ -947,7 +947,9 @@ export interface FMVLayer extends AbstractMapLayer {
 export interface FMVLayerData {
   name: string;
   bbox:[number, number, number, number]; // [xmin, ymin, xmax, ymax]
-  frameIdToBBox: Record<number, [[number, number], [number, number], [number, number], [number, number]]>; // Maps frame ID to bounding box [xmin, ymin, xmax, ymax]
+  frameIdToBBox: Record<
+  number, [[number, number], [number, number], [number, number], [number, number]]
+  >; // Maps frame ID to bounding box [xmin, ymin, xmax, ymax]
   fmvVideoUrl: string; // URL to the FMV video file
   fmvFps: number; // Frames per second of the FMV video
   fmvFrameCount: number; // Total number of frames in the FMV video

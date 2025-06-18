@@ -35,6 +35,26 @@ export default defineComponent({
       },
     });
 
+    const playingWhileDraggin = ref(false);
+
+    const startDraggingFrameSlider = () => {
+      if (fmvStore.value) {
+        playingWhileDraggin.value = fmvStore.value.videoState === 'playing';
+        if (playingWhileDraggin.value) {
+          fmvStore.value.setVideoState('pause');
+        }
+      }
+    };
+
+    const stopDraggingFrameSlider = () => {
+      if (playingWhileDraggin.value) {
+        playingWhileDraggin.value = false;
+        if (fmvStore.value) {
+          fmvStore.value.setVideoState('playing');
+        }
+      }
+    };
+
     const lockZoom = computed({
       get: () => fmvStore.value?.lockZoom ?? false,
       set: (val) => {
@@ -162,6 +182,8 @@ export default defineComponent({
           togglePlayback();
           break;
         case 'ArrowLeft':
+          event.stopPropagation();
+          event.preventDefault();
           if (!keyHoldInterval) {
             // Do one frame step immediately
             jumpFrame('left', 1);
@@ -169,6 +191,8 @@ export default defineComponent({
           }
           break;
         case 'ArrowRight':
+          event.stopPropagation();
+          event.preventDefault();
           if (!keyHoldInterval) {
             // Do one frame step immediately
             jumpFrame('right', 1);
@@ -196,7 +220,15 @@ export default defineComponent({
       window.removeEventListener('keyup', handleKeyup);
       stopFrameJump();
     });
+    const speedTicks = ref([0.25, 0.5, 0.75, 1.0, 2.0, 4.0, 8.0]);
+    const speed = ref(1);
 
+    const setSpeed = (newSpeed: number) => {
+      if (fmvStore.value) {
+        speed.value = newSpeed;
+        fmvStore.value.setPlaybackSpeed(newSpeed);
+      }
+    };
     return {
       frameId,
       visibleProperties,
@@ -210,6 +242,11 @@ export default defineComponent({
       opacity,
       lockZoom,
       zoomBounds,
+      speedTicks,
+      speed,
+      setSpeed,
+      startDraggingFrameSlider,
+      stopDraggingFrameSlider,
     };
   },
 });
@@ -220,6 +257,39 @@ export default defineComponent({
   <v-card-text v-if="loaded">
     <v-row dense align="center" class="icon-row mb-2">
       <v-col class="d-flex align-center gap-2">
+        <v-menu>
+          <template #activator="{ props }">
+            <v-badge
+              :value="speed !== 1.0"
+              color="#0277bd88"
+              :content="`${speed}X`"
+              overlap
+            >
+              <v-icon
+                x-small
+                v-bind="props"
+                @click="setSpeed(1)"
+              >
+                mdi-speedometer
+              </v-icon>
+            </v-badge>
+          </template>
+          <v-card style="overflow:hidden; width:90px;">
+            <v-slider
+              :model-value="speed"
+              min="0"
+              max="6"
+              step="1"
+              :ticks="speedTicks"
+              show-ticks="always"
+              :tick-size="4"
+              style="font-size:0.75em;"
+              direction="vertical"
+              @end="setSpeed($event)"
+            />
+          </v-card>
+        </v-menu>
+
         <v-btn icon variant="plain" size="small" @click="seekOffset(-frameId)">
           <v-icon>mdi-skip-backward</v-icon>
         </v-btn>
@@ -257,6 +327,8 @@ export default defineComponent({
         step="1"
         thumb-label
         :disabled="totalFrames === 0"
+        @start="startDraggingFrameSlider()"
+        @end="stopDraggingFrameSlider()"
       />
     </v-row>
     <v-divider />
@@ -358,5 +430,8 @@ export default defineComponent({
   display: flex;
   align-items: center;
   justify-content: center;
+}
+.badge-text {
+  font-size: 0.75em;
 }
 </style>
