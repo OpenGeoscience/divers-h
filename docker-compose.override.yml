@@ -52,5 +52,25 @@ services:
     command: 'serve -a 0.0.0.0:8000 -f ./mkdocs.dev.yml'
     ports:
       - 8003:8000
+
+
+  client:
+    image: node:20
+    working_dir: /app
+    command: >
+      sh -c "
+        npm install &&
+        # If node_modules is not writable by others, make it so the host can modify and delete them
+        [ \"\$(stat -c '%A' node_modules | cut -c9)\" != 'w' ] && chmod o+w node_modules;
+        # Always run the dev server
+        npm run dev
+      "
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./client:/app
+    env_file:
+      - ./dev/.env.docker-compose
+
 volumes:
   vector-workdir:

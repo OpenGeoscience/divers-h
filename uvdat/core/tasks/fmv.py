@@ -11,6 +11,7 @@ from django.core.files.base import ContentFile
 import pyproj
 from shapely.geometry import Point, Polygon, mapping
 from shapely.ops import unary_union
+import numpy as np
 
 from uvdat.core.models import (
     FMVLayer,
@@ -185,30 +186,31 @@ def create_geojson_and_bbox(
             # Frame center and bounding
             center_lat = float(frame['Geodetic Frame Center Latitude (EPSG:4326)'])
             center_lon = float(frame['Geodetic Frame Center Longitude (EPSG:4326)'])
-            width = float(frame['Target Width (meters)'])
+            target_width = float(frame['Target Width (meters)'])
+            image_width = float(frame['Image Width'])
+            image_height = float(frame['Image Height'])
             platform_heading = float(frame['Platform Heading Angle (degrees)'])
             sensor_heading = float(frame['Sensor Relative Azimuth Angle (degrees)'])
             heading = platform_heading + sensor_heading
             # Build a rectangular footprint centered at the center point, rotated by heading
-            # Assume the footprint is square for now (or width x width)
-            half = width / 2
+            # Compute height in meters based on aspect ratio
+            target_height = (image_height / image_width) * target_width
 
-            # Define rectangle in heading-relative azimuths (clockwise from north)
-            rotation_offset = 0  # degrees (CCW)
-            rotated_heading = (heading + rotation_offset) % 360
+            # Half dimensions
+            half_width = target_width / 2
+            half_height = target_height / 2
 
-            angles = [
-                rotated_heading - 45,  # Top-left
-                rotated_heading + 45,  # Top-right
-                rotated_heading + 135,  # Bottom-right
-                rotated_heading - 135,  # Bottom-left
-            ]
+            # Corner offsets (dx, dy) relative to center
+            corner_offsets = [(-half_width, half_height), (half_width, half_height),
+                            (half_width, -half_height), (-half_width, -half_height)]
+
             corners = []
-            for az in angles:
-                lon, lat, _ = geod.fwd(center_lon, center_lat, az % 360, half * (2**0.5))
+            for dx, dy in corner_offsets:
+                distance = (dx**2 + dy**2) ** 0.5
+                angle = (heading + np.degrees(np.arctan2(dx, dy))) % 360
+                lon, lat, _ = geod.fwd(center_lon, center_lat, angle, distance)
                 corners.append((lon, lat))
-            corners.append(corners[0])  # close the polygon
-
+            corners.append(corners[0])  # Close polygon
             polygon = Polygon(corners)
             polygons.append(polygon)
             frame_polygons.append((frame_id, polygon))
