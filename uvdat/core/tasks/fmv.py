@@ -8,10 +8,10 @@ import tempfile
 
 from django.contrib.gis.geos import GEOSGeometry
 from django.core.files.base import ContentFile
+import numpy as np
 import pyproj
 from shapely.geometry import Point, Polygon, mapping
 from shapely.ops import unary_union
-import numpy as np
 
 from uvdat.core.models import (
     FMVLayer,
@@ -201,8 +201,12 @@ def create_geojson_and_bbox(
             half_height = target_height / 2
 
             # Corner offsets (dx, dy) relative to center
-            corner_offsets = [(-half_width, half_height), (half_width, half_height),
-                            (half_width, -half_height), (-half_width, -half_height)]
+            corner_offsets = [
+                (-half_width, half_height),
+                (half_width, half_height),
+                (half_width, -half_height),
+                (-half_width, -half_height),
+            ]
 
             corners = []
             for dx, dy in corner_offsets:
