@@ -8,6 +8,7 @@ import {
   Context,
   Dataset,
   DisplayConfiguration,
+  FMVLayer,
   LayerCollection,
   NetCDFData,
   NetCDFImageWorking,
@@ -66,9 +67,9 @@ export default class MapStore {
   public static datasetsByContext = reactive<Record<number, Dataset[]>>({});
 
   // Layers
-  public static mapLayersByDataset = reactive<Record<number, (VectorMapLayer | RasterMapLayer | NetCDFData)[]>>({});
+  public static mapLayersByDataset = reactive<Record<number, (VectorMapLayer | RasterMapLayer | NetCDFData | FMVLayer)[]>>({});
 
-  public static selectedMapLayers = ref<(VectorMapLayer | RasterMapLayer | NetCDFLayer)[]>([]);
+  public static selectedMapLayers = ref<(VectorMapLayer | RasterMapLayer | NetCDFLayer | FMVLayer)[]>([]);
 
   public static visibleMapLayers: Ref<Set<string>> = ref(new Set());
 
@@ -86,6 +87,10 @@ export default class MapStore {
 
   public static selectedNetCDFMapLayers: Ref<NetCDFLayer[]> = computed(
     () => this.selectedMapLayers.value.filter((layer) => layer.type === 'netcdf'),
+  );
+
+  public static selectedFMVMapLayers: Ref<FMVLayer[]> = computed(
+    () => this.selectedMapLayers.value.filter((layer) => layer.type === 'fmv'),
   );
 
   public static async loadCollections() {
@@ -121,8 +126,8 @@ export default class MapStore {
     if (initial && MapStore.displayConfiguration.value.default_displayed_layers.length) {
       const datasetIds = MapStore.displayConfiguration.value.default_displayed_layers.map((item) => item.dataset_id);
       const datasetIdLayers = await UVdatApi.getDatasetsLayers(datasetIds);
-      const layerByDataset: Record<number, (VectorMapLayer | RasterMapLayer | NetCDFData)[]> = {};
-      const toggleLayers: (VectorMapLayer | RasterMapLayer | NetCDFLayer)[] = [];
+      const layerByDataset: Record<number, (VectorMapLayer | RasterMapLayer | NetCDFData | FMVLayer)[]> = {};
+      const toggleLayers: (VectorMapLayer | RasterMapLayer | NetCDFLayer | FMVLayer)[] = [];
       const enabledLayers = MapStore.displayConfiguration.value.default_displayed_layers;
       datasetIdLayers.forEach((item) => {
         if (item.dataset_id !== undefined) {
@@ -180,7 +185,8 @@ export default class MapStore {
 
   public static vectorFeatureTableGraphVisible = ref(false);
 
-  public static vectorFeatureTableData: Ref<{ layerId: number, vectorFeatureId: number, defaultGraphs?: string[] } | null> = ref(null);
+  public static vectorFeatureTableData:
+  Ref<{ layerId: number, vectorFeatureId: number, defaultGraphs?: string[] } | null> = ref(null);
 
   public static setVectorFeatureTableData = (layerId: number, vectorFeatureId: number, defaultGraphs?: string[]) => {
     if (MapStore.mapLayerFeatureGraphsVisible.value) {
@@ -409,7 +415,8 @@ export default class MapStore {
         globalMax = Math.max(globalMax, max);
       }
     });
-    if ((MapStore.mapLayerFeatureGraphsVisible.value && MapStore.mapLayerFeatureGraphs.value.length) || MapStore.vectorFeatureTableGraphVisible.value) {
+    if ((MapStore.mapLayerFeatureGraphsVisible.value
+      && MapStore.mapLayerFeatureGraphs.value.length) || MapStore.vectorFeatureTableGraphVisible.value) {
       globalMin = Math.min(globalMin, MapStore.graphChartsMinMax.value.min);
       globalMax = Math.max(globalMax, MapStore.graphChartsMinMax.value.max);
       stepSize = Math.min(stepSize, MapStore.graphChartsMinMax.value.stepSize);

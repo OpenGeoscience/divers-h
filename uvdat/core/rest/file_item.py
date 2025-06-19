@@ -11,6 +11,18 @@ from uvdat.core.tasks.dataset import process_file_item
 from .permissions import DefaultPermission
 
 VALID_FILE_TYPES = {'geojson', 'json', 'tiff', 'tif', 'zip', 'gpkg', 'nc'}
+valid_video_format = (
+    'mp4',
+    'webm',
+    'avi',
+    'mov',
+    'wmv',
+    'mpg',
+    'mpeg',
+    'mp2',
+    'ogg',
+    'flv',
+)
 
 
 class FileItemViewSet(ModelViewSet):
@@ -41,11 +53,15 @@ class FileItemViewSet(ModelViewSet):
         _, extension = os.path.splitext(file_key)
         extension = extension.lower().strip('.')
 
-        if extension in VALID_FILE_TYPES:
+        if extension in VALID_FILE_TYPES or extension in valid_video_format:
             if extension == 'json':
                 file_type = 'geojson'
             elif extension == 'nc':
                 file_type = 'netcdf'
+            elif extension == 'nc':
+                file_type = 'netcdf'
+            elif extension in valid_video_format:
+                file_type = 'fmv'
             else:
                 file_type = extension
         else:

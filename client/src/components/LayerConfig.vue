@@ -4,10 +4,12 @@ import {
 } from 'vue';
 import MapStore from '../MapStore';
 import {
+  FMVLayer,
   LayerRepresentation, NetCDFLayer, RasterMapLayer, VectorMapLayer,
 } from '../types';
 import RasterLayerConfig from './RasterLayerConfig.vue';
 import VectorLayerConfig from './VectorLayerConfig.vue';
+import FMVLayerConfig from './FMVLayerConfig.vue';
 import LayerRepresentationVue from './LayerRepresentation/LayerRepresentation.vue';
 import UVdatApi from '../api/UVDATApi';
 import { zoomToBounds } from '../map/mapLayers';
@@ -15,11 +17,11 @@ import NetCDFLayerConfig from './NetCDFLayerConfig.vue';
 
 export default defineComponent({
   components: {
-    RasterLayerConfig, VectorLayerConfig, LayerRepresentationVue, NetCDFLayerConfig,
+    RasterLayerConfig, VectorLayerConfig, LayerRepresentationVue, NetCDFLayerConfig, FMVLayerConfig,
   },
   props: {
     layer: {
-      type: Object as PropType<(VectorMapLayer | RasterMapLayer | NetCDFLayer)>,
+      type: Object as PropType<(VectorMapLayer | RasterMapLayer | NetCDFLayer | FMVLayer)>,
       required: true,
     },
   },
@@ -74,6 +76,9 @@ export default defineComponent({
         zoomToBounds(bounds);
       } else if (props.layer.type === 'vector') {
         const bounds = await UVdatApi.getVectorBbox(props.layer.id);
+        zoomToBounds(bounds);
+      } else if (props.layer.type === 'fmv') {
+        const bounds = await UVdatApi.getFMVBbox(props.layer.id);
         zoomToBounds(bounds);
       } else if (props.layer.type === 'netcdf') {
         const { bounds } = (props.layer as NetCDFLayer);
@@ -174,11 +179,12 @@ export default defineComponent({
       />
       <raster-layer-config v-if="proMode && layer.type === 'raster'" :layer="layer" />
       <vector-layer-config v-if="proMode && layer.type === 'vector'" :layer="layer" />
+      <FMVLayerConfig v-if="proMode && layer.type === 'fmv'" :layer="layer" />
       <NetCDFLayerConfig
         v-if="layer.type === 'netcdf'"
         :layer="layer"
       />
-      <v-card-actions v-if="proMode">
+      <v-card-actions v-if="proMode && layer.type !== 'fmv'">
         <v-row dense>
           <v-spacer />
           <v-tooltip :text="`Save: ${selectedLayerRep.name}`" location="top">

@@ -333,7 +333,7 @@ export interface PropertyDisplay {
 export interface AbstractMapLayer {
   id: number;
   name: string;
-  type: 'vector' | 'raster' | 'netcdf';
+  type: 'vector' | 'raster' | 'netcdf' | 'fmv';
   file_item?: {
     id: number;
     name: string;
@@ -938,4 +938,21 @@ export interface AbstractMapLayerListItem {
   dataset_id: number;
   file_item: { id: number, name: string }[];
   processing_tasks?: null | ProcessingTask[]
+}
+
+export interface FMVLayer extends AbstractMapLayer {
+  type: 'fmv';
+}
+
+export interface FMVLayerData {
+  name: string;
+  bbox:[number, number, number, number]; // [xmin, ymin, xmax, ymax]
+  frameIdToBBox: Record<
+  number, [[number, number], [number, number], [number, number], [number, number]]
+  >; // Maps frame ID to bounding box [xmin, ymin, xmax, ymax]
+  fmvVideoUrl: string; // URL to the FMV video file
+  fmvFps: number; // Frames per second of the FMV video
+  fmvFrameCount: number; // Total number of frames in the FMV video
+  fmvFrameWidth: number; // Width of the FMV video frames
+  fmvFrameHeight: number; // Height of the FMV video frames
 }

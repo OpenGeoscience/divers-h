@@ -13,7 +13,9 @@ export default defineComponent({
     const uploadProgress = ref<number>(0);
     const uploadFile = ref<File | null>(null);
     const uploadError = ref<unknown>();
-    const acceptTypes = ref('.geojson, .json, .tif, .tiff, .zip, .gpkg, .nc');
+    const acceptTypes = ref(
+      '.geojson, .json, .tif, .tiff, .zip, .gpkg, .nc, .mpg, .mp4, .avi, .mov, .mkv, .webm, .jpg, .jpeg, .png, .gif',
+    );
 
     const fileInput = ref<HTMLInputElement | null>(null);
 

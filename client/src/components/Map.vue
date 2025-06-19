@@ -14,6 +14,7 @@ import { setInternalMap } from '../map/mapLayers';
 import TVA_GEOJSON_RAW from '../assets/tva.geojson?raw';
 import vectorMapStyles from '../assets/basic-map-styles.json';
 import oauthClient from '../plugins/Oauth';
+import { updateFMVFlightPathSelected } from '../map/mapFMVLayer';
 
 const TVA_GEOJSON = JSON.parse(TVA_GEOJSON_RAW) as GeoJSON.GeoJSON;
 const OSM_VECTOR_ID = 'osm-vector';
@@ -231,6 +232,7 @@ export default defineComponent({
       () => {
         if (map.value) {
           updateSelected(map.value);
+          updateFMVFlightPathSelected(map.value);
         }
       },
       { deep: true },

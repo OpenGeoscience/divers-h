@@ -2,11 +2,12 @@ import { Ref, ref } from 'vue';
 import { setRasterInternalMap, toggleRasterMapLayers, updateRasterLayer } from './mapRasterLayers';
 import { setVectorInternalMap, toggleVectorMapLayers, updateVectorLayer } from './mapVectorLayers';
 import {
-  AbstractMapLayer, AnnotationTypes, Bounds, NetCDFLayer, RasterMapLayer, VectorMapLayer,
+  AbstractMapLayer, AnnotationTypes, Bounds, FMVLayer, NetCDFLayer, RasterMapLayer, VectorMapLayer,
 } from '../types';
 import { setPopupEvents } from './mouseEvents';
 import MapStore from '../MapStore';
 import { setNetCDFInternalMap, toggleNetCDFMapLayers } from './mapNetCDFLayer';
+import { setFMVInternalMap, toggleFMVMapLayers } from './mapFMVLayer';
 
 const internalMap: Ref<maplibregl.Map | null> = ref(null);
 const setInternalMap = (map: Ref<maplibregl.Map>) => {
@@ -15,6 +16,7 @@ const setInternalMap = (map: Ref<maplibregl.Map>) => {
     setVectorInternalMap(map);
     setRasterInternalMap(map);
     setNetCDFInternalMap(map);
+    setFMVInternalMap(map);
   }
 };
 
@@ -24,7 +26,7 @@ const reorderMapLayers = () => {
   const layerTypes: AnnotationTypes[] = ['fill', 'fill-extrusion', 'circle', 'line', 'heatmap', 'text'];
   // Loop through each selected layer in the desired order
   MapStore.selectedMapLayers.value.forEach(
-    (layer: VectorMapLayer | RasterMapLayer | NetCDFLayer) => {
+    (layer: VectorMapLayer | RasterMapLayer | NetCDFLayer | FMVLayer) => {
       // Get the base ID for the current layer
       const layerBaseId = layer.id;
 
@@ -37,6 +39,8 @@ const reorderMapLayers = () => {
         layerNames.push(`Layer_${layerBaseId}_raster`);
       } else if (layer.type === 'netcdf') {
         layerNames.push(`NetCDFLayer_${layerBaseId}`);
+      } else if (layer.type === 'fmv') {
+        layerNames.push(`FMVLayer_${layerBaseId}`);
       }
 
       layerNames.forEach((layerName) => {
@@ -53,6 +57,7 @@ const toggleMapLayers = () => {
     toggleVectorMapLayers(internalMap.value);
     toggleRasterMapLayers(internalMap.value);
     toggleNetCDFMapLayers(internalMap.value);
+    toggleFMVMapLayers(internalMap.value);
     reorderMapLayers();
   }
 };
@@ -89,7 +94,7 @@ const getStringBBox = () => {
   return '';
 };
 
-const toggleLayerVisibility = (layer: VectorMapLayer | RasterMapLayer | NetCDFLayer, visibility: boolean) => {
+const toggleLayerVisibility = (layer: VectorMapLayer | RasterMapLayer | NetCDFLayer | FMVLayer, visibility: boolean) => {
   if (visibility) {
     MapStore.visibleMapLayers.value.add(`${layer.type}_${layer.id}`);
   } else {
@@ -98,7 +103,7 @@ const toggleLayerVisibility = (layer: VectorMapLayer | RasterMapLayer | NetCDFLa
   toggleMapLayers();
 };
 
-const toggleLayerSelection = (layer: VectorMapLayer | RasterMapLayer | NetCDFLayer) => {
+const toggleLayerSelection = (layer: VectorMapLayer | RasterMapLayer | NetCDFLayer | FMVLayer) => {
   const foundIndex = MapStore.selectedMapLayers.value.findIndex((item) => (item.id === layer.id));
   if (foundIndex !== -1) {
     MapStore.selectedMapLayers.value.splice(foundIndex, 1);

@@ -10,6 +10,7 @@ from uvdat.core.models import (
     Dataset,
     DerivedRegion,
     FileItem,
+    FMVLayer,
     LayerCollection,
     LayerRepresentation,
     NetCDFData,
@@ -118,16 +119,20 @@ class AbstractMapLayerSerializer(serializers.Serializer):
             return f'{obj.dataset.name} Layer {obj.index}'
         return None
 
-    def get_type(self, obj: VectorMapLayer | RasterMapLayer | NetCDFLayer | NetCDFData):
+    def get_type(self, obj: VectorMapLayer | RasterMapLayer | NetCDFLayer | NetCDFData | FMVLayer):
         if isinstance(obj, VectorMapLayer):
             return 'vector'
         if isinstance(obj, RasterMapLayer):
             return 'raster'
         if isinstance(obj, NetCDFLayer) or isinstance(obj, NetCDFData):
             return 'netcdf'
+        if isinstance(obj, FMVLayer):
+            return 'fmv'
         return 'none'
 
-    def get_dataset_id(self, obj: VectorMapLayer | RasterMapLayer | NetCDFLayer | NetCDFData):
+    def get_dataset_id(
+        self, obj: VectorMapLayer | RasterMapLayer | NetCDFLayer | NetCDFData | FMVLayer
+    ):
         if isinstance(obj, NetCDFLayer):
             return obj.netcdf_data.dataset.id
         if isinstance(obj, NetCDFData):
@@ -136,7 +141,9 @@ class AbstractMapLayerSerializer(serializers.Serializer):
             return obj.dataset.id
         return None
 
-    def get_file_item(self, obj: VectorMapLayer | RasterMapLayer | NetCDFData | NetCDFLayer):
+    def get_file_item(
+        self, obj: VectorMapLayer | RasterMapLayer | NetCDFData | NetCDFLayer | FMVLayer
+    ):
         if isinstance(obj, NetCDFLayer):
             for file_item in obj.netcdf_data.dataset.source_files.all():
                 if file_item.index == obj.netcdf_data.index:
@@ -186,6 +193,12 @@ class VectorMapLayerSerializer(serializers.ModelSerializer, AbstractMapLayerSeri
     class Meta:
         model = VectorMapLayer
         exclude = ['geojson_file']
+
+
+class FMVLayerSerializer(serializers.ModelSerializer, AbstractMapLayerSerializer):
+    class Meta:
+        model = FMVLayer
+        exclude = ['geojson_file', 'bounds', 'fmv_source_video', 'fmv_video']
 
 
 class NetCDFLayerSerializer(serializers.ModelSerializer):

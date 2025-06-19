@@ -12,6 +12,7 @@ from uvdat.core.rest import (
     DerivedRegionViewSet,
     DisplayConfigurationViewSet,
     FileItemViewSet,
+    FMVLayerViewSet,
     LayerCollectionViewSet,
     LayerRepresentationViewSet,
     MapLayerViewSet,
@@ -59,6 +60,7 @@ router.register(
 router.register(r'layer-collections', LayerCollectionViewSet, basename='layer-collections')
 router.register(r'map-layers', MapLayerViewSet, basename='map-layers')
 router.register(r'netcdf', NetCDFDataView, basename='netcdf')
+router.register(r'fmv-layer', FMVLayerViewSet, basename='fmv-layer')
 router.register(r'processing-tasks', ProcessingTaskView, basename='processing-tasks')
 router.register(r'users', UserViewSet, basename='users')
 router.register(r'tasks', TasksAPIView, basename='tasks')

@@ -4,6 +4,7 @@ from .dataset import DatasetViewSet
 from .display_configuration import DisplayConfigurationViewSet
 from .file_item import FileItemViewSet
 from .filter_metadata import MetadataFilterViewSet
+from .fmv import FMVLayerViewSet
 from .layer_collection import LayerCollectionViewSet
 from .layer_representation import LayerRepresentationViewSet
 from .map_layers import MapLayerViewSet, RasterMapLayerViewSet, VectorMapLayerViewSet
@@ -40,4 +41,5 @@ __all__ = [
     TasksAPIView,
     MetadataFilterViewSet,
     DisplayConfigurationViewSet,
+    FMVLayerViewSet,
 ]
